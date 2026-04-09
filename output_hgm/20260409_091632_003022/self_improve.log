@@ -1,0 +1,52 @@
+2026-04-09 09:16:34,790 - ThreadPoolExecutor-2_0 - INFO - No existing container with name hgm-container-20260409_091632_003022 found.
+2026-04-09 09:17:55,903 - ThreadPoolExecutor-2_0 - INFO - Docker image 'default_agent:latest' already exists. Skipping build.
+2026-04-09 09:19:20,042 - ThreadPoolExecutor-2_0 - INFO - Container 'hgm-container-20260409_091632_003022' started successfully.
+2026-04-09 09:19:27,848 - ThreadPoolExecutor-2_0 - INFO - Container output: 
+2026-04-09 09:19:27,855 - ThreadPoolExecutor-2_0 - INFO - Wrote to the log file
+2026-04-09 09:19:30,144 - ThreadPoolExecutor-2_0 - INFO - Container output: [master (root-commit) 154cddb] a nonsense commit message
+ 33 files changed, 4373 insertions(+)
+ create mode 100644 LICENSE
+ create mode 100644 README.md
+ create mode 100644 coding_agent.py
+ create mode 100644 config.py
+ create mode 100644 config.yaml
+ create mode 100644 deepseek.slurm
+ create mode 100644 llm.py
+ create mode 100644 llm_withtools.py
+ create mode 100644 prompts/testrepo_prompt.py
+ create mode 100644 prompts/tooluse_prompt.py
+ create mode 100644 pytest.ini
+ create mode 100644 requirements.txt
+ create mode 100644 run.slurm
+ create mode 100755 scripts/cleanup_old_images.sh
+ create mode 100644 scripts/pull_epoch_images.py
+ create mode 100755 scripts/pull_epoch_images.sh
+ create mode 100644 scripts/pull_epoch_images_proxy.py
+ create mode 100644 scripts/test_vllm_api_in_container.py
+ create mode 100644 scripts/verified_instance_ids.txt
+ create mode 100644 tests/conftest.py
+ create mode 100644 tests/test_bash_tool.py
+ create mode 100644 tests/test_edit_tool.py
+ create mode 100644 tools/__init__.py
+ create mode 100644 tools/bash.py
+ create mode 100644 tools/edit.py
+ create mode 100644 tree.py
+ create mode 100644 utils/__init__.py
+ create mode 100644 utils/common_utils.py
+ create mode 100644 utils/eval_utils.py
+ create mode 100644 utils/git_utils.py
+ create mode 100644 utils/swe_log_parsers.py
+ create mode 100644 utils/swebench_compat.py
+ create mode 100644 utils/test_generator.py
+
+2026-04-09 09:19:30,144 - ThreadPoolExecutor-2_0 - INFO - Wrote to the log file
+2026-04-09 09:19:32,435 - ThreadPoolExecutor-2_0 - INFO - Container output: 
+2026-04-09 09:19:32,435 - ThreadPoolExecutor-2_0 - INFO - Wrote to the log file
+2026-04-09 09:19:32,435 - ThreadPoolExecutor-2_0 - INFO - Error while sampling a child: git log returned empty output — git commit likely failed (container /hgm/ may be empty or have no tracked files)
+2026-04-09 09:19:32,452 - ThreadPoolExecutor-2_0 - INFO - Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm_utils.py", line 478, in sample_child
+    raise RuntimeError(
+RuntimeError: git log returned empty output — git commit likely failed (container /hgm/ may be empty or have no tracked files)
+
+2026-04-09 09:19:32,452 - ThreadPoolExecutor-2_0 - INFO - Stopping container 'hgm-container-20260409_091632_003022'...
+2026-04-09 09:19:44,212 - ThreadPoolExecutor-2_0 - INFO - Container 'hgm-container-20260409_091632_003022' removed.

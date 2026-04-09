@@ -1,0 +1,308 @@
+{
+  "n_task_evals": 0,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 1,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 2,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 1
+    }
+  ]
+}
+{
+  "n_task_evals": 3,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 1
+    }
+  ]
+}
+{
+  "n_task_evals": 4,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 1
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 4,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 2
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 5,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 6,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 7,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 7,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 1
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 8,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 1
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    },
+    {
+      "commit_id": "20260409_102731_059317",
+      "id": 4,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 9,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 2
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    },
+    {
+      "commit_id": "20260409_102731_059317",
+      "id": 4,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 10,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 2
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    },
+    {
+      "commit_id": "20260409_102731_059317",
+      "id": 4,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    }
+  ]
+}
+{
+  "n_task_evals": 11,
+  "nodes": [
+    {
+      "commit_id": "20260409_071919_531632",
+      "id": 1,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 3
+    },
+    {
+      "commit_id": "20260409_081812_321447",
+      "id": 2,
+      "parent_id": 0,
+      "mean_utility": 0.0,
+      "num_evals": 2
+    },
+    {
+      "commit_id": "20260409_092601_485365",
+      "id": 3,
+      "parent_id": 0,
+      "mean_utility": Infinity,
+      "num_evals": 0
+    },
+    {
+      "commit_id": "20260409_102731_059317",
+      "id": 4,
+      "parent_id": 0,
+      "mean_utility": 1.0,
+      "num_evals": 1
+    }
+  ]
+}

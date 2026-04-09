@@ -1,0 +1,32 @@
+{
+    "run_id": "initial",
+    "overall_performance": {
+        "accuracy_score": 0.0,
+        "total_resolved_instances": 0,
+        "total_submitted_instances": 4,
+        "files": [
+            "initial_1.initial_0.json",
+            "initial_2.initial_0.json",
+            "initial_3.initial_0.json",
+            "initial_4.initial_0.json"
+        ],
+        "total_unresolved_ids": [
+            "sphinx-doc__sphinx-9320"
+        ],
+        "total_emptypatch_ids": [
+            "sphinx-doc__sphinx-7590",
+            "sphinx-doc__sphinx-7757",
+            "django__django-12708"
+        ],
+        "total_resolved_ids": [],
+        "total_submitted_ids": [
+            "sphinx-doc__sphinx-7590",
+            "sphinx-doc__sphinx-7757",
+            "django__django-12708",
+            "sphinx-doc__sphinx-9320"
+        ]
+    },
+    "swe_dnames": [
+        "/mnt/vast/home/ym56kacy/MendelGM/output_hgm/initial/predictions/initial_4"
+    ]
+}
