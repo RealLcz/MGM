@@ -1,0 +1,70 @@
+# This file contains all configurable parameters for the HGM system.
+
+# Language Model Configuration
+llm:
+  # Model used for self-improvement tasks
+  self_improve_llm: "Qwen/Qwen3-Coder-Next"
+  
+  # Model used for downstream evaluation tasks
+  downstream_llm: "Qwen/Qwen3-Coder-Next"
+  
+  # Model used for problem diagnosis
+  diagnose_llm: "Qwen/Qwen3-Coder-Next"
+
+# Optimization Algorithm Parameters
+optimization:
+  # Alpha parameter for node expansion (controls exploration vs exploitation)
+  alpha: 0.6
+  
+  # Beta parameter for cooling down factor
+  beta: 1.0
+  
+  # Whether to use decreasing temperature over iterations
+  cool_down: false
+  
+  # Randomness level for evaluation task selection (0.0 = deterministic, 1.0 = fully random)
+  eval_random_level: 1.0
+  
+  # Number of pseudo descendant evaluations for tree search
+  n_pseudo_descendant_evals: 10000
+
+# Execution and Resource Management
+execution:
+  # Number of parallel workers for self-improvement attempts
+  max_workers: 2
+  
+  # Timeout for self-improvement attempts (in seconds)
+  self_improve_timeout: 3600  # 1 hour
+  
+  # Timeout for evaluation attempts (in seconds)
+  evaluation_timeout: 3600   # 1 hour
+  
+  # Maximum number of task evaluations (evolution iterations)
+  max_task_evals: 200
+
+# Evaluation Settings
+evaluation:
+  # Skip full evaluation on SWE-bench if node is top N performing
+  full_eval: false
+  
+  # Use Polyglot benchmark instead of SWE-bench
+  polyglot: false
+
+# Self-improve strategy A/B/C: relative weights (normalized among strategies that are
+# eligible when a node is expanded). B requires at least strategy_b_min_node_evals on the node.
+self_improve_strategy:
+  weight_a: 0.1
+  weight_b: 0.45
+  weight_c: 0.45
+  strategy_b_min_node_evals: 2
+
+# Path Configuration
+paths:
+  # Output directory for results (if null, will be auto-generated)
+  output_dir: "output_hgm"
+  
+  # Directory to continue a previous run from
+  continue_from: null
+  
+  # Name of the initial agent (required)
+  initial_agent_name: "default_agent"

@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-12209",
+    "model_name_or_path": "20260414_222240_033175_7",
+    "model_patch": "diff --git a/django/db/models/base.py b/django/db/models/base.py\nindex e3b14a41a0..0282423e0b 100644\n--- a/django/db/models/base.py\n+++ b/django/db/models/base.py\n@@ -840,6 +840,7 @@ class Model(metaclass=ModelBase):\n                        if f.name in update_fields or f.attname in update_fields]\n \n         pk_val = self._get_pk_val(meta)\n+        pk_val_was_set = pk_val is not None\n         if pk_val is None:\n             pk_val = meta.pk.get_pk_value_on_save(self)\n             setattr(self, meta.pk.attname, pk_val)\n@@ -852,7 +853,8 @@ class Model(metaclass=ModelBase):\n             not force_insert and\n             self._state.adding and\n             self._meta.pk.default and\n-            self._meta.pk.default is not NOT_PROVIDED\n+            self._meta.pk.default is not NOT_PROVIDED and\n+            not pk_val_was_set\n         ):\n             force_insert = True\n         # If possible, try an UPDATE. If that doesn't update anything, do an INSERT.\n",
+    "proposed_model_patches": []
+}

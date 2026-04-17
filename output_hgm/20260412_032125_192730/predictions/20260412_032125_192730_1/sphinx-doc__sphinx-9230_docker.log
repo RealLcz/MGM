@@ -1,0 +1,2 @@
+2026-04-12 04:24:16,545 - ThreadPoolExecutor-148_0 - INFO - No existing container with name sweb.eval.sphinx-doc__sphinx-9230.20260412_042416_111415 found.
+2026-04-12 04:24:17,433 - ThreadPoolExecutor-148_0 - INFO - Environment image sweb.env.py.x86_64.6937f23cf0dca4040469b6:latest found for sphinx-doc__sphinx-9230

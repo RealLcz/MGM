@@ -52,6 +52,7 @@ llm = ""
 timeout = 3600
 
 pending_tasks_lock = threading.Lock()
+n_task_evals_lock = threading.Lock()
 
 # Counts completed self-improve runs by strategy (A/B/C); thread-safe.
 self_improve_strategy_usage = Counter()
@@ -339,11 +340,14 @@ def eval_agent(
                 return [metadata["overall_performance"]["accuracy_score"]] * num_tasks
             pending_tasks.extend(tasks)
 
-    n_task_evals += len(tasks)
     root_dir = os.path.abspath("./")
     metadata = load_json_file(
         os.path.join(root_dir, output_dir, commit_id, "metadata.json")
     )
+    prev_submitted_ids = set(
+        metadata.get("overall_performance", {}).get("total_submitted_ids", [])
+    )
+
     if polyglot:
         polyglot_harness(
             test_task_list=tasks,
@@ -384,7 +388,16 @@ def eval_agent(
     metadata["overall_performance"] = overall_performance
     update_failed_pool(failed_task_ids(overall_performance))
     save_metadata(metadata, os.path.join(root_dir, output_dir, commit_id))
-    return get_acc_on_tasks(tasks, os.path.join(root_dir, output_dir, commit_id))
+
+    new_submitted_ids = set(
+        overall_performance.get("total_submitted_ids", [])
+    )
+    actually_submitted = [t for t in tasks if t in new_submitted_ids - prev_submitted_ids]
+
+    with n_task_evals_lock:
+        n_task_evals += len(actually_submitted)
+
+    return get_acc_on_tasks(actually_submitted, os.path.join(root_dir, output_dir, commit_id))
 
 
 def sample_child(
@@ -404,11 +417,16 @@ def sample_child(
     run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     out_dir_base = output_dir  # out_dir_base should be /hgm/output_selfimprove/ or /hgm/output_hgm/{hgm_run_id}/
     run_output_dir = os.path.join(root_dir, f"{output_dir}/{run_id}/")
-    os.makedirs(run_output_dir, exist_ok=True)
 
     try:
         if parent_commit == "failed":
             return "failed"
+
+        client = docker.from_env()
+        client.ping()
+
+        os.makedirs(run_output_dir, exist_ok=True)
+
         if polyglot:
             with open("polyglot/polyglot_benchmark_metadata.json") as f:
                 dataset = json.loads(f.read())
@@ -424,7 +442,6 @@ def sample_child(
         metadata["parent_commit"] = parent_commit
 
         container_name = f"hgm-container-{run_id}"
-        client = docker.from_env()
         remove_existing_container(client, container_name)
         container = build_hgm_container(
             client,
@@ -462,29 +479,32 @@ def sample_child(
             exec_result = container.exec_run("rm /hgm/parent_patch.txt", workdir="/hgm")
             log_container_output(exec_result)
 
-        container.exec_run("git init", workdir="/hgm/")
-        exec_result = container.exec_run("git add --all", workdir="/hgm/")
-        log_container_output(exec_result)
+        git_setup_cmd = (
+            "printf '__pycache__/\\n*.pyc\\n*.backup\\n' > .gitignore && "
+            "git init && "
+            "git add --all && "
+            "git -c user.name='user' -c user.email='you@example.com' "
+            "commit -m 'a nonsense commit message' && "
+            "git rev-parse HEAD"
+        )
         exec_result = container.exec_run(
-            "git -c user.name='user' -c user.email='you@example.com' commit -m 'a nonsense commit message'",
-            workdir="/hgm/",
+            ["/bin/sh", "-c", git_setup_cmd], workdir="/hgm/"
         )
         log_container_output(exec_result)
-
-        exec_result = container.exec_run("git log")
-        log_container_output(exec_result)
-        git_log_output = exec_result.output.decode("utf-8").strip()
-        if not git_log_output:
+        git_output = exec_result.output.decode("utf-8").strip()
+        if not git_output:
             raise RuntimeError(
-                "git log returned empty output — git commit likely failed "
-                "(container /hgm/ may be empty or have no tracked files)"
+                "git setup returned empty output — container /hgm/ may be "
+                "empty or have no tracked files"
             )
-        commit_hash = git_log_output.split("\n")[0].split()[1]
+        commit_hash = git_output.strip().split("\n")[-1].strip()
 
         exec_result = container.exec_run(
-            "python -m pip install -r /hgm/requirements.txt", workdir="/"
+            "python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "
+            "--timeout 120 -r /hgm/requirements.txt",
+            workdir="/",
         )
-        log_container_output(exec_result)
+        log_container_output(exec_result, raise_error=False)
 
         safe_log("Getting tasks to improve")
         strategy = (self_improve_strategy or "A").strip().upper()
@@ -675,5 +695,6 @@ def sample_child(
             cleanup_container(container)
         except Exception as e:
             safe_log(f"Error during container cleanup: {e}")
-        save_metadata(metadata, run_output_dir)
+        if os.path.isdir(run_output_dir):
+            save_metadata(metadata, run_output_dir)
     return run_id

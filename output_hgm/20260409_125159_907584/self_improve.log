@@ -1,2 +1,0 @@
-2026-04-09 12:52:01,897 - ThreadPoolExecutor-2_0 - INFO - No existing container with name hgm-container-20260409_125159_907584 found.
-2026-04-09 12:53:07,416 - ThreadPoolExecutor-2_0 - INFO - Docker image 'default_agent:latest' already exists. Skipping build.

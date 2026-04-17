@@ -22,6 +22,7 @@ Usage:
 import io
 import json
 import os
+import signal
 import sys
 import tarfile
 import tempfile
@@ -175,9 +176,19 @@ def pull_single_image(docker_client, instance_id):
 
         # Load into remote Docker daemon via SDK (through SSH tunnel)
         tar_size_mb = os.path.getsize(tar_path) / (1024 * 1024)
-        print(f"loading {tar_size_mb:.1f} MB into Docker ... ", end="", flush=True)
-        with open(tar_path, "rb") as f:
-            docker_client.images.load(f)
+        load_timeout = max(300, int(tar_size_mb * 2))  # ~0.5 MB/s minimum
+        print(f"loading {tar_size_mb:.1f} MB into Docker (timeout {load_timeout}s) ... ", end="", flush=True)
+
+        def _alarm_handler(signum, frame):
+            raise TimeoutError(f"images.load timed out after {load_timeout}s")
+        old_handler = signal.signal(signal.SIGALRM, _alarm_handler)
+        signal.alarm(load_timeout)
+        try:
+            with open(tar_path, "rb") as f:
+                docker_client.images.load(f)
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old_handler)
 
     return local_tag, total_size
 
@@ -185,6 +196,16 @@ def pull_single_image(docker_client, instance_id):
 def main():
     subset = sys.argv[1] if len(sys.argv) > 1 else "all"
     ids = get_ids(subset)
+
+    # Optional: N/M slice, e.g. "3/25" → process the 3rd of 25 equal chunks
+    slice_arg = sys.argv[2] if len(sys.argv) > 2 else None
+    if slice_arg:
+        n, m = map(int, slice_arg.split("/"))
+        chunk = (len(ids) + m - 1) // m  # ceiling division
+        start = (n - 1) * chunk
+        end = min(start + chunk, len(ids))
+        ids = ids[start:end]
+        print(f"Slice {n}/{m}: processing IDs [{start}:{end}] ({len(ids)} total)")
     total = len(ids)
 
     # Test ghcr.io connectivity from this machine first
@@ -197,7 +218,7 @@ def main():
         sys.exit(1)
 
     print("Connecting to remote Docker daemon ...")
-    docker_client = docker.from_env(timeout=300)
+    docker_client = docker.from_env(timeout=3600)
     print(f"  Connected to: {docker_client.info().get('Name', 'unknown')}")
 
     # Pre-fetch existing image tags
@@ -227,20 +248,31 @@ def main():
             skip += 1
             continue
 
-        print(f"[{idx}/{total}] PULL  {instance_id} ... downloading ... ", end="", flush=True)
-        t0 = time.time()
-        try:
-            _, size = pull_single_image(docker_client, instance_id)
-            elapsed = time.time() - t0
-            size_mb = size / (1024 * 1024)
-            print(f"OK ({elapsed:.0f}s, {size_mb:.1f} MB)")
-            success += 1
-            total_bytes += size
-            existing_tags.add(local_tag)
-        except Exception as e:
-            elapsed = time.time() - t0
-            print(f"FAILED ({elapsed:.0f}s)")
-            print(f"  Error: {str(e)[:200]}")
+        print(f"[{idx}/{total}] PULL  {instance_id} ... ", end="", flush=True)
+        max_retries = 3
+        pulled = False
+        for attempt in range(1, max_retries + 1):
+            t0 = time.time()
+            try:
+                _, size = pull_single_image(docker_client, instance_id)
+                elapsed = time.time() - t0
+                size_mb = size / (1024 * 1024)
+                print(f"OK ({elapsed:.0f}s, {size_mb:.1f} MB)")
+                success += 1
+                total_bytes += size
+                existing_tags.add(local_tag)
+                pulled = True
+                break
+            except Exception as e:
+                elapsed = time.time() - t0
+                if attempt < max_retries:
+                    backoff = 15 * attempt
+                    print(f"retry {attempt}/{max_retries} ({elapsed:.0f}s, {str(e)[:120]}) ... ", end="", flush=True)
+                    time.sleep(backoff)
+                else:
+                    print(f"FAILED ({elapsed:.0f}s)")
+                    print(f"  Error: {str(e)[:200]}")
+        if not pulled:
             fail += 1
             failed_ids.append(instance_id)
 

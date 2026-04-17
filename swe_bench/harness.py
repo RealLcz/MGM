@@ -49,21 +49,35 @@ def process_entry(
     init_agent_path = os.path.abspath(init_agent_path)
 
     try:
-        # Create and start the Docker container
+        # Create and start the Docker container (with retry for transient failures)
         client = docker.from_env()
         run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        # Set up thread-specific logger
         logger = setup_logger(str(out_dname / f"{instance_id}_docker.log"))
         nocache = True
         test_spec = make_test_spec(entry)
-        # Remove any existing container with the same name
-        container_name = test_spec.get_instance_container_name(run_id)
-        remove_existing_container(client, container_name)
-        # Now create and start the container
-        container = build_container(
-            test_spec, client, run_id, logger, nocache, force_rebuild=False
-        )
-        container.start()
+
+        max_container_retries = 3
+        for attempt in range(1, max_container_retries + 1):
+            try:
+                container_name = test_spec.get_instance_container_name(run_id)
+                remove_existing_container(client, container_name)
+                container = build_container(
+                    test_spec, client, run_id, logger, nocache, force_rebuild=False
+                )
+                container.start()
+                break
+            except Exception as build_err:
+                if attempt < max_container_retries:
+                    import time as _time
+                    backoff = min(60, 10 * 2 ** (attempt - 1))
+                    print(
+                        f"[{instance_id}] build_container failed (attempt {attempt}/{max_container_retries}): "
+                        f"{build_err}. Retrying in {backoff}s..."
+                    )
+                    _time.sleep(backoff)
+                    run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                else:
+                    raise
 
         # Copy the necessary files and requirements to the container
         copy_to_container(

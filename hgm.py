@@ -423,6 +423,8 @@ def main():
 
     n_pending_expands = 0
     n_pending_measures = 0
+    consecutive_docker_failures = 0
+    MAX_CONSECUTIVE_DOCKER_FAILURES = 5
     lock = threading.Lock()
 
     def expand():
@@ -550,6 +552,14 @@ def main():
                 "context_resolved_task": shared_task in context_resolved,
             }
 
+        nonlocal consecutive_docker_failures
+        with lock:
+            if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
+                raise RuntimeError(
+                    f"Aborting: {consecutive_docker_failures} consecutive Docker "
+                    f"connection failures — SSH tunnel likely dead"
+                )
+
         child_commit = hgm_utils.sample_child(
             parent_commit,
             image_name=path_cfg.initial_agent_name + ":latest",
@@ -561,16 +571,33 @@ def main():
         )
         with lock:
             if child_commit != "failed":
+                consecutive_docker_failures = 0
                 selected_node.children.append(
                     Node(child_commit, parent_id=selected_node.id)
                 )
                 update_metadata(output_dir, hgm_utils.n_task_evals)
+            else:
+                consecutive_docker_failures += 1
+                if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
+                    logger.error(
+                        f"Docker connection failed {consecutive_docker_failures} "
+                        f"times consecutively — aborting"
+                    )
+                else:
+                    backoff = min(30, 2 ** consecutive_docker_failures)
+                    logger.warning(
+                        f"expand() failed ({consecutive_docker_failures}/"
+                        f"{MAX_CONSECUTIVE_DOCKER_FAILURES}), backing off {backoff}s"
+                    )
+                    time.sleep(backoff)
 
     def sample():
         time.sleep(random.random())
         with lock:
             nonlocal n_pending_expands, n_pending_measures
             if hgm_utils.n_task_evals >= exec_cfg.max_task_evals:
+                return
+            if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
                 return
 
             if (
@@ -615,12 +642,8 @@ def main():
                 else:
                     selected_node_tasks = random.choice(available_tasks)
             else:
-                with hgm_utils.failed_pool_lock:
-                    fp = set(hgm_utils.failed_pool)
-                failed_first = [t for t in available_tasks if t in fp]
-                rest = [t for t in available_tasks if t not in fp]
-                reordered = failed_first + rest
-                selected_node_tasks = reordered[0]
+                # Deterministic: walk tasks in total_tasks order (no failed-pool priority).
+                selected_node_tasks = available_tasks[0]
             submitted_ids[selected_node.id].add(selected_node_tasks)
             n_pending_measures += 1
 
@@ -630,7 +653,10 @@ def main():
             init_agent_path=src_path,
         )
         with lock:
-            selected_node.utility_measures += evals
+            if evals:
+                selected_node.utility_measures += evals
+            else:
+                submitted_ids[selected_node.id].discard(selected_node_tasks)
             n_pending_measures -= 1
             update_metadata(output_dir, hgm_utils.n_task_evals)
 

@@ -22,8 +22,11 @@ optimization:
   # Whether to use decreasing temperature over iterations
   cool_down: false
   
-  # Randomness level for evaluation task selection (0.0 = deterministic, 1.0 = fully random)
-  eval_random_level: 1.0
+  # Randomness level for evaluation task selection (0.0 = deterministic sequential, 1.0 = fully random)
+  eval_random_level: 0.0
+
+  # Weight multiplier for previously-failed tasks in task selection (1.0 = no extra emphasis on wrong tasks)
+  failed_pool_boost: 1.0
   
   # Number of pseudo descendant evaluations for tree search
   n_pseudo_descendant_evals: 10000
@@ -53,9 +56,9 @@ evaluation:
 # Self-improve strategy A/B/C: relative weights (normalized among strategies that are
 # eligible when a node is expanded). B requires at least strategy_b_min_node_evals on the node.
 self_improve_strategy:
-  weight_a: 0.1
-  weight_b: 0.45
-  weight_c: 0.45
+  weight_a: 1.0
+  weight_b: 0.0
+  weight_c: 0.0
   strategy_b_min_node_evals: 2
 
 # Path Configuration
@@ -64,7 +67,7 @@ paths:
   output_dir: "output_hgm"
   
   # Directory to continue a previous run from
-  continue_from: null
+  continue_from: "output_hgm"
   
   # Name of the initial agent (required)
   initial_agent_name: "default_agent"

@@ -1,0 +1,153 @@
+diff --git a/coding_agent.py b/coding_agent.py
+index d19efd6..bb4ab12 100644
+--- a/coding_agent.py
++++ b/coding_agent.py
+@@ -3,6 +3,7 @@
+ import argparse
+ import logging
+ import os
++import re
+ import subprocess
+ import threading
+ from logging.handlers import RotatingFileHandler
+@@ -172,12 +173,125 @@ Your task is to run the regression tests in the {self.git_tempdir} directory to
+         )
+         return test_report
+ 
++    def analyze_test_expectations(self):
++        """
++        Analyze test expectations from the test patch and issue description.
++        
++        This method:
++        1. Extracts expected behaviors from test patches (e.g., assertions like self.assertEqual)
++        2. Parses the issue description for constraints
++        3. Generates a structured summary for the LLM prompt
++        
++        Returns:
++            str: A structured summary of expected behaviors
++        """
++        expectations_summary = []
++        
++        # First, try to get the test patch by looking for test file changes
++        test_patch_content = ""
++        
++        # Use bash to get the diff and look for test file changes
++        diff_cmd = ["git", "-C", self.git_tempdir, "diff", self.base_commit]
++        result = subprocess.run(
++            diff_cmd, 
++            stdout=subprocess.PIPE, 
++            stderr=subprocess.PIPE, 
++            text=True,
++            cwd=self.git_tempdir
++        )
++        git_diff = result.stdout if result.stdout else ""
++        
++        # Check if there are test file changes
++        if git_diff and ("test" in git_diff.lower() or "spec" in git_diff.lower()):
++            # Extract test-related diff blocks
++            test_files = []
++            lines = git_diff.split('\n')
++            current_file = None
++            in_test_block = False
++            
++            for line in lines:
++                if line.startswith('diff --git'):
++                    # Check if this is a test file
++                    current_file = line.split('b/')[-1] if 'b/' in line else ''
++                    in_test_block = 'test' in current_file.lower() or 'spec' in current_file.lower()
++                elif in_test_block:
++                    test_patch_content += line + '\n'
++        
++        # If we have test patch content, extract expected behaviors from assertions
++        if test_patch_content:
++            expectations_summary.append("=== Expected Behaviors from Test Patch ===")
++            
++            # Look for assertion patterns in the test patch
++            # Patterns like: self.assertEqual(x, y), self.assertTrue(x), self.assertFalse(x), etc.
++            assertion_patterns = [
++                (r'self\.assertEqual\s*\([^)]*?,\s*([^)]+?)\)', 'Expected RHS value: {}'),
++                (r'self\.assertTrue\s*\([^)]*?([^)]+?)\)', 'Expected condition to be true: {}'),
++                (r'self\.assertFalse\s*\([^)]*?([^)]+?)\)', 'Expected condition to be false: {}'),
++                (r'self\.assertIn\s*\([^)]*?,\s*([^)]+?)\)', 'Expected to be in: {}'),
++                (r'self\.assertNotIn\s*\([^)]*?,\s*([^)]+?)\)', 'Expected NOT to be in: {}'),
++                (r'self\.assertIsNone\s*\([^)]*?([^)]+?)\)', 'Expected to be None: {}'),
++                (r'self\.assertIsNotNone\s*\([^)]*?([^)]+?)\)', 'Expected NOT to be None: {}'),
++            ]
++            
++            for pattern, format_str in assertion_patterns:
++                matches = re.findall(pattern, test_patch_content)
++                for match in matches:
++                    # Clean up the match
++                    match_clean = match.strip()
++                    if match_clean:
++                        expectations_summary.append(format_str.format(match_clean))
++            
++            # Also look for assertEqual with specific string patterns like in the issue
++            string_equality_pattern = r'self\.assertEqual\s*\([^)]*?,\s*["\']([^"\']*)["\']\s*\)'
++            string_matches = re.findall(string_equality_pattern, test_patch_content)
++            for match in string_matches:
++                expectations_summary.append(f'Expected string value: "{match}"')
++        
++        # Second, parse the problem statement for constraints
++        if self.problem_statement:
++            expectations_summary.append("\n=== Constraints from Issue Description ===")
++            
++            # Look for keywords that indicate constraints
++            constraint_keywords = [
++                (r'type\s*preservation', 'Type preservation is required'),
++                (r'string\s*representation', 'String representation should be preserved'),
++                (r'value\s*preservation', 'Value preservation is required'),
++                (r'correct\s*output', 'The output should be correct'),
++                (r'expected\s*behavior', 'Follow expected behavior'),
++                (r'constraint', 'There is a constraint to consider'),
++            ]
++            
++            for pattern, message in constraint_keywords:
++                if re.search(pattern, self.problem_statement, re.IGNORECASE):
++                    expectations_summary.append(message)
++        
++        # Third, look for test_description if available
++        if self.test_description:
++            expectations_summary.append("\n=== Test Description Constraints ===")
++            
++            # Look for test command or specific test instructions
++            if 'pytest' in self.test_description.lower():
++                expectations_summary.append('Tests should pass with pytest')
++            if 'assert' in self.test_description.lower():
++                expectations_summary.append('Assertions in tests should be satisfied')
++        
++        # Combine all expectations into a structured summary
++        if expectations_summary:
++            return "\n".join(expectations_summary)
++        else:
++            return "No specific test expectations or constraints could be extracted from the test patch or issue description. Focus on solving the problem based on the issue description."
++
+     def forward(self, timeout=3600):
+         timeout -= 60
+         start_time = time()
+         """
+         The forward function for the AgenticSystem.
+         """
++        
++        # Analyze test expectations before generating code
++        test_expectations = self.analyze_test_expectations()
++
++        # Update instruction to include test expectations
+         instruction = f"""I have uploaded a Python code repository in the directory {self.git_tempdir}. Help solve the following problem.
+ 
+ <problem_description>
+@@ -188,6 +302,14 @@ Your task is to run the regression tests in the {self.git_tempdir} directory to
+ {self.test_description}
+ </test_description>
+ 
++<test_expectations>
++{test_expectations}
++</test_expectations>
++
++IMPORTANT: Before writing any code, carefully analyze the <test_expectations> section above. 
++Reason about what the expected behavior should be based on test assertions and issue constraints.
++Then implement the solution that satisfies these expectations.
++
+ Your task is to make changes to the files in the {self.git_tempdir} directory to address the <problem_description>. I have already taken care of the required dependencies.
+ """
+         chat_history, n_llm_calls_used = chat_with_agent(

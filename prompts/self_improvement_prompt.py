@@ -83,11 +83,6 @@ swe_issue_prompt = (
 polyglot_issue_prompt = "Here is the log for the coding agent trying to solve a programming task. A task is in one programming language, but the coding agent needs to deal with different languages including C++, Go, Java, JavaScript, Python, and Rust."
 
 diagnose_prompt = """
-# Agent Running Log
------ Agent Running Log Start -----
-{md_log}
------ Agent Running Log End -----
-
 # GitHub Issue
 The GitHub issue that the agent is trying to solve.
 ----- GitHub Issue Start -----
@@ -290,12 +285,13 @@ In <JSON>, provide a JSON response with the following fields:
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
 
-def _clip_text_for_joint(s, max_len=80000):
+def _clip_text_for_joint(s, max_len=30000):
     if s is None:
         return ""
     if len(s) <= max_len:
         return s
-    return s[:max_len] + "\n<log clipped>"
+    half = max_len // 2
+    return s[:half] + "\n\n... [log truncated: middle omitted] ...\n\n" + s[-half:]
 
 
 def _swe_code_bundle(root_dir, patch_files):
@@ -341,7 +337,7 @@ def _collect_swe_entry_context(entry_id, commit, out_dir, dataset):
     )
     md_log = _clip_text_for_joint(md_log)
     eval_log = _clip_text_for_joint(eval_log)
-    predicted_patch = _clip_text_for_joint(predicted_patch, max_len=100000)
+    predicted_patch = _clip_text_for_joint(predicted_patch, max_len=20000)
 
     entry = next((e for e in dataset if e["instance_id"] == entry_id), None)
     if not entry:
@@ -363,11 +359,6 @@ def _collect_swe_entry_context(entry_id, commit, out_dir, dataset):
 def _format_swe_scenario(instance_id, ctx, label="Scenario"):
     return f"""
 ## {label} (instance_id: {instance_id})
-
-# Agent Running Log
------ Agent Running Log Start -----
-{ctx["md_log"]}
------ Agent Running Log End -----
 
 # GitHub Issue
 ----- GitHub Issue Start -----
@@ -415,7 +406,7 @@ def _collect_polyglot_entry_context(entry_id, commit, out_dir, dataset):
     )
     md_log = _clip_text_for_joint(md_log)
     eval_log = _clip_text_for_joint(eval_log)
-    predicted_patch = _clip_text_for_joint(predicted_patch, max_len=100000)
+    predicted_patch = _clip_text_for_joint(predicted_patch, max_len=20000)
 
     entry = next((e for e in dataset if e["instance_id"] == entry_id), None)
     if not entry:
@@ -439,11 +430,6 @@ def _collect_polyglot_entry_context(entry_id, commit, out_dir, dataset):
 def _format_polyglot_failure_scenario(instance_id, ctx):
     return f"""
 ## Failure scenario (instance_id: {instance_id})
-
-# Agent Running Log
------ Agent Running Log Start -----
-{ctx["md_log"]}
------ Agent Running Log End -----
 
 # Task / problem statement
 ----- Task Start -----
@@ -803,13 +789,6 @@ def process_selfimprove_eval_logs(md_logs, eval_logs, predicted_patches, eval_re
 
 diagnose_prompt_emptypatches_polyglot = """There are some empty patches when attempting to solve GitHub issues. Since the coding agent is stochastic, it may not always produce a patch. Handle cases where the coding agent fails to generate a patch or generates one that only modifies the test cases without editing the primary source code. For example, the simplest solution is to change the prompt to specifically make sure it called the edit tool.
 
-Please analyze the log below to identify why no code edits were made.
-
-# Agent Running Log
------ Agent Running Log Start -----
-{md_log}
------ Agent Running Log End -----
-
 Respond precisely in the following format including the JSON start and end markers:
 
 ```json
@@ -830,13 +809,6 @@ For example, one solution could be to ask the agent to try multiple times and se
 Giving previous attempts and test results as context to the agent may also help.
 The tests for tasks are not provided in the repo, and the agent needs workflow design to implement them.
 Agent's own tests that validate the solution may not cover all the cases that will be checked by the private tests during official scoring. So the quality of implemented tests are crucial.
-
-Please analyze the log below to identify how we can improve the testing process and multiple solution attempts.
-
-# Agent Running Log
------ Agent Running Log Start -----
-{md_log}
------ Agent Running Log End -----
 
 Respond precisely in the following format including the JSON start and end markers:
 
@@ -881,7 +853,6 @@ def get_diagnose_prompt_swe(
         test_patch = entry["test_patch"]
         github_issue = entry["problem_statement"]
         diagnose_prompt_out = swe_issue_prompt + diagnose_prompt.format(
-            md_log=md_log,
             eval_log=eval_log,
             predicted_patch=predicted_patch,
             answer_patch=answer_patch,
@@ -950,16 +921,14 @@ def get_diagnose_prompt_polyglot(
         # Get user prompt for solving stochasticity
         return coding_agent_summary_polyglot + diagnose_system_message.format(
             code=code_text
-        ), diagnose_prompt_stochasticity_polyglot.format(md_log=md_log)
+        ), diagnose_prompt_stochasticity_polyglot
     if "empty_patch" in eval_result:
-        # Get user prompt for solving empty patches
         return coding_agent_summary_polyglot + diagnose_system_message.format(
             code=code_text
-        ), diagnose_prompt_emptypatches_polyglot.format(md_log=md_log)
+        ), diagnose_prompt_emptypatches_polyglot
     return coding_agent_summary_polyglot + diagnose_system_message.format(
         code=code_text
     ), polyglot_issue_prompt + diagnose_prompt.format(
-        md_log=md_log,
         eval_log=eval_log,
         predicted_patch=predicted_patch,
         answer_patch=answer_patch,
@@ -1074,11 +1043,28 @@ def get_current_code(
                             code_text.append(f"# {rel_path}")
                             code_text.append(read_file(file_full_path))
 
-    # Add patch files
+    # Add patch files (filter out non-code diffs like self_evo.md)
+    skip_diff_prefixes = ("diff --git a/self_evo.md", "diff --git a/self_evo_")
     for i, patch_file in enumerate(patch_files):
         rel_path = os.path.relpath(patch_file, current_dir)
         if rel_path not in exclude_set:
-            code_text.append(f"# Patch {i+1}: {rel_path}")
-            code_text.append(read_file(patch_file))
+            raw_patch = read_file(patch_file)
+            filtered_hunks = []
+            current_hunk = []
+            skip = False
+            for line in raw_patch.split("\n"):
+                if line.startswith("diff --git"):
+                    if current_hunk and not skip:
+                        filtered_hunks.extend(current_hunk)
+                    current_hunk = [line]
+                    skip = any(line.startswith(p) for p in skip_diff_prefixes)
+                else:
+                    current_hunk.append(line)
+            if current_hunk and not skip:
+                filtered_hunks.extend(current_hunk)
+            filtered_patch = "\n".join(filtered_hunks)
+            if filtered_patch.strip():
+                code_text.append(f"# Patch {i+1}: {rel_path}")
+                code_text.append(filtered_patch)
 
     return "\n".join(code_text)

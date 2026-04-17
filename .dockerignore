@@ -19,6 +19,7 @@ initial_polyglot/
 
 <!-- outputs -->
 output_hgm/
+output_hgm_bak*/
 results/
 <!-- misc -->
 misc/
