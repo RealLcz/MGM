@@ -64,10 +64,10 @@ self_improve_strategy:
 # Path Configuration
 paths:
   # Output directory for results (if null, will be auto-generated)
-  output_dir: "output_hgm"
+  output_dir: "output_mgm"
   
   # Directory to continue a previous run from
-  continue_from: "output_hgm"
+  continue_from: "output_mgm"
   
   # Name of the initial agent (required)
   initial_agent_name: "default_agent"

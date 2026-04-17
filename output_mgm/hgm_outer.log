@@ -1,0 +1,259 @@
+2026-04-10 08:20:20,994 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 3.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': None, 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-10 10:01:10,797 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 3.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-10 19:44:02,520 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (1/5), backing off 2s
+2026-04-10 19:48:06,551 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (2/5), backing off 4s
+2026-04-10 19:51:57,166 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (3/5), backing off 8s
+2026-04-10 19:54:56,086 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (4/5), backing off 16s
+2026-04-10 19:59:15,025 - ThreadPoolExecutor-1_0 - ERROR - Docker connection failed 5 times consecutively — aborting
+2026-04-10 21:26:53,764 - MainThread - INFO - Self-improve strategy usage (completed expansions): {'A': 0, 'B': 1, 'C': 0}
+2026-04-11 06:13:49,670 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 3.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-11 06:17:58,918 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (1/5), backing off 2s
+2026-04-11 06:22:13,306 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (2/5), backing off 4s
+2026-04-11 06:26:34,558 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (3/5), backing off 8s
+2026-04-11 06:30:56,353 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (4/5), backing off 16s
+2026-04-11 06:35:27,090 - ThreadPoolExecutor-1_0 - ERROR - Docker connection failed 5 times consecutively — aborting
+2026-04-11 08:48:43,032 - MainThread - INFO - Self-improve strategy usage (completed expansions): {'A': 0, 'B': 0, 'C': 0}
+2026-04-11 09:10:48,600 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 3.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-11 09:15:08,577 - ThreadPoolExecutor-1_1 - WARNING - expand() failed (1/5), backing off 2s
+2026-04-11 09:28:12,519 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 3.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-11 13:13:02,169 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-11 14:40:42,343 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-11 14:40:44,641 - ThreadPoolExecutor-1_1 - WARNING - expand() failed (1/5), backing off 2s
+2026-04-11 14:40:46,664 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (2/5), backing off 4s
+2026-04-11 14:40:50,690 - ThreadPoolExecutor-1_1 - WARNING - expand() failed (3/5), backing off 8s
+2026-04-11 14:40:58,753 - ThreadPoolExecutor-1_0 - WARNING - expand() failed (4/5), backing off 16s
+2026-04-11 14:41:15,495 - ThreadPoolExecutor-1_0 - ERROR - Docker connection failed 5 times consecutively — aborting
+2026-04-11 16:04:14,593 - MainThread - ERROR - Error: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+2026-04-11 16:04:14,692 - MainThread - ERROR - Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connection.py", line 500, in request
+    self.endheaders()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1318, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1078, in _send_output
+    self.send(msg)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1016, in send
+    self.connect()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/transport/unixconn.py", line 26, in connect
+    sock.connect(self.unix_socket)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/util/retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/util/util.py", line 38, in reraise
+    raise value.with_traceback(tb)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connection.py", line 500, in request
+    self.endheaders()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1318, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1078, in _send_output
+    self.send(msg)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1016, in send
+    self.connect()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/transport/unixconn.py", line 26, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 223, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+                        ^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/utils/decorators.py", line 44, in inner
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 246, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 602, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/adapters.py", line 659, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm.py", line 682, in main
+    future.result()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm.py", line 654, in sample
+    evals = hgm_utils.eval_agent(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm_utils.py", line 361, in eval_agent
+    dnames = swe_harness(
+             ^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/MendelGM/swe_bench/harness.py", line 291, in harness
+    client = docker.from_env()
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/client.py", line 94, in from_env
+    return cls(
+           ^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/client.py", line 45, in __init__
+    self.api = APIClient(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 207, in __init__
+    self._version = self._retrieve_server_version()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 230, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+2026-04-11 16:04:14,699 - MainThread - INFO - Self-improve strategy usage (completed expansions): {'A': 0, 'B': 0, 'C': 0}
+2026-04-14 07:33:54,792 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-14 10:19:22,904 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-14 15:15:30,696 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 1.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 0.1, 'weight_b': 0.45, 'weight_c': 0.45, 'strategy_b_min_node_evals': 2}}
+2026-04-16 08:29:56,039 - MainThread - ERROR - Error: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+2026-04-16 08:29:56,149 - MainThread - ERROR - Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connection.py", line 500, in request
+    self.endheaders()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1318, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1078, in _send_output
+    self.send(msg)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1016, in send
+    self.connect()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/transport/unixconn.py", line 26, in connect
+    sock.connect(self.unix_socket)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/util/retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/util/util.py", line 38, in reraise
+    raise value.with_traceback(tb)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/urllib3/connection.py", line 500, in request
+    self.endheaders()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1318, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1078, in _send_output
+    self.send(msg)
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/http/client.py", line 1016, in send
+    self.connect()
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/transport/unixconn.py", line 26, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 223, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+                        ^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/utils/decorators.py", line 44, in inner
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 246, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 602, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/requests/adapters.py", line 659, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm.py", line 685, in main
+    logger.error(traceback.format_exc())
+            ^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm.py", line 654, in sample
+    )
+      
+  File "/mnt/vast/home/ym56kacy/MendelGM/hgm_utils.py", line 365, in eval_agent
+    dnames = swe_harness(
+             ^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/MendelGM/swe_bench/harness.py", line 305, in harness
+    client = docker.from_env()
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/client.py", line 94, in from_env
+    return cls(
+           ^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/client.py", line 45, in __init__
+    self.api = APIClient(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 207, in __init__
+    self._version = self._retrieve_server_version()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/vast/home/ym56kacy/mm/python311/lib/python3.11/site-packages/docker/api/client.py", line 230, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(111, 'Connection refused'))
+
+2026-04-16 08:29:56,161 - MainThread - INFO - Self-improve strategy usage (completed expansions): {'A': 0, 'B': 2, 'C': 2}
+2026-04-16 09:27:11,784 - MainThread - INFO - Starting HGM run output_mgm with configuration: {'llm': {'self_improve_llm': 'Qwen/Qwen3-Coder-Next', 'downstream_llm': 'Qwen/Qwen3-Coder-Next', 'diagnose_llm': 'Qwen/Qwen3-Coder-Next'}, 'optimization': {'alpha': 0.6, 'beta': 1.0, 'cool_down': False, 'eval_random_level': 0.0, 'n_pseudo_descendant_evals': 10000, 'failed_pool_boost': 1.0}, 'execution': {'max_workers': 2, 'self_improve_timeout': 3600, 'evaluation_timeout': 3600, 'max_task_evals': 200}, 'evaluation': {'full_eval': False, 'polyglot': False}, 'paths': {'output_dir': 'output_mgm', 'continue_from': 'output_mgm', 'initial_agent_name': 'default_agent'}, 'self_improve_strategy': {'weight_a': 1.0, 'weight_b': 0.0, 'weight_c': 0.0, 'strategy_b_min_node_evals': 2}}
+2026-04-16 16:28:55,849 - MainThread - INFO - Self-improve strategy usage (completed expansions): {'A': 0, 'B': 0, 'C': 0}

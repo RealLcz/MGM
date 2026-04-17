@@ -415,7 +415,7 @@ def sample_child(
     metadata = {}
     root_dir = os.path.abspath("./")  # root_dir should be /hgm
     run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    out_dir_base = output_dir  # out_dir_base should be /hgm/output_selfimprove/ or /hgm/output_hgm/{hgm_run_id}/
+    out_dir_base = output_dir  # out_dir_base should be /hgm/output_selfimprove/ or /hgm/output_mgm/{hgm_run_id}/
     run_output_dir = os.path.join(root_dir, f"{output_dir}/{run_id}/")
 
     try:

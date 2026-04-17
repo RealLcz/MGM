@@ -341,10 +341,10 @@ def main():
         run_id = os.path.basename(os.path.normpath(output_dir))
     elif not path_cfg.continue_from:
         run_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S_%f")
-        output_dir = os.path.abspath(os.path.join("./output_hgm", run_id))
+        output_dir = os.path.abspath(os.path.join("./output_mgm", run_id))
     else:
         run_id = os.path.basename(os.path.normpath(path_cfg.continue_from))
-        output_dir = os.path.abspath(os.path.join("./output_hgm", run_id))
+        output_dir = os.path.abspath(os.path.join("./output_mgm", run_id))
 
     # Ensure output directory exists and log path info
     os.makedirs(output_dir, exist_ok=True)

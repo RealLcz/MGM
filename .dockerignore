@@ -18,8 +18,8 @@ polyglot/
 initial_polyglot/
 
 <!-- outputs -->
-output_hgm/
-output_hgm_bak*/
+output_mgm/
+output_mgm_bak*/
 results/
 <!-- misc -->
 misc/

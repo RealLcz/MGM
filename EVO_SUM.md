@@ -1,6 +1,6 @@
 # EVO_SUM：self_evo 进化摘要与 To Implement 汇编
 
-本文档由仓库内 `output_hgm/*/self_evo.md`（共 **24** 次 agent 自进化运行日志）自动抽取 `# To Implement` 下两段说明，并结合 `metadata.json` 中的 `run_id` / `self_improve_strategy` / `parent_commit` 整理而成。
+本文档由仓库内 `output_mgm/*/self_evo.md`（共 **24** 次 agent 自进化运行日志）自动抽取 `# To Implement` 下两段说明，并结合 `metadata.json` 中的 `run_id` / `self_improve_strategy` / `parent_commit` 整理而成。
 
 ---
 
@@ -49,7 +49,7 @@
 ### 3.3 元数据与代际
 
 - **代际链清晰**：每轮 `metadata.json` 的 `parent_commit` 指向前身 `run_id`（或 `initial`），`problem_statement` 即下一代镜像里要完成的元任务；`self_improve_strategy`（本批 **A:1 / B:17 / C:6**）标记采样或分叉策略，具体语义以 `hgm.py` 与配置为准。
-- **数据范围**：本汇编仅包含 `output_hgm/<run_id>/self_evo.md` 共 24 份；`output_hgm/initial` 等路径下若无同名文件则未纳入。
+- **数据范围**：本汇编仅包含 `output_mgm/<run_id>/self_evo.md` 共 24 份；`output_mgm/initial` 等路径下若无同名文件则未纳入。
 
 ### 3.4 阅读日志时的易错点
 
@@ -59,7 +59,7 @@
 
 ## 四、To Implement 全文汇编（两段 + ID）
 
-**序号**：按 `run_id` 时间排序（与 `output_hgm` 目录名一致）。**ID**：`run_id`。
+**序号**：按 `run_id` 时间排序（与 `output_mgm` 目录名一致）。**ID**：`run_id`。
 
 ### 1. `20260409_134545_289259`
 
