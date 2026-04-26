@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-9296",
+    "model_name_or_path": "20260417_142430_866770_9",
+    "model_patch": "diff --git a/django/core/paginator.py b/django/core/paginator.py\nindex 1f92da5d4f..cc1cd6fe3e 100644\n--- a/django/core/paginator.py\n+++ b/django/core/paginator.py\n@@ -34,6 +34,10 @@ class Paginator:\n         self.orphans = int(orphans)\n         self.allow_empty_first_page = allow_empty_first_page\n \n+    def __iter__(self):\n+        for page_num in self.page_range:\n+            yield self.page(page_num)\n+\n     def validate_number(self, number):\n         \"\"\"Validate the given 1-based page number.\"\"\"\n         try:\n",
+    "proposed_model_patches": []
+}

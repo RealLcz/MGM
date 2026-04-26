@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-12155",
+    "model_name_or_path": "20260421_161727_010449_18",
+    "model_patch": "diff --git a/django/contrib/admindocs/utils.py b/django/contrib/admindocs/utils.py\nindex 4c0e7e2a56..4945ba05aa 100644\n--- a/django/contrib/admindocs/utils.py\n+++ b/django/contrib/admindocs/utils.py\n@@ -34,7 +34,18 @@ def trim_docstring(docstring):\n         return ''\n     # Convert tabs to spaces and split into lines\n     lines = docstring.expandtabs().splitlines()\n-    indent = min(len(line) - len(line.lstrip()) for line in lines if line.lstrip())\n+    # Find minimum indentation of any non-blank lines after the first line.\n+    # Skip the first line because it may have 0 indent even when subsequent\n+    # lines are indented (e.g., for single-line docstrings).\n+    indent = None\n+    for line in lines[1:]:\n+        if line.lstrip():\n+            indent_candidate = len(line) - len(line.lstrip())\n+            if indent is None or indent_candidate < indent:\n+                indent = indent_candidate\n+    # If no indent found (all subsequent lines are blank), use 0\n+    if indent is None:\n+        indent = 0\n     trimmed = [lines[0].lstrip()] + [line[indent:].rstrip() for line in lines[1:]]\n     return \"\\n\".join(trimmed).strip()\n \n",
+    "proposed_model_patches": []
+}

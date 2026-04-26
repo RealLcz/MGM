@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-11880",
+    "model_name_or_path": "20260421_161727_010449_18",
+    "model_patch": "diff --git a/django/forms/fields.py b/django/forms/fields.py\nindex 03cd8af8d7..4cc3133ca0 100644\n--- a/django/forms/fields.py\n+++ b/django/forms/fields.py\n@@ -200,6 +200,7 @@ class Field:\n         memo[id(self)] = result\n         result.widget = copy.deepcopy(self.widget, memo)\n         result.validators = self.validators[:]\n+        result.error_messages = copy.deepcopy(self.error_messages, memo)\n         return result\n \n \n",
+    "proposed_model_patches": []
+}

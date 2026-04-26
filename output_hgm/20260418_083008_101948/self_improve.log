@@ -1,0 +1,235 @@
+2026-04-18 08:30:10,568 - ThreadPoolExecutor-2_1 - INFO - No existing container with name hgm-container-20260418_083008_101948 found.
+2026-04-18 08:31:57,561 - ThreadPoolExecutor-2_1 - INFO - Docker image 'default_agent:latest' already exists. Skipping build.
+2026-04-18 08:34:04,042 - ThreadPoolExecutor-2_1 - INFO - Container 'hgm-container-20260418_083008_101948' started successfully.
+2026-04-18 08:34:09,379 - ThreadPoolExecutor-2_1 - INFO - Container output: hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Initialized empty Git repository in /hgm/.git/
+[master (root-commit) 6f9ee04] a nonsense commit message
+ 34 files changed, 4393 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 LICENSE
+ create mode 100644 README.md
+ create mode 100644 coding_agent.py
+ create mode 100644 config.py
+ create mode 100644 config.yaml
+ create mode 100644 deepseek.slurm
+ create mode 100644 llm.py
+ create mode 100644 llm_withtools.py
+ create mode 100644 prompts/testrepo_prompt.py
+ create mode 100644 prompts/tooluse_prompt.py
+ create mode 100644 pytest.ini
+ create mode 100644 requirements.txt
+ create mode 100644 run.slurm
+ create mode 100755 scripts/cleanup_old_images.sh
+ create mode 100644 scripts/pull_epoch_images.py
+ create mode 100755 scripts/pull_epoch_images.sh
+ create mode 100644 scripts/pull_epoch_images_proxy.py
+ create mode 100644 scripts/test_vllm_api_in_container.py
+ create mode 100644 scripts/verified_instance_ids.txt
+ create mode 100644 tests/conftest.py
+ create mode 100644 tests/test_bash_tool.py
+ create mode 100644 tests/test_edit_tool.py
+ create mode 100644 tools/__init__.py
+ create mode 100644 tools/bash.py
+ create mode 100644 tools/edit.py
+ create mode 100644 tree.py
+ create mode 100644 utils/__init__.py
+ create mode 100644 utils/common_utils.py
+ create mode 100644 utils/eval_utils.py
+ create mode 100644 utils/git_utils.py
+ create mode 100644 utils/swe_log_parsers.py
+ create mode 100644 utils/swebench_compat.py
+ create mode 100644 utils/test_generator.py
+6f9ee04b89199d7cce28a645fe80a5f2799a427c
+
+2026-04-18 08:34:09,379 - ThreadPoolExecutor-2_1 - INFO - Wrote to the log file
+2026-04-18 08:34:13,429 - ThreadPoolExecutor-2_1 - INFO - Container output: Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+Requirement already satisfied: datasets in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 1)) (4.8.4)
+Requirement already satisfied: anthropic in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 2)) (0.92.0)
+Requirement already satisfied: backoff in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 4)) (2.2.1)
+Requirement already satisfied: botocore in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 5)) (1.42.86)
+Requirement already satisfied: boto3 in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 6)) (1.42.86)
+Requirement already satisfied: openai in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 7)) (2.31.0)
+Requirement already satisfied: pathspec in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 8)) (1.0.4)
+Requirement already satisfied: beautifulsoup4 in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 11)) (4.14.3)
+Requirement already satisfied: chardet in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 12)) (7.4.1)
+Requirement already satisfied: docker in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 13)) (7.1.0)
+Requirement already satisfied: ghapi in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 14)) (1.0.13)
+Requirement already satisfied: GitPython in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 15)) (3.1.46)
+Requirement already satisfied: pre-commit in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 16)) (4.5.1)
+Requirement already satisfied: python-dotenv in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 17)) (1.2.2)
+Requirement already satisfied: rich in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 18)) (14.3.3)
+Requirement already satisfied: unidiff in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 19)) (0.7.5)
+Requirement already satisfied: pytest in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 22)) (9.0.3)
+Requirement already satisfied: pytest-asyncio in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 23)) (1.3.0)
+Requirement already satisfied: async_timeout in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 24)) (5.0.1)
+Requirement already satisfied: PyYAML in /usr/local/lib/python3.10/site-packages (from -r /hgm/requirements.txt (line 27)) (6.0.3)
+Requirement already satisfied: tqdm>=4.66.3 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (4.67.3)
+Requirement already satisfied: dill<0.4.2,>=0.3.0 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (0.4.1)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (2.2.6)
+Requirement already satisfied: multiprocess<0.70.20 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (0.70.19)
+Requirement already satisfied: huggingface-hub<2.0,>=0.25.0 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (1.10.0)
+Requirement already satisfied: pandas in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (2.3.3)
+Requirement already satisfied: requests>=2.32.2 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (2.33.1)
+Requirement already satisfied: filelock in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (3.25.2)
+Requirement already satisfied: httpx<1.0.0 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (0.28.1)
+Requirement already satisfied: xxhash in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (3.6.0)
+Requirement already satisfied: pyarrow>=21.0.0 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (23.0.1)
+Requirement already satisfied: packaging in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (26.0)
+Requirement already satisfied: fsspec[http]<=2026.2.0,>=2023.1.0 in /usr/local/lib/python3.10/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (2026.2.0)
+Requirement already satisfied: jiter<1,>=0.4.0 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (0.13.0)
+Requirement already satisfied: pydantic<3,>=1.9.0 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (2.12.5)
+Requirement already satisfied: distro<2,>=1.7.0 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (1.9.0)
+Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (4.13.0)
+Requirement already satisfied: docstring-parser<1,>=0.15 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (0.17.0)
+Requirement already satisfied: sniffio in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (1.3.1)
+Requirement already satisfied: typing-extensions<5,>=4.14 in /usr/local/lib/python3.10/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (4.15.0)
+Requirement already satisfied: python-dateutil<3.0.0,>=2.1 in /usr/local/lib/python3.10/site-packages (from botocore->-r /hgm/requirements.txt (line 5)) (2.9.0.post0)
+Requirement already satisfied: jmespath<2.0.0,>=0.7.1 in /usr/local/lib/python3.10/site-packages (from botocore->-r /hgm/requirements.txt (line 5)) (1.1.0)
+Requirement already satisfied: urllib3!=2.2.0,<3,>=1.25.4 in /usr/local/lib/python3.10/site-packages (from botocore->-r /hgm/requirements.txt (line 5)) (2.6.3)
+Requirement already satisfied: s3transfer<0.17.0,>=0.16.0 in /usr/local/lib/python3.10/site-packages (from boto3->-r /hgm/requirements.txt (line 6)) (0.16.0)
+Requirement already satisfied: soupsieve>=1.6.1 in /usr/local/lib/python3.10/site-packages (from beautifulsoup4->-r /hgm/requirements.txt (line 11)) (2.8.3)
+Requirement already satisfied: fastcore>=1.12.19 in /usr/local/lib/python3.10/site-packages (from ghapi->-r /hgm/requirements.txt (line 14)) (1.12.34)
+Requirement already satisfied: gitdb<5,>=4.0.1 in /usr/local/lib/python3.10/site-packages (from GitPython->-r /hgm/requirements.txt (line 15)) (4.0.12)
+Requirement already satisfied: nodeenv>=0.11.1 in /usr/local/lib/python3.10/site-packages (from pre-commit->-r /hgm/requirements.txt (line 16)) (1.10.0)
+Requirement already satisfied: cfgv>=2.0.0 in /usr/local/lib/python3.10/site-packages (from pre-commit->-r /hgm/requirements.txt (line 16)) (3.5.0)
+Requirement already satisfied: identify>=1.0.0 in /usr/local/lib/python3.10/site-packages (from pre-commit->-r /hgm/requirements.txt (line 16)) (2.6.18)
+Requirement already satisfied: virtualenv>=20.10.0 in /usr/local/lib/python3.10/site-packages (from pre-commit->-r /hgm/requirements.txt (line 16)) (21.2.0)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.10/site-packages (from rich->-r /hgm/requirements.txt (line 18)) (4.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.10/site-packages (from rich->-r /hgm/requirements.txt (line 18)) (2.20.0)
+Requirement already satisfied: iniconfig>=1.0.1 in /usr/local/lib/python3.10/site-packages (from pytest->-r /hgm/requirements.txt (line 22)) (2.3.0)
+Requirement already satisfied: tomli>=1 in /usr/local/lib/python3.10/site-packages (from pytest->-r /hgm/requirements.txt (line 22)) (2.4.1)
+Requirement already satisfied: pluggy<2,>=1.5 in /usr/local/lib/python3.10/site-packages (from pytest->-r /hgm/requirements.txt (line 22)) (1.6.0)
+Requirement already satisfied: exceptiongroup>=1 in /usr/local/lib/python3.10/site-packages (from pytest->-r /hgm/requirements.txt (line 22)) (1.3.1)
+Requirement already satisfied: backports-asyncio-runner<2,>=1.1 in /usr/local/lib/python3.10/site-packages (from pytest-asyncio->-r /hgm/requirements.txt (line 23)) (1.2.0)
+Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.10/site-packages (from anyio<5,>=3.5.0->anthropic->-r /hgm/requirements.txt (line 2)) (3.11)
+Requirement already satisfied: aiohttp!=4.0.0a0,!=4.0.0a1 in /usr/local/lib/python3.10/site-packages (from fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (3.13.5)
+Requirement already satisfied: smmap<6,>=3.0.1 in /usr/local/lib/python3.10/site-packages (from gitdb<5,>=4.0.1->GitPython->-r /hgm/requirements.txt (line 15)) (5.0.3)
+Requirement already satisfied: certifi in /usr/local/lib/python3.10/site-packages (from httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1)) (2026.2.25)
+Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/site-packages (from httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1)) (1.0.9)
+Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.10/site-packages (from httpcore==1.*->httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1)) (0.16.0)
+Requirement already satisfied: typer in /usr/local/lib/python3.10/site-packages (from huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1)) (0.24.1)
+Requirement already satisfied: hf-xet<2.0.0,>=1.4.3 in /usr/local/lib/python3.10/site-packages (from huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1)) (1.4.3)
+Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.10/site-packages (from markdown-it-py>=2.2.0->rich->-r /hgm/requirements.txt (line 18)) (0.1.2)
+Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.10/site-packages (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2)) (0.7.0)
+Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.10/site-packages (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2)) (0.4.2)
+Requirement already satisfied: pydantic-core==2.41.5 in /usr/local/lib/python3.10/site-packages (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2)) (2.41.5)
+Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.10/site-packages (from python-dateutil<3.0.0,>=2.1->botocore->-r /hgm/requirements.txt (line 5)) (1.17.0)
+Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.10/site-packages (from requests>=2.32.2->datasets->-r /hgm/requirements.txt (line 1)) (3.4.7)
+Requirement already satisfied: distlib<1,>=0.3.7 in /usr/local/lib/python3.10/site-packages (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16)) (0.4.0)
+Requirement already satisfied: platformdirs<5,>=3.9.1 in /usr/local/lib/python3.10/site-packages (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16)) (4.9.6)
+Requirement already satisfied: python-discovery>=1 in /usr/local/lib/python3.10/site-packages (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16)) (1.2.2)
+Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.10/site-packages (from pandas->datasets->-r /hgm/requirements.txt (line 1)) (2026.1)
+Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.10/site-packages (from pandas->datasets->-r /hgm/requirements.txt (line 1)) (2026.1.post1)
+Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (6.7.1)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (2.6.1)
+Requirement already satisfied: propcache>=0.2.0 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (0.4.1)
+Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (1.8.0)
+Requirement already satisfied: yarl<2.0,>=1.17.0 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (1.23.0)
+Requirement already satisfied: aiosignal>=1.4.0 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (1.4.0)
+Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.10/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1)) (26.1.0)
+Requirement already satisfied: annotated-doc>=0.0.2 in /usr/local/lib/python3.10/site-packages (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1)) (0.0.4)
+Requirement already satisfied: click>=8.2.1 in /usr/local/lib/python3.10/site-packages (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1)) (8.3.2)
+Requirement already satisfied: shellingham>=1.3.0 in /usr/local/lib/python3.10/site-packages (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1)) (1.5.4)
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+[notice] A new release of pip is available: 23.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+
+2026-04-18 08:34:13,429 - ThreadPoolExecutor-2_1 - INFO - Wrote to the log file
+2026-04-18 08:34:13,429 - ThreadPoolExecutor-2_1 - INFO - Getting tasks to improve
+2026-04-18 08:34:13,486 - ThreadPoolExecutor-2_1 - INFO - Task to improve: sphinx-doc__sphinx-9229
+2026-04-18 08:35:02,321 - ThreadPoolExecutor-2_1 - INFO - problem_statement: # Coding Agent Summary
+
+- **Main File**: `coding_agent.py`
+  - Primary Class: `AgenticSystem`
+  - The `forward()` function is the central entry point.
+  - Prompts are located either within the `forward()` function or in the `prompts/` directory.
+- **Tools**: `tools/`
+  - The `tools/` directory contains various tools that LLMs can use to perform specific tasks.
+  - Each tool must have a `tool_info()` function that returns a JSON object containing 'name', 'description', and 'input_schema'. The 'input_schema' should be a JSON object containing 'type', 'properties', and 'required'.
+  - Each tool must have a `tool_function()` function that takes the arguments defined in input_schema, performs the tool's task, and returns a string.
+  - See other tools for reference.
+- **Utilities**: `utils/`
+  - The `utils/` directory contains utility functions used across the codebase.
+
+- **Additional Details**:
+  - The agent is very good at automatically utilizing the right available tools at the right time. So do not have an agentic flow that explicitly forces a tool's usage.
+  - Common tools, such as file editing and bash commands, are easy for the agent to recognize and use appropriately. However, more complex and niche tools may require explicit instructions in the prompt.
+  - Tools should be designed to be as general as possible, ensuring they work across any GitHub repository. Avoid hardcoding repository-specific details or behaviors (e.g., paths).
+  - Do not use 'while True' loops in the agent's code. This can cause the agent to get stuck and not respond.
+  - Verify the implementation details of helper functions prior to usage to ensure proper integration and expected behavior.
+  - Do not install additional packages or dependencies directly. Update `requirements.txt` if new dependencies are required and install them using `pip install -r requirements.txt`.
+
+
+# To Implement
+
+Add a new tool in the tools/ directory called 'sphinx_inspect.py' that leverages Sphinx's autodoc functionality to inspect how it processes Python constructs. The tool would provide functions to: 1) Extract RST content generated by autodoc for a given Python object, 2) Render RST to HTML locally using Sphinx, 3) Inspect the autodoc event processing to understand why certain constructs are handled differently. The tool_info() function would describe this as a debugging tool for Sphinx documentation generation, and tool_function() would accept parameters like 'module_path', 'object_name', and 'output_format' to return the relevant information. This would give the agent the ability to understand Sphinx's behavior and diagnose documentation generation issues systematically.
+
+Create a Sphinx documentation inspection and debugging tool that allows the agent to understand how Sphinx autodoc processes Python constructs, particularly for edge cases like type alias documentation. The tool should provide visibility into: 1) The RST content generated by autodoc directives, 2) The HTML rendering of that RST, and 3) The intermediate processing steps that determine why some docstrings are preserved while others are ignored. This would enable the agent to diagnose documentation generation issues by examining Sphinx's internal behavior rather than relying on trial and error. The tool should be general-purpose and work across any Python project using Sphinx documentation.
+2026-04-18 08:35:02,321 - ThreadPoolExecutor-2_1 - INFO - Running self-improvement
+2026-04-18 09:28:23,564 - ThreadPoolExecutor-2_1 - INFO - Container output: Using vllm API with served model Qwen/Qwen3-Coder-Next at http://127.0.0.1:8000/v1.
+
+2026-04-18 09:28:23,577 - ThreadPoolExecutor-2_1 - INFO - Wrote to the log file
+2026-04-18 09:28:28,171 - ThreadPoolExecutor-2_1 - INFO - Copying from container /hgm/self_evo.md to local path /mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260418_083008_101948/self_evo.md
+2026-04-18 09:28:29,746 - ThreadPoolExecutor-2_1 - INFO - Successfully copied from container to /mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260418_083008_101948/self_evo.md
+2026-04-18 09:28:33,565 - ThreadPoolExecutor-2_1 - INFO - Copying from container /hgm/model_patch.diff to local path /mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260418_083008_101948/model_patch.diff
+2026-04-18 09:28:34,938 - ThreadPoolExecutor-2_1 - INFO - Successfully copied from container to /mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260418_083008_101948/model_patch.diff
+2026-04-18 09:28:34,940 - ThreadPoolExecutor-2_1 - INFO - Stopping container 'hgm-container-20260418_083008_101948'...
+2026-04-18 09:28:46,453 - ThreadPoolExecutor-2_1 - INFO - Container 'hgm-container-20260418_083008_101948' removed.
+2026-04-18 09:31:26,313 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 09:58:46,431 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 09:58:46,497 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 10:01:11,372 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 10:28:35,588 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 10:28:35,698 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 11:24:14,345 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 11:53:04,374 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 11:53:04,409 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 11:55:25,185 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 12:19:30,409 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 12:19:30,446 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 13:23:27,788 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 13:55:19,360 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 13:55:19,375 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 14:52:50,275 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 15:34:29,693 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 15:34:29,742 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 16:32:24,898 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 17:19:18,360 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 17:19:18,405 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 18:23:03,908 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 18:40:23,636 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 18:40:23,662 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 19:36:59,526 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 20:09:19,042 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 20:09:19,062 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 21:05:05,558 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 21:38:41,863 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 21:38:41,930 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-18 22:35:45,797 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-18 23:07:49,067 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-18 23:07:49,160 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-19 00:03:42,540 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-19 00:38:22,441 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-19 00:38:22,489 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-19 01:32:02,191 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-19 01:58:05,319 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-19 01:58:05,371 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-19 03:00:24,757 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-19 03:20:44,592 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-19 03:20:44,627 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-19 04:16:56,120 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-19 04:51:58,695 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-19 04:51:58,721 - ThreadPoolExecutor-2_1 - INFO - End of evaluation
+2026-04-19 05:42:31,738 - ThreadPoolExecutor-2_1 - INFO - Start make_report
+2026-04-19 06:23:01,418 - ThreadPoolExecutor-2_1 - INFO - Start get_performance
+2026-04-19 06:23:01,481 - ThreadPoolExecutor-2_1 - INFO - End of evaluation

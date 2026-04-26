@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-11848",
+    "model_name_or_path": "20260421_161727_010449_19",
+    "model_patch": "diff --git a/django/utils/http.py b/django/utils/http.py\nindex 572cfb4347..e1af90039e 100644\n--- a/django/utils/http.py\n+++ b/django/utils/http.py\n@@ -176,10 +176,17 @@ def parse_http_date(date):\n     try:\n         year = int(m.group('year'))\n         if year < 100:\n-            if year < 70:\n-                year += 2000\n+            # RFC 7231: recipients of a timestamp value in rfc850-date\n+            # format, which uses a two-digit year, MUST interpret a\n+            # timestamp that appears to be more than 50 years in the\n+            # future as representing the most recent year in the past\n+            # that had the same last two digits.\n+            now = datetime.datetime.now()\n+            current_century = now.year - (now.year % 100)\n+            if year + current_century > now.year + 50:\n+                year += current_century - 100\n             else:\n-                year += 1900\n+                year += current_century\n         month = MONTHS.index(m.group('mon').lower()) + 1\n         day = int(m.group('day'))\n         hour = int(m.group('hour'))\n",
+    "proposed_model_patches": []
+}

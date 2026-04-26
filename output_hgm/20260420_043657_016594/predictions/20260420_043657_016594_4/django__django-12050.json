@@ -1,0 +1,6 @@
+{
+    "instance_id": "django__django-12050",
+    "model_name_or_path": "20260420_043657_016594_4",
+    "model_patch": "diff --git a/django/db/models/sql/query.py b/django/db/models/sql/query.py\nindex ea51912e8b..90475d6fb9 100644\n--- a/django/db/models/sql/query.py\n+++ b/django/db/models/sql/query.py\n@@ -1073,7 +1073,7 @@ class Query(BaseExpression):\n                         ))\n                 else:\n                     resolved_values.append(sub_value)\n-            value = tuple(resolved_values)\n+            value = type(value)(resolved_values)\n         return value\n \n     def solve_lookup_type(self, lookup):\n",
+    "proposed_model_patches": []
+}

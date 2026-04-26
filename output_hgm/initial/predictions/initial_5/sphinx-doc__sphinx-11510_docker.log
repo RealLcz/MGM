@@ -1,0 +1,2776 @@
+2026-04-25 22:32:22,931 - ThreadPoolExecutor-3_0 - INFO - No existing container with name sweb.eval.sphinx-doc__sphinx-11510.20260425_223222_146616 found.
+2026-04-25 22:32:23,709 - ThreadPoolExecutor-3_0 - INFO - Image sweb.eval.x86_64.sphinx-doc__sphinx-11510:latest already exists, skipping build.
+2026-04-25 22:32:23,709 - ThreadPoolExecutor-3_0 - INFO - Creating container for sphinx-doc__sphinx-11510...
+2026-04-25 22:32:25,269 - ThreadPoolExecutor-3_0 - INFO - Container for sphinx-doc__sphinx-11510 created: a0cc858d21565012841d5b44547d2fb023da1429ce28025b9d3c35988e5bee5d
+2026-04-25 22:32:28,410 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/coding_agent.py to container at /hgm/coding_agent.py
+2026-04-25 22:32:29,199 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/coding_agent.py to container
+2026-04-25 22:32:31,150 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/requirements.txt to container at /hgm/requirements.txt
+2026-04-25 22:32:31,540 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/requirements.txt to container
+2026-04-25 22:32:33,494 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/pytest.ini to container at /hgm/pytest.ini
+2026-04-25 22:32:33,884 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/pytest.ini to container
+2026-04-25 22:32:35,860 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/tools to container at /hgm/tools
+2026-04-25 22:32:36,250 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/tools to container
+2026-04-25 22:32:37,922 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/utils to container at /hgm/utils
+2026-04-25 22:32:38,548 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/utils to container
+2026-04-25 22:32:40,227 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/tests to container at /hgm/tests
+2026-04-25 22:32:40,852 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/tests to container
+2026-04-25 22:32:42,785 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/prompts to container at /hgm/prompts
+2026-04-25 22:32:42,983 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/prompts to container
+2026-04-25 22:32:44,794 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/llm.py to container at /hgm/llm.py
+2026-04-25 22:32:45,185 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/llm.py to container
+2026-04-25 22:32:47,147 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/llm_withtools.py to container at /hgm/llm_withtools.py
+2026-04-25 22:32:47,537 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/llm_withtools.py to container
+2026-04-25 22:32:49,654 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/LICENSE to container at /hgm/LICENSE
+2026-04-25 22:32:50,046 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/LICENSE to container
+2026-04-25 22:32:52,173 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/README.md to container at /hgm/README.md
+2026-04-25 22:32:52,439 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/initial_swe/default_agent/src/README.md to container
+2026-04-25 22:32:52,439 - ThreadPoolExecutor-3_0 - INFO - Setting up environment
+2026-04-25 22:32:54,589 - ThreadPoolExecutor-3_0 - INFO - Copying /mnt/vast/home/ym56kacy/MendelGM/output_mgm/initial/predictions/initial_5/sphinx-doc__sphinx-11510_eval.sh to container at /eval.sh
+2026-04-25 22:32:55,172 - ThreadPoolExecutor-3_0 - INFO - Successfully copied /mnt/vast/home/ym56kacy/MendelGM/output_mgm/initial/predictions/initial_5/sphinx-doc__sphinx-11510_eval.sh to container
+2026-04-25 22:33:04,573 - ThreadPoolExecutor-3_0 - INFO - Container output: + source /opt/miniconda3/bin/activate
+++ _CONDA_ROOT=/opt/miniconda3
+++ . /opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ '[' -z '' ']'
++++ export CONDA_SHLVL=0
++++ CONDA_SHLVL=0
++++ '[' -n '' ']'
++++++ dirname /opt/miniconda3/bin/conda
+++++ dirname /opt/miniconda3/bin
++++ PATH=/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export PATH
++++ '[' -z '' ']'
++++ PS1=
+++ conda activate
+++ local cmd=activate
+++ case "$cmd" in
+++ __conda_activate activate
+++ '[' -n '' ']'
+++ local ask_conda
++++ PS1=
++++ __conda_exe shell.posix activate
++++ /opt/miniconda3/bin/conda shell.posix activate
+++ ask_conda='PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ eval 'PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++++ PS1='(base) '
++++ export PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export CONDA_PREFIX=/opt/miniconda3
++++ CONDA_PREFIX=/opt/miniconda3
++++ export CONDA_SHLVL=1
++++ CONDA_SHLVL=1
++++ export CONDA_DEFAULT_ENV=base
++++ CONDA_DEFAULT_ENV=base
++++ export 'CONDA_PROMPT_MODIFIER=(base) '
++++ CONDA_PROMPT_MODIFIER='(base) '
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ conda activate testbed
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate testbed
++ '[' -n '' ']'
++ local ask_conda
+++ PS1='(base) '
+++ __conda_exe shell.posix activate testbed
+++ /opt/miniconda3/bin/conda shell.posix activate testbed
++ ask_conda='PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++ eval 'PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ PS1='(testbed) '
+++ export PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export CONDA_DEFAULT_ENV=testbed
+++ CONDA_DEFAULT_ENV=testbed
+++ export 'CONDA_PROMPT_MODIFIER=(testbed) '
+++ CONDA_PROMPT_MODIFIER='(testbed) '
+++ export CONDA_PREFIX_1=/opt/miniconda3
+++ CONDA_PREFIX_1=/opt/miniconda3
+++ export CONDA_EXE=/opt/miniconda3/bin/conda
+++ CONDA_EXE=/opt/miniconda3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ cd /testbed
++ git config --global --add safe.directory /testbed
++ cd /testbed
++ git status
+On branch master
+nothing to commit, working tree clean
++ git show
+commit fb046c028346973dafd56602bc0fdcdbe9c4dd57
+Author: SWE-bench <setup@swebench.config>
+Date:   Thu Apr 9 18:55:07 2026 +0000
+
+    SWE-bench
+
+diff --git a/tox.ini b/tox.ini
+index a3dc56211..c76147de3 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -24,7 +24,7 @@ setenv =
+     PYTHONWARNINGS = error
+     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes
+ commands=
+-    python -X dev -X warn_default_encoding -m pytest --durations 25 {posargs}
++    python -X dev -X warn_default_encoding -m pytest -rA --durations 25 {posargs}
+ 
+ [testenv:docs]
+ basepython = python3
++ git -c core.fileMode=false diff 6cb783c0024a873722952a67ebb9f41771c8eb6d
+diff --git a/tox.ini b/tox.ini
+index a3dc56211..c76147de3 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -24,7 +24,7 @@ setenv =
+     PYTHONWARNINGS = error
+     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes
+ commands=
+-    python -X dev -X warn_default_encoding -m pytest --durations 25 {posargs}
++    python -X dev -X warn_default_encoding -m pytest -rA --durations 25 {posargs}
+ 
+ [testenv:docs]
+ basepython = python3
++ source /opt/miniconda3/bin/activate
+++ _CONDA_ROOT=/opt/miniconda3
+++ . /opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ '[' -z x ']'
+++ conda activate
+++ local cmd=activate
+++ case "$cmd" in
+++ __conda_activate activate
+++ '[' -n '' ']'
+++ local ask_conda
++++ PS1='(testbed) '
++++ __conda_exe shell.posix activate
++++ /opt/miniconda3/bin/conda shell.posix activate
+++ ask_conda='PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''3'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_PREFIX_2='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ eval 'PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''3'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_PREFIX_2='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++++ PS1='(base) '
++++ export PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export CONDA_PREFIX=/opt/miniconda3
++++ CONDA_PREFIX=/opt/miniconda3
++++ export CONDA_SHLVL=3
++++ CONDA_SHLVL=3
++++ export CONDA_DEFAULT_ENV=base
++++ CONDA_DEFAULT_ENV=base
++++ export 'CONDA_PROMPT_MODIFIER=(base) '
++++ CONDA_PROMPT_MODIFIER='(base) '
++++ export CONDA_PREFIX_2=/opt/miniconda3/envs/testbed
++++ CONDA_PREFIX_2=/opt/miniconda3/envs/testbed
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ conda activate testbed
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate testbed
++ '[' -n '' ']'
++ local ask_conda
+++ PS1='(base) '
+++ __conda_exe shell.posix activate testbed
+++ /opt/miniconda3/bin/conda shell.posix activate testbed
++ ask_conda='PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''4'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_3='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++ eval 'PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''4'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_3='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ PS1='(testbed) '
+++ export PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ export CONDA_SHLVL=4
+++ CONDA_SHLVL=4
+++ export CONDA_DEFAULT_ENV=testbed
+++ CONDA_DEFAULT_ENV=testbed
+++ export 'CONDA_PROMPT_MODIFIER=(testbed) '
+++ CONDA_PROMPT_MODIFIER='(testbed) '
+++ export CONDA_PREFIX_3=/opt/miniconda3
+++ CONDA_PREFIX_3=/opt/miniconda3
+++ export CONDA_EXE=/opt/miniconda3/bin/conda
+++ CONDA_EXE=/opt/miniconda3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ python -m pip install -e '.[test]'
+Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+Obtaining file:///testbed
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: sphinxcontrib-applehelp in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.0.0)
+Requirement already satisfied: sphinxcontrib-devhelp in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.0.0)
+Requirement already satisfied: sphinxcontrib-jsmath in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (1.0.1)
+Requirement already satisfied: sphinxcontrib-htmlhelp>=2.0.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.1.0)
+Requirement already satisfied: sphinxcontrib-serializinghtml>=1.1.5 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.0.0)
+Requirement already satisfied: sphinxcontrib-qthelp in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.0.0)
+Requirement already satisfied: Jinja2>=3.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (3.1.4)
+Requirement already satisfied: Pygments>=2.14 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.18.0)
+Requirement already satisfied: docutils<0.21,>=0.18.1 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (0.20.1)
+Requirement already satisfied: snowballstemmer>=2.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.2.0)
+Requirement already satisfied: babel>=2.9 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.16.0)
+Requirement already satisfied: alabaster<0.8,>=0.7 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (0.7.16)
+Requirement already satisfied: imagesize>=1.3 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (1.4.1)
+Requirement already satisfied: requests>=2.25.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (2.32.3)
+Requirement already satisfied: packaging>=21.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (24.1)
+Requirement already satisfied: importlib-metadata>=4.8 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (8.5.0)
+Requirement already satisfied: pytest>=4.6 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (8.3.3)
+Requirement already satisfied: html5lib in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (1.1)
+Requirement already satisfied: cython>=3.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (3.0.11)
+Requirement already satisfied: setuptools>=67.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (75.1.0)
+Requirement already satisfied: filelock in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Sphinx==7.2.0) (3.16.1)
+Requirement already satisfied: zipp>=3.20 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from importlib-metadata>=4.8->Sphinx==7.2.0) (3.20.2)
+Requirement already satisfied: MarkupSafe>=2.0 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from Jinja2>=3.0->Sphinx==7.2.0) (3.0.2)
+Requirement already satisfied: iniconfig in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from pytest>=4.6->Sphinx==7.2.0) (2.0.0)
+Requirement already satisfied: pluggy<2,>=1.5 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from pytest>=4.6->Sphinx==7.2.0) (1.5.0)
+Requirement already satisfied: exceptiongroup>=1.0.0rc8 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from pytest>=4.6->Sphinx==7.2.0) (1.2.2)
+Requirement already satisfied: tomli>=1 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from pytest>=4.6->Sphinx==7.2.0) (2.0.2)
+Requirement already satisfied: charset-normalizer<4,>=2 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from requests>=2.25.0->Sphinx==7.2.0) (3.4.0)
+Requirement already satisfied: idna<4,>=2.5 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from requests>=2.25.0->Sphinx==7.2.0) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from requests>=2.25.0->Sphinx==7.2.0) (2.2.3)
+Requirement already satisfied: certifi>=2017.4.17 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from requests>=2.25.0->Sphinx==7.2.0) (2024.8.30)
+Requirement already satisfied: six>=1.9 in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from html5lib->Sphinx==7.2.0) (1.16.0)
+Requirement already satisfied: webencodings in /opt/miniconda3/envs/testbed/lib/python3.9/site-packages (from html5lib->Sphinx==7.2.0) (0.5.1)
+Building wheels for collected packages: Sphinx
+  Building editable for Sphinx (pyproject.toml): started
+  Building editable for Sphinx (pyproject.toml): finished with status 'done'
+  Created wheel for Sphinx: filename=sphinx-7.2.0-py3-none-any.whl size=4406 sha256=7f9d8a97e36c3dd5e8dcd3def70c16e18780bee0a4db46927f0452a06d405249
+  Stored in directory: /tmp/pip-ephem-wheel-cache-cqaikfav/wheels/7d/66/67/70d1ee2124ccf21d601c352e25cdca10f611f7c8b3f9ffb9e4
+Successfully built Sphinx
+Installing collected packages: Sphinx
+  Attempting uninstall: Sphinx
+    Found existing installation: Sphinx 7.2.0
+    Uninstalling Sphinx-7.2.0:
+      Successfully uninstalled Sphinx-7.2.0
+Successfully installed Sphinx-7.2.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
++ git checkout 6cb783c0024a873722952a67ebb9f41771c8eb6d tests/test_directive_other.py
+Updated 0 paths from 162eea2b8
++ git apply -v -
+Checking patch tests/roots/test-directive-include/baz/baz.rst...
+Checking patch tests/roots/test-directive-include/conf.py...
+Checking patch tests/roots/test-directive-include/foo.rst...
+Checking patch tests/roots/test-directive-include/text.txt...
+Checking patch tests/test_directive_other.py...
+Applied patch tests/roots/test-directive-include/baz/baz.rst cleanly.
+Applied patch tests/roots/test-directive-include/conf.py cleanly.
+Applied patch tests/roots/test-directive-include/foo.rst cleanly.
+Applied patch tests/roots/test-directive-include/text.txt cleanly.
+Applied patch tests/test_directive_other.py cleanly.
++ : '>>>>> Start Test Output'
++ tox --current-env -epy39 -v -- tests/roots/test-directive-include/baz/baz.rst tests/roots/test-directive-include/conf.py tests/roots/test-directive-include/foo.rst tests/test_directive_other.py
+py39: commands[0]> python -X dev -X warn_default_encoding -m pytest -rA --durations 25 tests/roots/test-directive-include/baz/baz.rst tests/roots/test-directive-include/conf.py tests/roots/test-directive-include/foo.rst tests/test_directive_other.py
+[1m============================= test session starts ==============================[0m
+platform linux -- Python 3.9.20, pytest-8.3.3, pluggy-1.5.0
+cachedir: .tox/py39/.pytest_cache
+libraries: Sphinx-7.2.0+/fb046c028, docutils-0.20.1
+base tmp_path: /tmp/pytest-of-root/pytest-0
+rootdir: /testbed
+configfile: pyproject.toml
+collected 9 items
+
+tests/test_directive_other.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31m                                  [100%][0m
+
+=================================== FAILURES ===================================
+[31m[1m________________________ test_include_source_read_event ________________________[0m
+
+app = <SphinxTestApp buildername='html'>
+
+    [0m[37m@pytest[39;49;00m.mark.sphinx(testroot=[33m'[39;49;00m[33mdirective-include[39;49;00m[33m'[39;49;00m)[90m[39;49;00m
+    [94mdef[39;49;00m [92mtest_include_source_read_event[39;49;00m(app):[90m[39;49;00m
+        sources_reported = {}[90m[39;49;00m
+    [90m[39;49;00m
+        [94mdef[39;49;00m [92msource_read_handler[39;49;00m(app, doc, source):[90m[39;49;00m
+            sources_reported[doc] = source[[94m0[39;49;00m][90m[39;49;00m
+    [90m[39;49;00m
+        app.connect([33m"[39;49;00m[33msource-read[39;49;00m[33m"[39;49;00m, source_read_handler)[90m[39;49;00m
+        text = ([33m"[39;49;00m[33m.. include:: baz/baz.rst[39;49;00m[33m\n[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+                [33m"[39;49;00m[33m   :start-line: 4[39;49;00m[33m\n[39;49;00m[33m\n[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+                [33m"[39;49;00m[33m.. include:: text.txt[39;49;00m[33m\n[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+                [33m"[39;49;00m[33m   :literal:    [39;49;00m[33m\n[39;49;00m[33m"[39;49;00m)[90m[39;49;00m
+        app.env.find_files(app.config, app.builder)[90m[39;49;00m
+        restructuredtext.parse(app, text, [33m'[39;49;00m[33mindex[39;49;00m[33m'[39;49;00m)[90m[39;49;00m
+        [94massert[39;49;00m [33m"[39;49;00m[33mindex[39;49;00m[33m"[39;49;00m [95min[39;49;00m sources_reported[90m[39;49;00m
+        [94massert[39;49;00m [33m"[39;49;00m[33mtext.txt[39;49;00m[33m"[39;49;00m [95mnot[39;49;00m [95min[39;49;00m sources_reported  [90m# text was included as literal, no rst parsing[39;49;00m[90m[39;49;00m
+>       [94massert[39;49;00m [33m"[39;49;00m[33mbaz/baz[39;49;00m[33m"[39;49;00m [95min[39;49;00m sources_reported[90m[39;49;00m
+[1m[31mE       AssertionError: assert 'baz/baz' in {'index': '.. include:: baz/baz.rst\n   :start-line: 4\n\n.. include:: text.txt\n   :literal:    \n'}[0m
+
+[1m[31mtests/test_directive_other.py[0m:169: AssertionError
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/directive-include
+# outdir: /tmp/pytest-of-root/pytest-0/directive-include/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+[31m[1m________________ test_include_source_read_event_nested_includes ________________[0m
+
+app = <SphinxTestApp buildername='html'>
+
+    [0m[37m@pytest[39;49;00m.mark.sphinx(testroot=[33m'[39;49;00m[33mdirective-include[39;49;00m[33m'[39;49;00m)[90m[39;49;00m
+    [94mdef[39;49;00m [92mtest_include_source_read_event_nested_includes[39;49;00m(app):[90m[39;49;00m
+    [90m[39;49;00m
+        [94mdef[39;49;00m [92msource_read_handler[39;49;00m(app, doc, source):[90m[39;49;00m
+            text = source[[94m0[39;49;00m].replace([33m"[39;49;00m[33m#magical[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mamazing[39;49;00m[33m"[39;49;00m)[90m[39;49;00m
+            source[[94m0[39;49;00m] = text[90m[39;49;00m
+    [90m[39;49;00m
+        app.connect([33m"[39;49;00m[33msource-read[39;49;00m[33m"[39;49;00m, source_read_handler)[90m[39;49;00m
+        text = ([33m"[39;49;00m[33m.. include:: baz/baz.rst[39;49;00m[33m\n[39;49;00m[33m"[39;49;00m)[90m[39;49;00m
+        app.env.find_files(app.config, app.builder)[90m[39;49;00m
+        doctree = restructuredtext.parse(app, text, [33m'[39;49;00m[33mindex[39;49;00m[33m'[39;49;00m)[90m[39;49;00m
+        assert_node(doctree, addnodes.document)[90m[39;49;00m
+        [94massert[39;49;00m [96mlen[39;49;00m(doctree.children) == [94m3[39;49;00m[90m[39;49;00m
+        assert_node(doctree.children[[94m1[39;49;00m], nodes.paragraph)[90m[39;49;00m
+>       [94massert[39;49;00m doctree.children[[94m1[39;49;00m].rawsource == [33m"[39;49;00m[33mThe amazing foo.[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE       AssertionError: assert 'The #magical foo.' == 'The amazing foo.'[0m
+[1m[31mE         [0m
+[1m[31mE         - The amazing foo.[0m
+[1m[31mE         + The #magical foo.[0m
+
+[1m[31mtests/test_directive_other.py[0m:187: AssertionError
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/directive-include
+# outdir: /tmp/pytest-of-root/pytest-0/directive-include/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+==================================== PASSES ====================================
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+[91m/tmp/pytest-of-root/pytest-0/toctree-glob/index.rst:1: WARNING: duplicated entry found in toctree: foo[39;49;00m
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+
+--------------------------- Captured stdout teardown ---------------------------
+# testroot: root
+# builder: html
+# srcdir: /tmp/pytest-of-root/pytest-0/toctree-glob
+# outdir: /tmp/pytest-of-root/pytest-0/toctree-glob/_build/html
+# status: 
+[01mRunning Sphinx v7.2.0+/fb046c028[39;49;00m
+
+# warning: 
+[91m/tmp/pytest-of-root/pytest-0/toctree-glob/index.rst:1: WARNING: duplicated entry found in toctree: foo[39;49;00m
+
+============================= slowest 25 durations =============================
+0.53s setup    tests/test_directive_other.py::test_toctree
+0.04s setup    tests/test_directive_other.py::test_reversed_toctree
+0.02s call     tests/test_directive_other.py::test_toctree
+0.02s setup    tests/test_directive_other.py::test_include_source_read_event
+0.02s setup    tests/test_directive_other.py::test_relative_toctree
+0.01s setup    tests/test_directive_other.py::test_toctree_glob_and_url
+0.01s setup    tests/test_directive_other.py::test_toctree_urls_and_titles
+0.01s setup    tests/test_directive_other.py::test_toctree_twice
+0.01s setup    tests/test_directive_other.py::test_include_source_read_event_nested_includes
+0.01s setup    tests/test_directive_other.py::test_toctree_glob
+0.01s call     tests/test_directive_other.py::test_toctree_glob
+0.01s call     tests/test_directive_other.py::test_include_source_read_event
+0.01s call     tests/test_directive_other.py::test_include_source_read_event_nested_includes
+
+(12 durations < 0.005s hidden.  Use -vv to show these durations.)
+[36m[1m=========================== short test summary info ============================[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_toctree[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_relative_toctree[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_toctree_urls_and_titles[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_toctree_glob[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_toctree_glob_and_url[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_reversed_toctree[0m
+[32mPASSED[0m tests/test_directive_other.py::[1mtest_toctree_twice[0m
+[31mFAILED[0m tests/test_directive_other.py::[1mtest_include_source_read_event[0m - AssertionError: assert 'baz/baz' in {'index': '.. include:: baz/baz.rst\n  ...
+[31mFAILED[0m tests/test_directive_other.py::[1mtest_include_source_read_event_nested_includes[0m - AssertionError: assert 'The #magical foo.' == 'The amazing foo.'
+[31m========================= [31m[1m2 failed[0m, [32m7 passed[0m[31m in 0.93s[0m[31m ==========================[0m
+py39: exit 1 (1.66 seconds) /testbed> python -X dev -X warn_default_encoding -m pytest -rA --durations 25 tests/roots/test-directive-include/baz/baz.rst tests/roots/test-directive-include/conf.py tests/roots/test-directive-include/foo.rst tests/test_directive_other.py pid=128
+  py39: FAIL code 1 (1.67=setup[0.01]+cmd[1.66] seconds)
+  evaluation failed :( (1.92 seconds)
++ : '>>>>> End Test Output'
++ git checkout 6cb783c0024a873722952a67ebb9f41771c8eb6d tests/test_directive_other.py
+Updated 1 path from 162eea2b8
+
+2026-04-25 22:33:06,484 - ThreadPoolExecutor-3_0 - INFO - Container output: 
+2026-04-25 22:33:06,485 - ThreadPoolExecutor-3_0 - INFO - Installing more requirements
+2026-04-25 22:33:47,545 - ThreadPoolExecutor-3_0 - INFO - Container output: Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+Collecting datasets (from -r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/b0/e5/247d094108e42ac26363ab8dc57f168840cf7c05774b40ffeb0d78868fcc/datasets-4.8.4-py3-none-any.whl (526 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 527.0/527.0 kB 3.0 MB/s eta 0:00:00
+Collecting anthropic (from -r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/53/b6/8e851369fa661ad0fef2ae6266bf3b7d52b78ccf011720058f4adaca59e2/anthropic-0.97.0-py3-none-any.whl (662 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 662.1/662.1 kB 12.0 MB/s eta 0:00:00
+Collecting backoff (from -r /hgm/requirements.txt (line 4))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/df/73/b6e24bd22e6720ca8ee9a85a0c4a2971af8497d8f3193fa05390cbd46e09/backoff-2.2.1-py3-none-any.whl (15 kB)
+Collecting botocore (from -r /hgm/requirements.txt (line 5))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/45/56/152c3a859ca1b9d77ed16deac3cf81682013677c68cf5715698781fc81bd/botocore-1.42.96-py3-none-any.whl (14.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.9/14.9 MB 43.2 MB/s eta 0:00:00
+Collecting boto3 (from -r /hgm/requirements.txt (line 6))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/2b/9d/b3f617d011c42eb804d993103b8fa9acdce153e181a3042f58bfe33d7cb4/boto3-1.42.96-py3-none-any.whl (140 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 140.6/140.6 kB 18.9 MB/s eta 0:00:00
+Collecting openai (from -r /hgm/requirements.txt (line 7))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/c1/d6e64ccd0536bf616556f0cad2b6d94a8125f508d25cfd814b1d2db4e2f1/openai-2.32.0-py3-none-any.whl (1.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 72.2 MB/s eta 0:00:00
+Collecting pathspec (from -r /hgm/requirements.txt (line 8))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/fa/c9/8eed0486f074e9f1ca7f8ce5ad663e65f12fdab344028d658fa1b03d35e0/pathspec-1.1.0-py3-none-any.whl (56 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.3/56.3 kB 4.6 MB/s eta 0:00:00
+Collecting beautifulsoup4 (from -r /hgm/requirements.txt (line 11))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl (107 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.7/107.7 kB 15.8 MB/s eta 0:00:00
+Collecting chardet (from -r /hgm/requirements.txt (line 12))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/b1/10/31932775c94a86814f76b41c4a772b52abfb0e6125324f32c6da1196c297/chardet-7.4.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (883 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 883.4/883.4 kB 57.1 MB/s eta 0:00:00
+Collecting docker (from -r /hgm/requirements.txt (line 13))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e3/26/57c6fb270950d476074c087527a558ccb6f4436657314bfb6cdf484114c4/docker-7.1.0-py3-none-any.whl (147 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 147.8/147.8 kB 20.0 MB/s eta 0:00:00
+Collecting ghapi (from -r /hgm/requirements.txt (line 14))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/67/ac/e1960ec21cfd5a0fd9b329822c04d0b5f91abb688c3b1acd7e8ff3390432/ghapi-1.0.13-py3-none-any.whl (71 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.4/71.4 kB 9.0 MB/s eta 0:00:00
+Collecting GitPython (from -r /hgm/requirements.txt (line 15))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f2/c5/a1bc0996af85757903cf2bf444a7824e68e0035ce63fb41d6f76f9def68b/gitpython-3.1.47-py3-none-any.whl (209 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.5/209.5 kB 15.4 MB/s eta 0:00:00
+Collecting pre-commit (from -r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/80/6e/4b28b62ecb6aae56769c34a8ff1d661473ec1e9519e2d5f8b2c150086b26/pre_commit-4.6.0-py2.py3-none-any.whl (226 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 226.5/226.5 kB 24.0 MB/s eta 0:00:00
+Collecting python-dotenv (from -r /hgm/requirements.txt (line 17))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Collecting rich (from -r /hgm/requirements.txt (line 18))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/82/3b/64d4899d73f91ba49a8c18a8ff3f0ea8f1c1d75481760df8c68ef5235bf5/rich-15.0.0-py3-none-any.whl (310 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 310.7/310.7 kB 29.9 MB/s eta 0:00:00
+Collecting unidiff (from -r /hgm/requirements.txt (line 19))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/8a/54/57c411a6e8f7bd7848c8b66e4dcaffa586bf4c02e63f2280db0327a4e6eb/unidiff-0.7.5-py2.py3-none-any.whl (14 kB)
+Collecting pytest (from -r /hgm/requirements.txt (line 22))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d4/24/a372aaf5c9b7208e7112038812994107bc65a84cd00e0354a88c2c77a617/pytest-9.0.3-py3-none-any.whl (375 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 375.2/375.2 kB 32.1 MB/s eta 0:00:00
+Collecting pytest-asyncio (from -r /hgm/requirements.txt (line 23))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e5/35/f8b19922b6a25bc0880171a2f1a003eaeb93657475193ab516fd87cac9da/pytest_asyncio-1.3.0-py3-none-any.whl (15 kB)
+Collecting async_timeout (from -r /hgm/requirements.txt (line 24))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/fe/ba/e2081de779ca30d473f21f5b30e0e737c438205440784c7dfc81efc2b029/async_timeout-5.0.1-py3-none-any.whl (6.2 kB)
+Collecting PyYAML (from -r /hgm/requirements.txt (line 27))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/71/60/917329f640924b18ff085ab889a11c763e0b573da888e8404ff486657602/pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 56.7 MB/s eta 0:00:00
+Collecting filelock (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/81/47/dd9a212ef6e343a6857485ffe25bba537304f1913bdbed446a23f7f592e1/filelock-3.29.0-py3-none-any.whl (39 kB)
+Collecting numpy>=1.17 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/cf/c5/9fcb7e0e69cef59cf10c746b84f7d58b08bc66a6b7d459783c5a4f6101a6/numpy-2.4.4-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 25.9 MB/s eta 0:00:00
+Collecting pyarrow>=21.0.0 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f3/27/99c42abe8e21b44f4917f62631f3aa31404882a2c41d8a4cd5c110e13d52/pyarrow-24.0.0-cp311-cp311-manylinux_2_28_x86_64.whl (48.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.8/48.8 MB 10.6 MB/s eta 0:00:00
+Collecting dill<0.4.2,>=0.3.0 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl (120 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 120.0/120.0 kB 7.1 MB/s eta 0:00:00
+Collecting pandas (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/20/17/ec40d981705654853726e7ac9aea9ddbb4a5d9cf54d8472222f4f3de06c2/pandas-3.0.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (11.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 16.6 MB/s eta 0:00:00
+Collecting requests>=2.32.2 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d7/8e/7540e8a2036f79a125c1d2ebadf69ed7901608859186c856fa0388ef4197/requests-2.33.1-py3-none-any.whl (64 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 7.2 MB/s eta 0:00:00
+Collecting httpx<1.0.0 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl (73 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 6.8 MB/s eta 0:00:00
+Collecting tqdm>=4.66.3 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/16/e1/3079a9ff9b8e11b846c6ac5c8b5bfb7ff225eee721825310c91b3b50304f/tqdm-4.67.3-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.4/78.4 kB 10.2 MB/s eta 0:00:00
+Collecting xxhash (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f7/d0/3c91e4e6a05ca4d7df8e39ec3a75b713609258ec84705ab34be6430826a1/xxhash-3.7.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (193 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 193.9/193.9 kB 9.8 MB/s eta 0:00:00
+Collecting multiprocess<0.70.20 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/86/c2/dec9722dc3474c164a0b6bcd9a7ed7da542c98af8cabce05374abab35edd/multiprocess-0.70.19-py311-none-any.whl (144 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 144.5/144.5 kB 14.0 MB/s eta 0:00:00
+Collecting fsspec<=2026.2.0,>=2023.1.0 (from fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e6/ab/fb21f4c939bb440104cc2b396d3be1d9b7a9fd3c6c2a53d98c45b3d7c954/fsspec-2026.2.0-py3-none-any.whl (202 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 202.5/202.5 kB 15.7 MB/s eta 0:00:00
+Collecting huggingface-hub<2.0,>=0.25.0 (from datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/7e/2b/ef03ddb96bd1123503c2bd6932001020292deea649e9bf4caa2cb65a85bf/huggingface_hub-1.12.0-py3-none-any.whl (646 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 646.8/646.8 kB 21.0 MB/s eta 0:00:00
+Requirement already satisfied: packaging in /opt/miniconda3/lib/python3.11/site-packages (from datasets->-r /hgm/requirements.txt (line 1)) (23.1)
+Collecting anyio<5,>=3.5.0 (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/da/42/e921fccf5015463e32a3cf6ee7f980a6ed0f395ceeaa45060b61d86486c2/anyio-4.13.0-py3-none-any.whl (114 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.4/114.4 kB 12.1 MB/s eta 0:00:00
+Requirement already satisfied: distro<2,>=1.7.0 in /opt/miniconda3/lib/python3.11/site-packages (from anthropic->-r /hgm/requirements.txt (line 2)) (1.8.0)
+Collecting docstring-parser<1,>=0.15 (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl (22 kB)
+Collecting jiter<1,>=0.4.0 (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ad/5e/0ddeb7096aca099114abe36c4921016e8d251e6f35f5890240b31f1f60ae/jiter-0.14.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (358 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 358.7/358.7 kB 18.9 MB/s eta 0:00:00
+Collecting pydantic<3,>=1.9.0 (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f3/0a/fd7d723f8f8153418fb40cf9c940e82004fce7e987026b08a68a36dd3fe7/pydantic-2.13.3-py3-none-any.whl (471 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.0/472.0 kB 20.7 MB/s eta 0:00:00
+Collecting sniffio (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl (10 kB)
+Collecting typing-extensions<5,>=4.14 (from anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 3.7 MB/s eta 0:00:00
+Collecting jmespath<2.0.0,>=0.7.1 (from botocore->-r /hgm/requirements.txt (line 5))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/14/2f/967ba146e6d58cf6a652da73885f52fc68001525b4197effc174321d70b4/jmespath-1.1.0-py3-none-any.whl (20 kB)
+Collecting python-dateutil<3.0.0,>=2.1 (from botocore->-r /hgm/requirements.txt (line 5))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 14.9 MB/s eta 0:00:00
+Requirement already satisfied: urllib3!=2.2.0,<3,>=1.25.4 in /opt/miniconda3/lib/python3.11/site-packages (from botocore->-r /hgm/requirements.txt (line 5)) (1.26.18)
+Collecting s3transfer<0.17.0,>=0.16.0 (from boto3->-r /hgm/requirements.txt (line 6))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/03/19/90d7d4ed51932c022d53f1d02d564b62d10e272692a1f9b76425c1ad2a02/s3transfer-0.16.1-py3-none-any.whl (86 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.8/86.8 kB 9.6 MB/s eta 0:00:00
+Collecting soupsieve>=1.6.1 (from beautifulsoup4->-r /hgm/requirements.txt (line 11))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/46/2c/1462b1d0a634697ae9e55b3cecdcb64788e8b7d63f54d923fcd0bb140aed/soupsieve-2.8.3-py3-none-any.whl (37 kB)
+Collecting fastcore>=1.12.19 (from ghapi->-r /hgm/requirements.txt (line 14))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/20/bd/551e2dc0a7ddc061dd17b9abb658db0f742706d9d2ed1d44ee7a0e8b1aff/fastcore-1.12.42-py3-none-any.whl (103 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.9/103.9 kB 8.2 MB/s eta 0:00:00
+Collecting gitdb<5,>=4.0.1 (from GitPython->-r /hgm/requirements.txt (line 15))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/a0/61/5c78b91c3143ed5c14207f463aecfc8f9dbb5092fb2869baf37c273b2705/gitdb-4.0.12-py3-none-any.whl (62 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.8/62.8 kB 6.8 MB/s eta 0:00:00
+Collecting cfgv>=2.0.0 (from pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/db/3c/33bac158f8ab7f89b2e59426d5fe2e4f63f7ed25df84c036890172b412b5/cfgv-3.5.0-py2.py3-none-any.whl (7.4 kB)
+Collecting identify>=1.0.0 (from pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/94/84/d9273cd09688070a6523c4aee4663a8538721b2b755c4962aafae0011e72/identify-2.6.19-py2.py3-none-any.whl (99 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.4/99.4 kB 11.6 MB/s eta 0:00:00
+Collecting nodeenv>=0.11.1 (from pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/88/b2/d0896bdcdc8d28a7fc5717c305f1a861c26e18c05047949fb371034d98bd/nodeenv-1.10.0-py2.py3-none-any.whl (23 kB)
+Collecting virtualenv>=20.10.0 (from pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/27/8d/edd0bd910ff803c308ee9a6b7778621af0d10252219ad9f19ef4d4982a61/virtualenv-21.2.4-py3-none-any.whl (5.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.8/5.8 MB 28.7 MB/s eta 0:00:00
+Collecting markdown-it-py>=2.2.0 (from rich->-r /hgm/requirements.txt (line 18))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/94/54/e7d793b573f298e1c9013b8c4dade17d481164aa517d1d7148619c2cedbf/markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.3/87.3 kB 5.3 MB/s eta 0:00:00
+Collecting pygments<3.0.0,>=2.13.0 (from rich->-r /hgm/requirements.txt (line 18))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl (1.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 17.0 MB/s eta 0:00:00
+Collecting iniconfig>=1.0.1 (from pytest->-r /hgm/requirements.txt (line 22))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Collecting pluggy<2,>=1.5 (from pytest->-r /hgm/requirements.txt (line 22))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl (20 kB)
+Requirement already satisfied: idna>=2.8 in /opt/miniconda3/lib/python3.11/site-packages (from anyio<5,>=3.5.0->anthropic->-r /hgm/requirements.txt (line 2)) (3.4)
+Collecting aiohttp!=4.0.0a0,!=4.0.0a1 (from fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/7e/a5/0521aa32c1ddf3aa1e71dcc466be0b7db2771907a13f18cddaa45967d97b/aiohttp-3.13.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 34.7 MB/s eta 0:00:00
+Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->GitPython->-r /hgm/requirements.txt (line 15))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/c1/d4/59e74daffcb57a07668852eeeb6035af9f32cbfd7a1d2511f17d2fe6a738/smmap-5.0.3-py3-none-any.whl (24 kB)
+Requirement already satisfied: certifi in /opt/miniconda3/lib/python3.11/site-packages (from httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1)) (2023.11.17)
+Collecting httpcore==1.* (from httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 8.6 MB/s eta 0:00:00
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1.0.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting hf-xet<2.0.0,>=1.4.3 (from huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/df/9a/a24b26dc8a65f0ecc0fe5be981a19e61e7ca963b85e062c083f3a9100529/hf_xet-1.4.3-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 40.3 MB/s eta 0:00:00
+Collecting typer (from huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/39/d1/9484b497e0a0410b901c12b8251c3e746e1e863f7d28419ffe06f7892fda/typer-0.24.2-py3-none-any.whl (55 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.0/56.0 kB 8.7 MB/s eta 0:00:00
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->-r /hgm/requirements.txt (line 18))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Collecting pydantic-core==2.46.3 (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0a/44/93f489d16fb63fbd41c670441536541f6e8cfa1e5a69f40bc9c5d30d8c90/pydantic_core-2.46.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 36.4 MB/s eta 0:00:00
+Collecting typing-inspection>=0.4.2 (from pydantic<3,>=1.9.0->anthropic->-r /hgm/requirements.txt (line 2))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+Collecting six>=1.5 (from python-dateutil<3.0.0,>=2.1->botocore->-r /hgm/requirements.txt (line 5))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl (11 kB)
+Requirement already satisfied: charset_normalizer<4,>=2 in /opt/miniconda3/lib/python3.11/site-packages (from requests>=2.32.2->datasets->-r /hgm/requirements.txt (line 1)) (2.0.4)
+Collecting distlib<1,>=0.3.7 (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/33/6b/e0547afaf41bf2c42e52430072fa5658766e3d65bd4b03a563d1b6336f57/distlib-0.4.0-py2.py3-none-any.whl (469 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 469.0/469.0 kB 30.3 MB/s eta 0:00:00
+Requirement already satisfied: platformdirs<5,>=3.9.1 in /opt/miniconda3/lib/python3.11/site-packages (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16)) (3.10.0)
+Collecting python-discovery>=1.2.2 (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d8/db/795879cc3ddfe338599bddea6388cc5100b088db0a4caf6e6c1af1c27e04/python_discovery-1.2.2-py3-none-any.whl (31 kB)
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/0f/15/5bf3b99495fb160b63f95972b81750f18f7f4e02ad051373b669d17d44f2/aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Collecting attrs>=17.3.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl (67 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.5/67.5 kB 10.8 MB/s eta 0:00:00
+Collecting frozenlist>=1.1.1 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/11/b1/71a477adc7c36e5fb628245dfbdea2166feae310757dea848d02bd0689fd/frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (231 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 231.1/231.1 kB 22.3 MB/s eta 0:00:00
+Collecting multidict<7.0,>=4.5 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/5a/56/21b27c560c13822ed93133f08aa6372c53a8e067f11fbed37b4adcdac922/multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (246 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 246.3/246.3 kB 27.1 MB/s eta 0:00:00
+Collecting propcache>=0.2.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/52/6a/57f43e054fb3d3a56ac9fc532bc684fc6169a26c75c353e65425b3e56eef/propcache-0.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (210 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 210.0/210.0 kB 24.2 MB/s eta 0:00:00
+Collecting yarl<2.0,>=1.17.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/9a/64/c53487d9f4968045b8afa51aed7ca44f58b2589e772f32745f3744476c82/yarl-1.23.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (102 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.7/102.7 kB 12.6 MB/s eta 0:00:00
+Collecting platformdirs<5,>=3.9.1 (from virtualenv>=20.10.0->pre-commit->-r /hgm/requirements.txt (line 16))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/75/a6/a0a304dc33b49145b21f4808d763822111e67d1c3a32b524a1baf947b6e1/platformdirs-4.9.6-py3-none-any.whl (21 kB)
+Collecting click>=8.2.1 (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ae/44/c1221527f6a71a01ec6fbad7fa78f1d50dfa02217385cf0fa3eec7087d59/click-8.3.3-py3-none-any.whl (110 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 110.5/110.5 kB 11.3 MB/s eta 0:00:00
+Collecting shellingham>=1.3.0 (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Collecting annotated-doc>=0.0.2 (from typer->huggingface-hub<2.0,>=0.25.0->datasets->-r /hgm/requirements.txt (line 1))
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+Installing collected packages: unidiff, distlib, xxhash, typing-extensions, tqdm, soupsieve, sniffio, smmap, six, shellingham, requests, PyYAML, python-dotenv, pygments, pyarrow, propcache, pluggy, platformdirs, pathspec, numpy, nodeenv, multidict, mdurl, jmespath, jiter, iniconfig, identify, hf-xet, h11, fsspec, frozenlist, filelock, fastcore, docstring-parser, dill, click, chardet, cfgv, backoff, attrs, async_timeout, annotated-types, annotated-doc, aiohappyeyeballs, yarl, typing-inspection, python-discovery, python-dateutil, pytest, pydantic-core, multiprocess, markdown-it-py, httpcore, gitdb, ghapi, docker, beautifulsoup4, anyio, aiosignal, virtualenv, rich, pytest-asyncio, pydantic, pandas, httpx, GitPython, botocore, aiohttp, typer, s3transfer, pre-commit, openai, anthropic, huggingface-hub, boto3, datasets
+  Attempting uninstall: tqdm
+    Found existing installation: tqdm 4.65.0
+    Uninstalling tqdm-4.65.0:
+      Successfully uninstalled tqdm-4.65.0
+  Attempting uninstall: requests
+    Found existing installation: requests 2.31.0
+    Uninstalling requests-2.31.0:
+      Successfully uninstalled requests-2.31.0
+  Attempting uninstall: pluggy
+    Found existing installation: pluggy 1.0.0
+    Uninstalling pluggy-1.0.0:
+      Successfully uninstalled pluggy-1.0.0
+  Attempting uninstall: platformdirs
+    Found existing installation: platformdirs 3.10.0
+    Uninstalling platformdirs-3.10.0:
+      Successfully uninstalled platformdirs-3.10.0
+Successfully installed GitPython-3.1.47 PyYAML-6.0.3 aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-doc-0.0.4 annotated-types-0.7.0 anthropic-0.97.0 anyio-4.13.0 async_timeout-5.0.1 attrs-26.1.0 backoff-2.2.1 beautifulsoup4-4.14.3 boto3-1.42.96 botocore-1.42.96 cfgv-3.5.0 chardet-7.4.3 click-8.3.3 datasets-4.8.4 dill-0.4.1 distlib-0.4.0 docker-7.1.0 docstring-parser-0.18.0 fastcore-1.12.42 filelock-3.29.0 frozenlist-1.8.0 fsspec-2026.2.0 ghapi-1.0.13 gitdb-4.0.12 h11-0.16.0 hf-xet-1.4.3 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.12.0 identify-2.6.19 iniconfig-2.3.0 jiter-0.14.0 jmespath-1.1.0 markdown-it-py-4.0.0 mdurl-0.1.2 multidict-6.7.1 multiprocess-0.70.19 nodeenv-1.10.0 numpy-2.4.4 openai-2.32.0 pandas-3.0.2 pathspec-1.1.0 platformdirs-4.9.6 pluggy-1.6.0 pre-commit-4.6.0 propcache-0.4.1 pyarrow-24.0.0 pydantic-2.13.3 pydantic-core-2.46.3 pygments-2.20.0 pytest-9.0.3 pytest-asyncio-1.3.0 python-dateutil-2.9.0.post0 python-discovery-1.2.2 python-dotenv-1.2.2 requests-2.33.1 rich-15.0.0 s3transfer-0.16.1 shellingham-1.5.4 six-1.17.0 smmap-5.0.3 sniffio-1.3.1 soupsieve-2.8.3 tqdm-4.67.3 typer-0.24.2 typing-extensions-4.15.0 typing-inspection-0.4.2 unidiff-0.7.5 virtualenv-21.2.4 xxhash-3.7.0 yarl-1.23.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+2026-04-25 22:33:47,552 - ThreadPoolExecutor-3_0 - INFO - Running the agent
+2026-04-25 23:22:01,939 - ThreadPoolExecutor-3_0 - INFO - Container output: Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 263 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 231 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 311 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 273 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 357 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 377 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 423 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 414 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 339 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1384 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 642 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 680 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 468 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 321 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 488 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 441 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 614 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 651 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 575 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 604 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 690 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 252 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 565 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 555 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 242 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 595 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 432 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 718 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1356 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 450 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 508 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 330 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 700 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 764 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1347 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1293 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 283 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 386 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 755 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1256 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 459 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1311 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 518 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1329 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1284 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1338 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 527 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1375 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 545 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 709 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 348 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1450 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1459 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1228 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 737 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 791 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1394 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 623 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 633 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 585 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 773 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 536 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1320 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1413 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1365 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 499 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 671 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1265 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1422 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1237 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1441 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 746 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 782 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1219 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1404 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 368 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 727 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1275 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 293 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 396 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 661 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1432 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 405 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1247 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1200 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 478 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 302 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1209 is closed
+Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 1302 is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0x7ff5f2fda8e0>
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 765, in close
+    self.write_eof()
+  File "/opt/miniconda3/lib/python3.11/asyncio/unix_events.py", line 751, in write_eof
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/opt/miniconda3/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Using vllm API with served model Qwen/Qwen3-Coder-Next at http://127.0.0.1:8000/v1.
+
+2026-04-25 23:22:01,947 - ThreadPoolExecutor-3_0 - INFO - Copying output files back to host
+2026-04-25 23:22:04,835 - ThreadPoolExecutor-3_0 - INFO - Copying from container /hgm/sphinx-doc__sphinx-11510.md to local path /mnt/vast/home/ym56kacy/MendelGM/output_mgm/initial/predictions/initial_5/sphinx-doc__sphinx-11510.md
+2026-04-25 23:22:05,435 - ThreadPoolExecutor-3_0 - INFO - Successfully copied from container to /mnt/vast/home/ym56kacy/MendelGM/output_mgm/initial/predictions/initial_5/sphinx-doc__sphinx-11510.md
+2026-04-25 23:22:06,878 - ThreadPoolExecutor-3_0 - INFO - Getting model_patch
+2026-04-25 23:22:08,310 - ThreadPoolExecutor-3_0 - INFO - Container output: diff --git a/tox.ini b/tox.ini
+index a3dc56211..c76147de3 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -24,7 +24,7 @@ setenv =
+     PYTHONWARNINGS = error
+     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes
+ commands=
+-    python -X dev -X warn_default_encoding -m pytest --durations 25 {posargs}
++    python -X dev -X warn_default_encoding -m pytest -rA --durations 25 {posargs}
+ 
+ [testenv:docs]
+ basepython = python3
+diff --git a/sphinx/directives/other.py.bak b/sphinx/directives/other.py.bak
+new file mode 100644
+index 000000000..19f7c0a8d
+--- /dev/null
++++ b/sphinx/directives/other.py.bak
+@@ -0,0 +1,405 @@
++from __future__ import annotations
++
++import re
++from typing import TYPE_CHECKING, Any, cast
++
++from docutils import nodes
++from docutils.parsers.rst import directives
++from docutils.parsers.rst.directives.admonitions import BaseAdmonition
++from docutils.parsers.rst.directives.misc import Class
++from docutils.parsers.rst.directives.misc import Include as BaseInclude
++
++from sphinx import addnodes
++from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
++from sphinx.domains.std import StandardDomain
++from sphinx.locale import _, __
++from sphinx.util import docname_join, logging, url_re
++from sphinx.util.docutils import SphinxDirective
++from sphinx.util.matching import Matcher, patfilter
++from sphinx.util.nodes import explicit_title_re
++
++if TYPE_CHECKING:
++    from docutils.nodes import Element, Node
++
++    from sphinx.application import Sphinx
++    from sphinx.util.typing import OptionSpec
++
++
++glob_re = re.compile(r'.*[*?\[].*')
++logger = logging.getLogger(__name__)
++
++
++def int_or_nothing(argument: str) -> int:
++    if not argument:
++        return 999
++    return int(argument)
++
++
++class TocTree(SphinxDirective):
++    """
++    Directive to notify Sphinx about the hierarchical structure of the docs,
++    and to include a table-of-contents like tree in the current document.
++    """
++    has_content = True
++    required_arguments = 0
++    optional_arguments = 0
++    final_argument_whitespace = False
++    option_spec = {
++        'maxdepth': int,
++        'name': directives.unchanged,
++        'caption': directives.unchanged_required,
++        'glob': directives.flag,
++        'hidden': directives.flag,
++        'includehidden': directives.flag,
++        'numbered': int_or_nothing,
++        'titlesonly': directives.flag,
++        'reversed': directives.flag,
++    }
++
++    def run(self) -> list[Node]:
++        subnode = addnodes.toctree()
++        subnode['parent'] = self.env.docname
++
++        # (title, ref) pairs, where ref may be a document, or an external link,
++        # and title may be None if the document's title is to be used
++        subnode['entries'] = []
++        subnode['includefiles'] = []
++        subnode['maxdepth'] = self.options.get('maxdepth', -1)
++        subnode['caption'] = self.options.get('caption')
++        subnode['glob'] = 'glob' in self.options
++        subnode['hidden'] = 'hidden' in self.options
++        subnode['includehidden'] = 'includehidden' in self.options
++        subnode['numbered'] = self.options.get('numbered', 0)
++        subnode['titlesonly'] = 'titlesonly' in self.options
++        self.set_source_info(subnode)
++        wrappernode = nodes.compound(classes=['toctree-wrapper'])
++        wrappernode.append(subnode)
++        self.add_name(wrappernode)
++
++        ret = self.parse_content(subnode)
++        ret.append(wrappernode)
++        return ret
++
++    def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
++        generated_docnames = frozenset(StandardDomain._virtual_doc_names)
++        suffixes = self.config.source_suffix
++        current_docname = self.env.docname
++        glob = toctree['glob']
++
++        # glob target documents
++        all_docnames = self.env.found_docs.copy() | generated_docnames
++        all_docnames.remove(current_docname)  # remove current document
++        frozen_all_docnames = frozenset(all_docnames)
++
++        ret: list[Node] = []
++        excluded = Matcher(self.config.exclude_patterns)
++        for entry in self.content:
++            if not entry:
++                continue
++
++            # look for explicit titles ("Some Title <document>")
++            explicit = explicit_title_re.match(entry)
++            url_match = url_re.match(entry) is not None
++            if glob and glob_re.match(entry) and not explicit and not url_match:
++                pat_name = docname_join(current_docname, entry)
++                doc_names = sorted(patfilter(all_docnames, pat_name))
++                for docname in doc_names:
++                    if docname in generated_docnames:
++                        # don't include generated documents in globs
++                        continue
++                    all_docnames.remove(docname)  # don't include it again
++                    toctree['entries'].append((None, docname))
++                    toctree['includefiles'].append(docname)
++                if not doc_names:
++                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
++                                   entry, location=toctree)
++                continue
++
++            if explicit:
++                ref = explicit.group(2)
++                title = explicit.group(1)
++                docname = ref
++            else:
++                ref = docname = entry
++                title = None
++
++            # remove suffixes (backwards compatibility)
++            for suffix in suffixes:
++                if docname.endswith(suffix):
++                    docname = docname.removesuffix(suffix)
++                    break
++
++            # absolutise filenames
++            docname = docname_join(current_docname, docname)
++            if url_match or ref == 'self':
++                toctree['entries'].append((title, ref))
++                continue
++
++            if docname not in frozen_all_docnames:
++                if excluded(self.env.doc2path(docname, False)):
++                    message = __('toctree contains reference to excluded document %r')
++                    subtype = 'excluded'
++                else:
++                    message = __('toctree contains reference to nonexisting document %r')
++                    subtype = 'not_readable'
++
++                logger.warning(message, docname, type='toc', subtype=subtype,
++                               location=toctree)
++                self.env.note_reread()
++                continue
++
++            if docname in all_docnames:
++                all_docnames.remove(docname)
++            else:
++                logger.warning(__('duplicated entry found in toctree: %s'), docname,
++                               location=toctree)
++
++            toctree['entries'].append((title, docname))
++            toctree['includefiles'].append(docname)
++
++        # entries contains all entries (self references, external links etc.)
++        if 'reversed' in self.options:
++            toctree['entries'] = list(reversed(toctree['entries']))
++            toctree['includefiles'] = list(reversed(toctree['includefiles']))
++
++        return ret
++
++
++class Author(SphinxDirective):
++    """
++    Directive to give the name of the author of the current document
++    or section. Shown in the output only if the show_authors option is on.
++    """
++    has_content = False
++    required_arguments = 1
++    optional_arguments = 0
++    final_argument_whitespace = True
++    option_spec: OptionSpec = {}
++
++    def run(self) -> list[Node]:
++        if not self.config.show_authors:
++            return []
++        para: Element = nodes.paragraph(translatable=False)
++        emph = nodes.emphasis()
++        para += emph
++        if self.name == 'sectionauthor':
++            text = _('Section author: ')
++        elif self.name == 'moduleauthor':
++            text = _('Module author: ')
++        elif self.name == 'codeauthor':
++            text = _('Code author: ')
++        else:
++            text = _('Author: ')
++        emph += nodes.Text(text)
++        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
++        emph.extend(inodes)
++
++        ret: list[Node] = [para]
++        ret += messages
++        return ret
++
++
++class SeeAlso(BaseAdmonition):
++    """
++    An admonition mentioning things to look at as reference.
++    """
++    node_class = addnodes.seealso
++
++
++class TabularColumns(SphinxDirective):
++    """
++    Directive to give an explicit tabulary column definition to LaTeX.
++    """
++    has_content = False
++    required_arguments = 1
++    optional_arguments = 0
++    final_argument_whitespace = True
++    option_spec: OptionSpec = {}
++
++    def run(self) -> list[Node]:
++        node = addnodes.tabular_col_spec()
++        node['spec'] = self.arguments[0]
++        self.set_source_info(node)
++        return [node]
++
++
++class Centered(SphinxDirective):
++    """
++    Directive to create a centered line of bold text.
++    """
++    has_content = False
++    required_arguments = 1
++    optional_arguments = 0
++    final_argument_whitespace = True
++    option_spec: OptionSpec = {}
++
++    def run(self) -> list[Node]:
++        if not self.arguments:
++            return []
++        subnode: Element = addnodes.centered()
++        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
++        subnode.extend(inodes)
++
++        ret: list[Node] = [subnode]
++        ret += messages
++        return ret
++
++
++class Acks(SphinxDirective):
++    """
++    Directive for a list of names.
++    """
++    has_content = True
++    required_arguments = 0
++    optional_arguments = 0
++    final_argument_whitespace = False
++    option_spec: OptionSpec = {}
++
++    def run(self) -> list[Node]:
++        node = addnodes.acks()
++        node.document = self.state.document
++        self.state.nested_parse(self.content, self.content_offset, node)
++        if len(node.children) != 1 or not isinstance(node.children[0],
++                                                     nodes.bullet_list):
++            logger.warning(__('.. acks content is not a list'),
++                           location=(self.env.docname, self.lineno))
++            return []
++        return [node]
++
++
++class HList(SphinxDirective):
++    """
++    Directive for a list that gets compacted horizontally.
++    """
++    has_content = True
++    required_arguments = 0
++    optional_arguments = 0
++    final_argument_whitespace = False
++    option_spec: OptionSpec = {
++        'columns': int,
++    }
++
++    def run(self) -> list[Node]:
++        ncolumns = self.options.get('columns', 2)
++        node = nodes.paragraph()
++        node.document = self.state.document
++        self.state.nested_parse(self.content, self.content_offset, node)
++        if len(node.children) != 1 or not isinstance(node.children[0],
++                                                     nodes.bullet_list):
++            logger.warning(__('.. hlist content is not a list'),
++                           location=(self.env.docname, self.lineno))
++            return []
++        fulllist = node.children[0]
++        # create a hlist node where the items are distributed
++        npercol, nmore = divmod(len(fulllist), ncolumns)
++        index = 0
++        newnode = addnodes.hlist()
++        newnode['ncolumns'] = str(ncolumns)
++        for column in range(ncolumns):
++            endindex = index + ((npercol + 1) if column < nmore else npercol)
++            bullet_list = nodes.bullet_list()
++            bullet_list += fulllist.children[index:endindex]
++            newnode += addnodes.hlistcol('', bullet_list)
++            index = endindex
++        return [newnode]
++
++
++class Only(SphinxDirective):
++    """
++    Directive to only include text if the given tag(s) are enabled.
++    """
++    has_content = True
++    required_arguments = 1
++    optional_arguments = 0
++    final_argument_whitespace = True
++    option_spec: OptionSpec = {}
++
++    def run(self) -> list[Node]:
++        node = addnodes.only()
++        node.document = self.state.document
++        self.set_source_info(node)
++        node['expr'] = self.arguments[0]
++
++        # Same as util.nested_parse_with_titles but try to handle nested
++        # sections which should be raised higher up the doctree.
++        memo: Any = self.state.memo
++        surrounding_title_styles = memo.title_styles
++        surrounding_section_level = memo.section_level
++        memo.title_styles = []
++        memo.section_level = 0
++        try:
++            self.state.nested_parse(self.content, self.content_offset,
++                                    node, match_titles=True)
++            title_styles = memo.title_styles
++            if (not surrounding_title_styles or
++                    not title_styles or
++                    title_styles[0] not in surrounding_title_styles or
++                    not self.state.parent):
++                # No nested sections so no special handling needed.
++                return [node]
++            # Calculate the depths of the current and nested sections.
++            current_depth = 0
++            parent = self.state.parent
++            while parent:
++                current_depth += 1
++                parent = parent.parent
++            current_depth -= 2
++            title_style = title_styles[0]
++            nested_depth = len(surrounding_title_styles)
++            if title_style in surrounding_title_styles:
++                nested_depth = surrounding_title_styles.index(title_style)
++            # Use these depths to determine where the nested sections should
++            # be placed in the doctree.
++            n_sects_to_raise = current_depth - nested_depth + 1
++            parent = cast(nodes.Element, self.state.parent)
++            for _i in range(n_sects_to_raise):
++                if parent.parent:
++                    parent = parent.parent
++            parent.append(node)
++            return []
++        finally:
++            memo.title_styles = surrounding_title_styles
++            memo.section_level = surrounding_section_level
++
++
++class Include(BaseInclude, SphinxDirective):
++    """
++    Like the standard "Include" directive, but interprets absolute paths
++    "correctly", i.e. relative to source directory.
++    """
++
++    def run(self) -> list[Node]:
++        if self.arguments[0].startswith('<') and \
++           self.arguments[0].endswith('>'):
++            # docutils "standard" includes, do not do path processing
++            return super().run()
++        rel_filename, filename = self.env.relfn2path(self.arguments[0])
++        self.arguments[0] = filename
++        self.env.note_included(filename)
++        return super().run()
++
++
++def setup(app: Sphinx) -> dict[str, Any]:
++    directives.register_directive('toctree', TocTree)
++    directives.register_directive('sectionauthor', Author)
++    directives.register_directive('moduleauthor', Author)
++    directives.register_directive('codeauthor', Author)
++    directives.register_directive('seealso', SeeAlso)
++    directives.register_directive('tabularcolumns', TabularColumns)
++    directives.register_directive('centered', Centered)
++    directives.register_directive('acks', Acks)
++    directives.register_directive('hlist', HList)
++    directives.register_directive('only', Only)
++    directives.register_directive('include', Include)
++
++    # register the standard rst class directive under a different name
++    # only for backwards compatibility now
++    directives.register_directive('cssclass', Class)
++    # new standard name when default-domain with "class" is in effect
++    directives.register_directive('rst-class', Class)
++
++    return {
++        'version': 'builtin',
++        'parallel_read_safe': True,
++        'parallel_write_safe': True,
++    }
+diff --git a/test_include/conf.py b/test_include/conf.py
+new file mode 100644
+index 000000000..9209c6003
+--- /dev/null
++++ b/test_include/conf.py
+@@ -0,0 +1,8 @@
++import sys
++import os
++
++sys.path.insert(0, os.path.abspath('.'))
++
++extensions = [
++    'my_extension'
++]
+diff --git a/test_include/index.rst b/test_include/index.rst
+new file mode 100644
+index 000000000..f2dec1395
+--- /dev/null
++++ b/test_include/index.rst
+@@ -0,0 +1,6 @@
++This is a test
++==============
++
++.. include:: something-to-include.rst
++
++&REPLACE_ME;
+diff --git a/test_include/my_extension.py b/test_include/my_extension.py
+new file mode 100644
+index 000000000..c6595631c
+--- /dev/null
++++ b/test_include/my_extension.py
+@@ -0,0 +1,25 @@
++#!/usr/bin/env python3
++
++from sphinx.application import Sphinx
++
++
++__version__ = '1.0'
++
++
++def subst_vars_replace(app: Sphinx, docname, source):
++    print(f"source-read event: docname={docname}, content before={repr(source[0][:100])}")
++    result = source[0]
++    result = result.replace("&REPLACE_ME;", "REPLACED")
++    source[0] = result
++    print(f"source-read event: docname={docname}, content after={repr(source[0][:100])}")
++
++
++def setup(app: Sphinx):
++
++    app.connect('source-read', subst_vars_replace)
++
++    return dict(
++        version=__version__,
++        parallel_read_safe=True,
++        parallel_write_safe=True
++    )
+diff --git a/test_include/something-to-include.rst b/test_include/something-to-include.rst
+new file mode 100644
+index 000000000..e63253568
+--- /dev/null
++++ b/test_include/something-to-include.rst
+@@ -0,0 +1,4 @@
++Testing
++=======
++
++&REPLACE_ME;
+diff --git a/tests/roots/test-directive-include/baz/baz.rst b/tests/roots/test-directive-include/baz/baz.rst
+new file mode 100644
+index 000000000..d8207261a
+--- /dev/null
++++ b/tests/roots/test-directive-include/baz/baz.rst
+@@ -0,0 +1,6 @@
++Baz
++===
++
++.. include:: foo.rst
++
++Baz was here.
+\ No newline at end of file
+diff --git a/tests/roots/test-directive-include/conf.py b/tests/roots/test-directive-include/conf.py
+new file mode 100644
+index 000000000..a4768582f
+--- /dev/null
++++ b/tests/roots/test-directive-include/conf.py
+@@ -0,0 +1,2 @@
++project = 'test-directive-include'
++exclude_patterns = ['_build']
+diff --git a/tests/roots/test-directive-include/foo.rst b/tests/roots/test-directive-include/foo.rst
+new file mode 100644
+index 000000000..0f82e661b
+--- /dev/null
++++ b/tests/roots/test-directive-include/foo.rst
+@@ -0,0 +1 @@
++The #magical foo.
+diff --git a/tests/roots/test-directive-include/text.txt b/tests/roots/test-directive-include/text.txt
+new file mode 100644
+index 000000000..b7ea15d7b
+--- /dev/null
++++ b/tests/roots/test-directive-include/text.txt
+@@ -0,0 +1 @@
++This is plain text.
+
+2026-04-25 23:22:09,764 - ThreadPoolExecutor-3_0 - INFO - Attempting to stop container sweb.eval.sphinx-doc__sphinx-11510.20260425_223222_146616...
+2026-04-25 23:22:25,265 - ThreadPoolExecutor-3_0 - INFO - Attempting to remove container sweb.eval.sphinx-doc__sphinx-11510.20260425_223222_146616...
+2026-04-25 23:22:26,196 - ThreadPoolExecutor-3_0 - INFO - Container sweb.eval.sphinx-doc__sphinx-11510.20260425_223222_146616 removed.
