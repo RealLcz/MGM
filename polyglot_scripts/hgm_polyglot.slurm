@@ -1,13 +1,35 @@
 #!/bin/bash
-#SBATCH --job-name=HGM
+#SBATCH --job-name=HGM-PG
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=256G
 #SBATCH --gres=gpu:8
 #SBATCH --time=96:00:00
-#SBATCH --output=logs/hgm_%j.out
-#SBATCH --error=logs/hgm_%j.err
+#SBATCH --output=logs/hgm_polyglot_%j.out
+#SBATCH --error=logs/hgm_polyglot_%j.err
+#
+# 启动 HGM 在 Polyglot benchmark 上进化（仿 swe_scripts/hgm.slurm）：
+# - 在计算节点上起 vLLM
+# - 默认 ENABLE_REMOTE_DOCKER=1：SSH 转发远端 Docker，反转 vLLM 供容器内访问
+# - hgm.py 带 --polyglot，任务集来自 polyglot/subsets（见 hgm.py）
+#
+# 在仓库根目录提交：
+#   sbatch polyglot_scripts/hgm_polyglot.slurm
+#
+# 指定输出目录与配置：
+#   HGM_OUTPUT_DIR=output_polyglot/my_run  HGM_CONFIG=polyglot_scripts/config_polyglot.yaml sbatch polyglot_scripts/hgm_polyglot.slurm
+#
+# 从某次运行继续（加载树与 init_evaluated_tasks 等）：
+#   HGM_OUTPUT_DIR=output_polyglot/new_run  CONTINUE_FROM=/path/to/prior/output_dir  sbatch polyglot_scripts/hgm_polyglot.slurm
+# （会覆盖 --continue_from null）
+#
+# 仅覆盖预算示例：
+#   HGM_MAX_TASK_EVALS=100 sbatch polyglot_scripts/hgm_polyglot.slurm
+#
+# 环境变量（与 swe 版一致，可选）:
+#   HF_HOME, VLLM_MODEL_NAME, HGM_MAX_WORKERS, ENABLE_REMOTE_DOCKER, REMOTE_DOCKER_*, 等
+#
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
@@ -52,7 +74,6 @@ fi
 export VLLM_HOST="${VLLM_HOST:-$HOST_IP}"
 export HGM_LLM_MODEL_ID="${HGM_LLM_MODEL_ID:-${SERVED_MODEL_NAME}}"
 
-# Auto-detect tool-call-parser from model name if not explicitly set
 if [ -z "${TOOL_CALL_PARSER:-}" ]; then
     case "${VLLM_MODEL_NAME}" in
         *Qwen3-Coder*|*Qwen3*)  TOOL_CALL_PARSER="qwen3_coder" ;;
@@ -80,7 +101,6 @@ export REMOTE_VLLM_PORT="${REMOTE_VLLM_PORT:-${VLLM_PORT}}"
 if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
     echo "Setting up SSH tunnel to remote Docker on ${REMOTE_DOCKER_HOST}..."
 
-    echo "Killing any stale SSH tunnels to ${REMOTE_DOCKER_HOST}..."
     pkill -f "ssh.*${REMOTE_DOCKER_HOST}.*docker-remote" 2>/dev/null || true
     ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
         "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" \
@@ -124,14 +144,14 @@ echo "Starting vLLM server..."
     --tool-call-parser "${TOOL_CALL_PARSER}" \
     --dtype auto \
     --trust-remote-code \
-    > "logs/vllm_${SLURM_JOB_ID}.stdout.log" 2> "logs/vllm_${SLURM_JOB_ID}.stderr.log" &
+    > "logs/vllm_polyglot_${SLURM_JOB_ID}.stdout.log" 2> "logs/vllm_polyglot_${SLURM_JOB_ID}.stderr.log" &
 VLLM_PID=$!
 
 VLLM_WAIT=0
 VLLM_MAX_WAIT=600
 until "${PYTHON_BIN}" -c "import sys, urllib.request; urllib.request.urlopen('http://${VLLM_HOST}:${VLLM_PORT}/v1/models', timeout=2); sys.exit(0)" >/dev/null 2>&1; do
     if ! kill -0 "${VLLM_PID}" 2>/dev/null; then
-        echo "ERROR: vLLM process (pid=${VLLM_PID}) died. Check logs/vllm_${SLURM_JOB_ID}.stderr.log" >&2
+        echo "ERROR: vLLM process (pid=${VLLM_PID}) died. Check logs/vllm_polyglot_${SLURM_JOB_ID}.stderr.log" >&2
         exit 1
     fi
     VLLM_WAIT=$((VLLM_WAIT + 5))
@@ -183,16 +203,33 @@ if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
     fi
 fi
 
-echo "Pre-pulling Docker images (timeout ${PRE_PULL_TIMEOUT:-600}s)..."
-timeout "${PRE_PULL_TIMEOUT:-600}" "${PYTHON_BIN}" -u scripts/pull_epoch_images_proxy.py all || {
-    echo "WARNING: Image pre-pull incomplete (timeout or error). HGM will proceed."
-    echo "Missing images will cause per-task failures that are handled gracefully."
-}
+# 默认：每次 job 一个带时间戳的子目录，避免与 SWE 的 output_mgm 混用
+if [ -z "${HGM_OUTPUT_DIR:-}" ]; then
+    HGM_OUTPUT_DIR="output_polyglot/$(date +%Y%m%d_%H%M%S)"
+fi
+export HGM_OUTPUT_DIR
 
-echo "Starting HGM (strategy A only, sequential evals, budget 200)..."
+HGM_CONFIG="${HGM_CONFIG:-polyglot_scripts/config_polyglot.yaml}"
+HGM_MAX_TASK_EVALS="${HGM_MAX_TASK_EVALS:-200}"
+
+# 新跑：--continue_from null 覆盖主 config.yaml 里可能存在的 continue_from
+# 续跑：设置 CONTINUE_FROM=/path/to/prior_output，并自己指定 HGM_OUTPUT_DIR 为新的或同一目录
+CONTINUE_FLAG=(--continue_from null)
+if [ -n "${CONTINUE_FROM:-}" ]; then
+    CONTINUE_FLAG=(--continue_from "${CONTINUE_FROM}")
+fi
+
+echo "Starting HGM — Polyglot benchmark"
+echo "  config=${HGM_CONFIG}  output_dir=${HGM_OUTPUT_DIR}"
+echo "  max_task_evals=${HGM_MAX_TASK_EVALS}  continue_from: ${CONTINUE_FROM:-<fresh, null>}"
+echo "  initial agent: initial_polyglot/ (hgm 内根据 polyglot 标志选择)"
+
 PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py \
-    --config "${HGM_CONFIG:-config.yaml}" \
-    --max_task_evals 200 \
+    --config "${HGM_CONFIG}" \
+    --polyglot \
+    --output_dir "${HGM_OUTPUT_DIR}" \
+    "${CONTINUE_FLAG[@]}" \
+    --max_task_evals "${HGM_MAX_TASK_EVALS}" \
     --max_workers "${HGM_MAX_WORKERS}" \
     --eval_random_level 0 \
     --failed_pool_boost 1.0 \
@@ -202,3 +239,5 @@ PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py \
     --self_improve_llm "${HGM_LLM_MODEL_ID}" \
     --downstream_llm "${HGM_LLM_MODEL_ID}" \
     --diagnose_llm "${HGM_LLM_MODEL_ID}"
+
+echo "hgm_polyglot.slurm finished."

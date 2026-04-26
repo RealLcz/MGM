@@ -15,6 +15,20 @@ import docker
 import pathspec
 
 
+def get_docker_api_timeout() -> int:
+    """
+    HTTP read timeout (seconds) for docker-py when talking to the daemon.
+    Increase when using DOCKER_HOST over SSH (large copy/archive operations
+    may exceed the default 60s).
+    """
+    return max(60, int(os.environ.get("DOCKER_API_TIMEOUT", "600")))
+
+
+def docker_from_env():
+    """Same as docker.from_env() but with a tunable API timeout (DOCKER_API_TIMEOUT)."""
+    return docker.from_env(timeout=get_docker_api_timeout())
+
+
 def read_dockerignore(dockerignore_path: str) -> List[str]:
     """Read and parse .dockerignore file, removing comments and empty lines."""
     patterns = []
@@ -142,7 +156,7 @@ def copy_src_files(dest_dir: str, source_dir: str = ".", build_image: bool = Fal
 
         image_name = os.path.basename(os.path.abspath(dest_dir + "/.."))
         print(f"Building Docker image '{image_name}'...")
-        client = docker.from_env()
+        client = docker_from_env()
         client.images.build(path=dest_dir, tag=image_name, nocache=True)
 
 

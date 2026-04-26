@@ -1,0 +1,37 @@
+# HGM 配置：Polyglot 多语言 benchmark（与根目录 config.yaml 同结构）
+# 由 polyglot_scripts/hgm_polyglot.slurm 默认引用。
+
+llm:
+  self_improve_llm: "Qwen/Qwen3-Coder-Next"
+  downstream_llm: "Qwen/Qwen3-Coder-Next"
+  diagnose_llm: "Qwen/Qwen3-Coder-Next"
+
+optimization:
+  alpha: 0.6
+  beta: 1.0
+  cool_down: false
+  eval_random_level: 0.0
+  failed_pool_boost: 1.0
+  n_pseudo_descendant_evals: 10000
+
+execution:
+  max_workers: 2
+  self_improve_timeout: 3600
+  evaluation_timeout: 3600
+  max_task_evals: 200
+
+evaluation:
+  full_eval: false
+  polyglot: true
+
+self_improve_strategy:
+  weight_a: 1.0
+  weight_b: 0.0
+  weight_c: 0.0
+  strategy_b_min_node_evals: 2
+
+paths:
+  # 由 slurm 通过 --output_dir 覆盖；此处留空则使用 Job 里生成的目录
+  output_dir: null
+  continue_from: null
+  initial_agent_name: "default_agent"

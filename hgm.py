@@ -59,6 +59,10 @@ def initialize_run(
     timeout=3600,
     max_workers=20
 ):
+    # YAML / CLI quirk: quoted "null" becomes the string "null", which is truthy.
+    if prevrun_dir and str(prevrun_dir).strip().lower() in ("", "null", "none"):
+        prevrun_dir = None
+
     hgm_utils.init(polyglot, output_dir, tasks, 0, self_improve_llm, timeout)
 
     # Copy cached initial version into experiment dir

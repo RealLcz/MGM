@@ -31,7 +31,7 @@ from swe_bench.report import make_report
 from utils.common_utils import load_json_file
 from utils.docker_utils import (build_hgm_container, cleanup_container,
                                 copy_from_container, copy_to_container,
-                                log_container_output,
+                                docker_from_env, log_container_output,
                                 remove_existing_container, safe_log,
                                 setup_logger)
 from utils.eval_utils import get_acc_on_tasks
@@ -422,7 +422,7 @@ def sample_child(
         if parent_commit == "failed":
             return "failed"
 
-        client = docker.from_env()
+        client = docker_from_env()
         client.ping()
 
         os.makedirs(run_output_dir, exist_ok=True)

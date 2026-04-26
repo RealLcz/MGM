@@ -18,6 +18,7 @@ from swe_bench.utils import (copy_from_container, copy_to_container,
                              log_container_output, remove_existing_container,
                              safe_log, setup_logger)
 from utils.common_utils import load_json_file
+from utils.docker_utils import docker_from_env
 
 llm = ""  # Global variable to hold the LLM model name or path
 timeout = 1800
@@ -50,7 +51,7 @@ def process_entry(
 
     try:
         # Create and start the Docker container (with retry for transient failures)
-        client = docker.from_env()
+        client = docker_from_env()
         run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         logger = setup_logger(str(out_dname / f"{instance_id}_docker.log"))
         nocache = True
@@ -302,7 +303,7 @@ def harness(
     entries = list(dataset)
     entries = [entry for entry in entries if entry["instance_id"] in test_task_list]
 
-    client = docker.from_env()
+    client = docker_from_env()
 
     # Check if all instance images already exist (e.g. pre-pulled from Epoch AI registry)
     # If so, skip the expensive base/env image build entirely

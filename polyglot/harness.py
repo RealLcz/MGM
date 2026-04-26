@@ -22,6 +22,7 @@ from prompts.testrepo_prompt import get_test_description
 from swe_bench.utils import (copy_from_container, copy_to_container,
                              log_container_output, remove_existing_container,
                              safe_log, setup_logger)
+from utils.docker_utils import docker_from_env
 from utils.git_utils import filter_patch_by_files, remove_patch_by_files
 
 llm = ""
@@ -64,7 +65,7 @@ def process_entry(
 
     try:
         # Create and start the Docker container
-        client = docker.from_env()
+        client = docker_from_env()
         run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         # Set up thread-specific logger
         logger = setup_logger(str(out_dname / f"{instance_id}_docker.log"))
@@ -371,7 +372,7 @@ def harness(
     entries = [entry for entry in entries if entry["instance_id"] in test_task_list]
 
     # Build the environment images
-    client = docker.from_env()
+    client = docker_from_env()
     build_env_images(
         client, dataset=entries, max_workers=max_workers, force_rebuild=False
     )

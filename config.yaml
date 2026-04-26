@@ -66,7 +66,7 @@ paths:
   # Output directory for results (if null, will be auto-generated)
   output_dir: "output_mgm"
   
-  # Directory to continue a previous run from
+  # Directory to continue a previous run from (must be YAML null, not the string "null")
   continue_from: "output_mgm"
   
   # Name of the initial agent (required)

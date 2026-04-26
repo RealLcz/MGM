@@ -18,6 +18,7 @@ from polyglot.docker_build import (BuildImageError, build_container,
 from polyglot.docker_utils import (clean_images, cleanup_container,
                                    copy_to_container, exec_run_with_timeout,
                                    list_images, remove_image, should_remove)
+from utils.docker_utils import docker_from_env
 from utils.swebench_compat import (APPLY_PATCH_FAIL, APPLY_PATCH_PASS,
                                    INSTANCE_IMAGE_BUILD_DIR, KEY_INSTANCE_ID,
                                    RUN_EVALUATION_LOG_DIR, TestSpec,
@@ -240,7 +241,7 @@ def run_instances(
         run_id (str): Run ID
         timeout (int): Timeout for running tests
     """
-    client = docker.from_env()
+    client = docker_from_env()
     test_specs = list(map(make_test_spec, instances))
 
     # print number of existing instance images
@@ -515,7 +516,7 @@ def main(
     # set open file limit
     assert len(run_id) > 0, "Run ID must be provided"
     resource.setrlimit(resource.RLIMIT_NOFILE, (open_file_limit, open_file_limit))
-    client = docker.from_env()
+    client = docker_from_env()
 
     # load predictions as map of instance_id to prediction
     if predictions_path == "gold":
