@@ -5,10 +5,11 @@ import datetime
 import json
 import os
 import random
-from collections import Counter
 import re
+import shlex
 import threading
 import traceback
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from statistics import stdev
@@ -43,6 +44,17 @@ alpha = 0.5
 K = 0.5
 bias_factor = 5
 nodes = {}
+
+
+def get_apply_patch_cmd(patch_path):
+    return (
+        f"if [ ! -s {shlex.quote(patch_path)} ]; then "
+        "true; "
+        "else "
+        f"git apply --whitespace=nowarn --recount {shlex.quote(patch_path)} || "
+        f"patch --batch --fuzz=5 -p1 < {shlex.quote(patch_path)}; "
+        "fi"
+    )
 total_tasks = []
 output_dir = ""
 polyglot = False
@@ -187,23 +199,10 @@ def choose_entry(parent_commit, debug=False):
             entry_ids = resolved_ids + empty_ids + unresolved_ids
         entry = random.choice(entry_ids)
     else:
-        num_total_ids = len(empty_ids) + len(resolved_ids) + len(unresolved_ids)
-
-        if len(empty_ids) >= 0.1 * num_total_ids and random.random() < 0.25:
-            entry = "solve_empty_patches"
-
-        elif random.random() < 0.25:
-            entry = "solve_stochasticity"
-
-        elif (
-            any_exceeding_context_length(
-                output_dir, parent_commit, empty_ids + unresolved_ids
-            )
-            and random.random() < 0.25
-        ):
-            entry = "solve_contextlength"
-
-        elif len(unresolved_ids) != 0:
+        # Fairness across self-improvement strategies: Strategy A should diagnose
+        # concrete failed tasks just like Strategies B/C, instead of using special
+        # global failure-type prompts such as stochasticity/context-length.
+        if len(unresolved_ids) != 0:
             entry_ids = unresolved_ids
             entry = random.choice(entry_ids)
 
@@ -244,22 +243,30 @@ def choose_two_entries(parent_commit, debug=False):
     resolved_ids = metadata["total_resolved_ids"]
     unresolved_ids = metadata["total_unresolved_ids"]
 
-    if polyglot:
-        entry_ids = empty_ids + unresolved_ids
-        if not entry_ids:
-            entry_ids = resolved_ids + empty_ids + unresolved_ids
-        pool = list(dict.fromkeys(entry_ids))
-    else:
-        pool = list(
-            dict.fromkeys(unresolved_ids + empty_ids + resolved_ids)
-        )
+    failed_pool = list(dict.fromkeys(empty_ids + unresolved_ids))
+    resolved_pool = [
+        entry_id
+        for entry_id in dict.fromkeys(resolved_ids)
+        if entry_id not in failed_pool
+    ]
 
-    if len(pool) < 2:
+    if len(failed_pool) >= 2:
+        return random.sample(failed_pool, 2)
+    if len(failed_pool) == 1 and resolved_pool:
+        entries = [failed_pool[0], random.choice(resolved_pool)]
+        random.shuffle(entries)
+        return entries
+
+    available_count = len(failed_pool) + len(resolved_pool)
+    if available_count < 2:
         raise RuntimeError(
             f"choose_two_entries: need at least two distinct instance ids for "
-            f"{parent_commit}, got {len(pool)}"
+            f"{parent_commit}, got {available_count}"
         )
-    return random.sample(pool, 2)
+    raise RuntimeError(
+        f"choose_two_entries: need at least one failed instance id for "
+        f"{parent_commit}, got none"
+    )
 
 
 def eval_agent(
@@ -472,15 +479,20 @@ def sample_child(
         patch_files = get_model_patch_paths(root_dir, output_dir, parent_commit)
         for patch_file in patch_files:
             copy_to_container(container, patch_file, "/hgm/parent_patch.txt")
+            apply_parent_patch_cmd = get_apply_patch_cmd("/hgm/parent_patch.txt")
             exec_result = container.exec_run(
-                "/bin/sh -c 'patch -p1 < /hgm/parent_patch.txt'", workdir="/hgm"
+                ["/bin/sh", "-c", apply_parent_patch_cmd], workdir="/hgm"
             )
             log_container_output(exec_result)
             exec_result = container.exec_run("rm /hgm/parent_patch.txt", workdir="/hgm")
             log_container_output(exec_result)
 
         git_setup_cmd = (
-            "printf '__pycache__/\\n*.pyc\\n*.backup\\n' > .gitignore && "
+            "printf '__pycache__/\\n*.pyc\\n*.backup\\n.pytest_cache/\\n"
+            "self_evo.md\\nmodel_patch.diff\\n.coverage\\ncoverage.xml\\n"
+            "htmlcov/\\nlogs/\\n*.log\\noutput_mgm/\\noutput_polyglot/\\n"
+            "initial_polyglot_evaluation/\\ntarget/\\nbuild/\\n.gradle/\\n"
+            "node_modules/\\n.npm/\\n.cache/\\ndist/\\n' > .gitignore && "
             "git init && "
             "git add --all && "
             "git -c user.name='user' -c user.email='you@example.com' "
@@ -640,6 +652,37 @@ def sample_child(
         ]
         exec_result = container.exec_run(cmd, environment=env_vars, workdir="/")
         log_container_output(exec_result, raise_error=False)
+
+        refresh_model_patch_cmd = (
+            "git -C /hgm ls-files --others --exclude-standard -z | "
+            "xargs -0 -r git -C /hgm add --intent-to-add -- && "
+            f"git -C /hgm diff --binary {commit_hash} -- . > /hgm/model_patch.diff"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", refresh_model_patch_cmd], workdir="/hgm"
+        )
+        log_container_output(exec_result, raise_error=False)
+        if exec_result.exit_code != 0:
+            raise RuntimeError("Failed to refresh model_patch.diff from git diff")
+
+        validation_cmd = (
+            "test -s /hgm/model_patch.diff && "
+            "tmp=$(mktemp -d) && "
+            f"git -C /hgm worktree add --detach \"$tmp\" {commit_hash} >/dev/null && "
+            "git -C \"$tmp\" apply --check --whitespace=nowarn "
+            "--recount /hgm/model_patch.diff; status=$?; "
+            "git -C /hgm worktree remove --force \"$tmp\" >/dev/null 2>&1 || "
+            "rm -rf \"$tmp\"; "
+            "exit $status"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", validation_cmd], workdir="/hgm"
+        )
+        log_container_output(exec_result, raise_error=False)
+        if exec_result.exit_code != 0:
+            raise RuntimeError(
+                "Generated model_patch.diff is empty, malformed, or not reversible"
+            )
 
         chat_history_file = os.path.join(output_dir, run_id, "self_evo.md")
         copy_from_container(container, chat_history_file_container, chat_history_file)

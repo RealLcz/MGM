@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-12304",
-    "model_name_or_path": "initial_5",
-    "model_patch": "diff --git a/django/db/models/enums.py b/django/db/models/enums.py\nindex f48143ddaf..a756ebcf6f 100644\n--- a/django/db/models/enums.py\n+++ b/django/db/models/enums.py\n@@ -26,6 +26,7 @@ class ChoicesMeta(enum.EnumMeta):\n             # assignment in enum's classdict.\n             dict.__setitem__(classdict, key, value)\n         cls = super().__new__(metacls, classname, bases, classdict)\n+        cls.do_not_call_in_templates = True\n         cls._value2label_map_ = dict(zip(cls._value2member_map_, labels))\n         # Add a label property to instances of enum which uses the enum member\n         # that is passed in as \"self\" as the value to use when looking up the\n",
-    "proposed_model_patches": []
-}

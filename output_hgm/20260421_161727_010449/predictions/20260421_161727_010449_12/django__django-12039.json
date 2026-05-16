@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-12039",
-    "model_name_or_path": "20260421_161727_010449_12",
-    "model_patch": "diff --git a/django/db/backends/ddl_references.py b/django/db/backends/ddl_references.py\nindex 44e49806f8..287c9f70d5 100644\n--- a/django/db/backends/ddl_references.py\n+++ b/django/db/backends/ddl_references.py\n@@ -84,7 +84,10 @@ class Columns(TableColumns):\n     def __str__(self):\n         def col_str(column, idx):\n             try:\n-                return self.quote_name(column) + self.col_suffixes[idx]\n+                col_suffix = self.col_suffixes[idx]\n+                if col_suffix:\n+                    return self.quote_name(column) + ' ' + col_suffix\n+                return self.quote_name(column)\n             except IndexError:\n                 return self.quote_name(column)\n \n@@ -114,7 +117,9 @@ class IndexColumns(Columns):\n             # length as self.columns.\n             col = '{} {}'.format(self.quote_name(column), self.opclasses[idx])\n             try:\n-                col = '{} {}'.format(col, self.col_suffixes[idx])\n+                col_suffix = self.col_suffixes[idx]\n+                if col_suffix:\n+                    col = '{} {}'.format(col, col_suffix)\n             except IndexError:\n                 pass\n             return col\n",
-    "proposed_model_patches": []
-}

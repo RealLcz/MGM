@@ -16,10 +16,12 @@ initial_swe/
 <!-- polyglot -->
 polyglot/
 initial_polyglot/
+initial_polyglot_evaluation/
 
 <!-- outputs -->
 output_mgm/
 output_mgm_bak*/
+output_polyglot/
 results/
 <!-- misc -->
 misc/

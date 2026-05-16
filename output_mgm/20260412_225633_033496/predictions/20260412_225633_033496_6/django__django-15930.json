@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-15930",
-    "model_name_or_path": "20260412_225633_033496_6",
-    "model_patch": "diff --git a/django/db/models/expressions.py b/django/db/models/expressions.py\nindex 822968ef56..82cc36a19a 100644\n--- a/django/db/models/expressions.py\n+++ b/django/db/models/expressions.py\n@@ -1299,6 +1299,10 @@ class When(Expression):\n         template_params = extra_context\n         sql_params = []\n         condition_sql, condition_params = compiler.compile(self.condition)\n+        # If the condition matches everything (empty string), use a condition\n+        # that always evaluates to true to generate valid SQL.\n+        if not condition_sql:\n+            condition_sql = \"1=1\"\n         template_params[\"condition\"] = condition_sql\n         sql_params.extend(condition_params)\n         result_sql, result_params = compiler.compile(self.result)\n",
-    "proposed_model_patches": []
-}

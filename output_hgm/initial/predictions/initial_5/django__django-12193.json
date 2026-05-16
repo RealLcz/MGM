@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-12193",
-    "model_name_or_path": "initial_5",
-    "model_patch": "diff --git a/django/forms/widgets.py b/django/forms/widgets.py\nindex 6fe220bea7..ddd052be8d 100644\n--- a/django/forms/widgets.py\n+++ b/django/forms/widgets.py\n@@ -524,6 +524,8 @@ class CheckboxInput(Input):\n         if self.check_test(value):\n             if attrs is None:\n                 attrs = {}\n+            else:\n+                attrs = attrs.copy()\n             attrs['checked'] = True\n         return super().get_context(name, value, attrs)\n \n",
-    "proposed_model_patches": []
-}

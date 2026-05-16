@@ -1,6 +1,0 @@
-2026-04-16 14:08:47,876 - ThreadPoolExecutor-39_0 - INFO - No existing container with name sweb.eval.django__django-12308.20260416_140847_031103 found.
-2026-04-16 14:08:48,736 - ThreadPoolExecutor-39_0 - INFO - Environment image sweb.env.py.x86_64.01c6e6c71349434a25f883:latest found for django__django-12308
-2026-04-16 14:22:02,268 - ThreadPoolExecutor-39_0 - INFO - No existing container with name sweb.eval.django__django-12308.20260416_142201_594791 found.
-2026-04-16 14:22:03,727 - ThreadPoolExecutor-39_0 - INFO - Environment image sweb.env.py.x86_64.01c6e6c71349434a25f883:latest found for django__django-12308
-2026-04-16 14:31:27,334 - ThreadPoolExecutor-39_0 - INFO - No existing container with name sweb.eval.django__django-12308.20260416_143126_716710 found.
-2026-04-16 14:31:27,795 - ThreadPoolExecutor-39_0 - INFO - Environment image sweb.env.py.x86_64.01c6e6c71349434a25f883:latest found for django__django-12308

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 import shutil
 import traceback
@@ -527,9 +528,16 @@ def build_container(
         config = MAP_REPO_VERSION_TO_SPECS[lang]
         user = "root" if not config.get("execute_test_as_nonroot", False) else "nonroot"
         nano_cpus = config.get("nano_cpus")
+        network_mode = os.environ.get("POLYGLOT_CONTAINER_NETWORK_MODE", "host")
+        create_kwargs = {}
+        if network_mode:
+            create_kwargs["network_mode"] = network_mode
 
         # Create the container
-        logger.info(f"Creating container for {test_spec.instance_id}...")
+        logger.info(
+            f"Creating container for {test_spec.instance_id} "
+            f"(network_mode={network_mode or 'default'})..."
+        )
         container = client.containers.create(
             image=test_spec.instance_image_key,
             name=test_spec.get_instance_container_name(run_id),
@@ -538,6 +546,7 @@ def build_container(
             command="tail -f /dev/null",
             nano_cpus=nano_cpus,
             platform=test_spec.platform,
+            **create_kwargs,
         )
         logger.info(f"Container for {test_spec.instance_id} created: {container.id}")
         return container

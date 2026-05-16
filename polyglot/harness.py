@@ -5,6 +5,7 @@ import datetime
 import json
 import os
 import re
+import shlex
 import tempfile
 from concurrent.futures import (ProcessPoolExecutor, ThreadPoolExecutor,
                                 as_completed)
@@ -23,14 +24,30 @@ from swe_bench.utils import (copy_from_container, copy_to_container,
                              log_container_output, remove_existing_container,
                              safe_log, setup_logger)
 from utils.docker_utils import docker_from_env
-from utils.git_utils import filter_patch_by_files, remove_patch_by_files
+from utils.git_utils import remove_patch_by_files
 
 llm = ""
 timeout = 1800  # seconds
 
 
+def uses_vllm_model(model: str) -> bool:
+    model = model or ""
+    return model.startswith(("Qwen/", "google/")) or "vllm" in model.lower()
+
+
 def get_eval_script(commands):
     return "\n".join(["#!/bin/bash", "set -uxo pipefail"] + commands) + "\n"
+
+
+def get_apply_patch_cmd(patch_path):
+    return (
+        f"if [ ! -s {shlex.quote(patch_path)} ]; then "
+        "true; "
+        "else "
+        f"git apply --whitespace=nowarn --recount {shlex.quote(patch_path)} || "
+        f"patch --batch --fuzz=5 -p1 < {shlex.quote(patch_path)}; "
+        "fi"
+    )
 
 
 def process_entry(
@@ -135,8 +152,9 @@ def process_entry(
             safe_log("Applying model patches")
             for model_patch_path in model_patch_paths:
                 copy_to_container(container, model_patch_path, "/hgm/parent_patch.txt")
+                apply_parent_patch_cmd = get_apply_patch_cmd("/hgm/parent_patch.txt")
                 exec_result = container.exec_run(
-                    "/bin/sh -c 'patch -p1 < /hgm/parent_patch.txt'", workdir="/hgm"
+                    ["/bin/sh", "-c", apply_parent_patch_cmd], workdir="/hgm"
                 )
                 log_container_output(exec_result)
                 exec_result = container.exec_run(
@@ -160,10 +178,35 @@ def process_entry(
             "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
             "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
             "OpenRouter_API_KEY": os.getenv("OpenRouter_API_KEY"),
+            "VLLM_HOST": os.getenv("VLLM_CONTAINER_HOST", "127.0.0.1"),
+            "VLLM_PORT": os.getenv("REMOTE_VLLM_PORT", os.getenv("VLLM_PORT", "8000")),
         }
-        # #region agent log
-        import json as _dbg_json; open('/mnt/vast/home/ym56kacy/MendelGM/.cursor/debug-e43a26.log','a').write(_dbg_json.dumps({"sessionId":"e43a26","hypothesisId":"H2,H3","location":"polyglot/harness.py:process_entry:run_agent","message":"polyglot_agent_run_params","data":{"llm_value":llm,"instance_id":instance_id,"has_openrouter_key":bool(os.getenv("OpenRouter_API_KEY")),"has_vllm_host":bool(os.getenv("VLLM_HOST")),"vllm_host_in_env":"VLLM_HOST" in env_vars},"timestamp":int(__import__('time').time()*1000)})+'\n')
-        # #endregion
+        if uses_vllm_model(llm):
+            vllm_url = f"http://{env_vars['VLLM_HOST']}:{env_vars['VLLM_PORT']}/v1/models"
+            safe_log(f"Checking vLLM connectivity from task container: {vllm_url}")
+            check_cmd = [
+                "python",
+                "-c",
+                (
+                    "import os, urllib.request; "
+                    "url=f\"http://{os.environ['VLLM_HOST']}:{os.environ['VLLM_PORT']}/v1/models\"; "
+                    "print(f'Checking {url}', flush=True); "
+                    "urllib.request.urlopen(url, timeout=10).read(); "
+                    "print('vLLM connectivity OK', flush=True)"
+                ),
+            ]
+            exec_result = container.exec_run(
+                check_cmd, environment=env_vars, workdir="/testbed/"
+            )
+            log_container_output(exec_result, raise_error=False)
+            if exec_result.exit_code != 0:
+                output = exec_result.output.decode("utf-8", errors="replace")
+                raise RuntimeError(
+                    "vLLM is not reachable from the Polyglot task container at "
+                    f"{vllm_url}. Check the SSH reverse tunnel and Docker network mode. "
+                    f"Output: {output}"
+                )
+
         safe_log("Running the agent")
         cmd = [
             "timeout",
@@ -190,6 +233,19 @@ def process_entry(
             str(timeout),
         ]
         exec_result = container.exec_run(cmd, environment=env_vars, workdir="/testbed/")
+        log_container_output(exec_result)
+
+        refresh_model_patch_cmd = (
+            "printf '\\nnode_modules/\\n__pycache__/\\n*.pyc\\n.pytest_cache/\\n"
+            "target/\\nbuild/\\n.gradle/\\n.npm/\\n.cache/\\ndist/\\n' "
+            ">> /testbed/.git/info/exclude && "
+            "git -C /testbed ls-files --others --exclude-standard -z | "
+            "xargs -0 -r git -C /testbed add --intent-to-add -- && "
+            f"git -C /testbed diff --binary {base_commit} -- . > /hgm/model_patch.diff"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", refresh_model_patch_cmd], workdir="/testbed/"
+        )
         log_container_output(exec_result)
 
         # Copy output files back to host
@@ -235,18 +291,20 @@ def process_entry(
                 "eval_result": eval_result,
             }
 
-        exec_result = container.exec_run(
-            "git -C /testbed stash push " + " ".join(entry["files"]["solution"]),
-            workdir="/",
+        solution_files = entry.get("files", {}).get("solution", [])
+        if not solution_files:
+            raise RuntimeError(f"No solution files configured for {instance_id}")
+        solution_file_args = " ".join(shlex.quote(path) for path in solution_files)
+        prepare_eval_cmd = (
+            f"git -C /testbed diff --binary {base_commit} -- "
+            f"{solution_file_args} > /hgm/solution_patch.diff && "
+            f"git -C /testbed reset --hard {entry['test_commit']} && "
+            "git -C /testbed clean -fd && "
+            f"cd /testbed && {get_apply_patch_cmd('/hgm/solution_patch.diff')}"
         )
-        log_container_output(exec_result)
         exec_result = container.exec_run(
-            f"git -C /testbed reset --hard {entry['test_commit']}", workdir="/"
+            ["/bin/sh", "-c", prepare_eval_cmd], workdir="/"
         )
-        log_container_output(exec_result)
-        exec_result = container.exec_run(f"git -C /testbed clean -fd", workdir="/")
-        log_container_output(exec_result)
-        exec_result = container.exec_run("git -C /testbed stash pop", workdir="/")
         log_container_output(exec_result)
 
         safe_log("Running the eval")
@@ -301,6 +359,7 @@ def process_entry(
             "proposed_model_patches": proposed_model_patches,
             "eval_result": eval_result,
             "success": False,
+            "error": str(e),
         }
         out_fname.write_text(json.dumps(result, indent=4))
 
@@ -310,6 +369,7 @@ def process_entry(
             "success": False,
             "instance_id": instance_id,
             "eval_result": eval_result,
+            "error": str(e),
         }
 
     finally:
@@ -343,16 +403,6 @@ def harness(
         model_patch_paths: Paths to the model patches for hgm
         num_evals: Repeated number of swe evaluations
     """
-    if model_patch_paths:
-        for model_patch_path in model_patch_paths:
-            # Read and modify model patch
-            with open(model_patch_path, "r") as f:
-                patch_content = f.read()
-            patch_content = remove_patch_by_files(patch_content)
-            # Placeholder for any patch modifications if needed
-            with open(model_patch_path, "w") as f:
-                f.write(patch_content)
-
     # Load dataset
     if not os.path.exists(dataset_path):
         raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
@@ -366,6 +416,28 @@ def harness(
     pred_dname = Path(pred_dname)
     pred_dname.mkdir(exist_ok=True)
     out_dnames = []
+
+    filtered_model_patch_paths = None
+    temp_patch_files = []
+    if model_patch_paths:
+        filtered_model_patch_paths = []
+        for model_patch_path in model_patch_paths:
+            with open(model_patch_path, "r") as f:
+                patch_content = f.read()
+            patch_content = remove_patch_by_files(patch_content)
+            temp_patch = tempfile.NamedTemporaryFile(
+                mode="w",
+                suffix=".diff",
+                prefix=f"{Path(model_patch_path).stem}.filtered.",
+                dir=pred_dname,
+                delete=False,
+            )
+            try:
+                temp_patch.write(patch_content)
+            finally:
+                temp_patch.close()
+            filtered_model_patch_paths.append(temp_patch.name)
+            temp_patch_files.append(temp_patch.name)
 
     # Prepare the dataset entries
     entries = list(dataset)
@@ -394,7 +466,7 @@ def harness(
                 entry,
                 out_dname,
                 model_name_or_path_inst,
-                model_patch_paths,
+                filtered_model_patch_paths,
                 skip_existing=skip_existing,
                 init_agent_path=init_agent_path,
             ): entry
@@ -404,7 +476,7 @@ def harness(
         # Process completed tasks as they finish
         for future in as_completed(future_to_entry):
             result = future.result()
-            results.append(future.result())
+            results.append(result)
             if result["success"]:
                 print(
                     f"Successfully processed entry {result['instance_id']} for eval {0}"
@@ -473,6 +545,12 @@ def harness(
     with open(report_file, "w") as f:
         print(json.dumps(report, indent=4), file=f)
     print(f"Report written to {report_file}")
+
+    for temp_patch_file in temp_patch_files:
+        try:
+            os.remove(temp_patch_file)
+        except FileNotFoundError:
+            pass
 
     return out_dnames
 

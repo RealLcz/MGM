@@ -1,9 +1,35 @@
 # This file is adapted from https://github.com/jennyzzt/dgm.
 
-import os
 import subprocess
 
 import git
+
+
+GENERATED_DIFF_EXCLUDES = (
+    "self_evo.md",
+    "model_patch.diff",
+    "*.log",
+    ".pytest_cache/",
+    "__pycache__/",
+    "*.pyc",
+    "*.backup",
+    ".coverage",
+    "coverage.xml",
+    "htmlcov/",
+    "logs/",
+    "output_mgm/",
+    "output_polyglot/",
+    "initial_polyglot_evaluation/",
+    "target/",
+    "build/",
+    ".gradle/",
+    "node_modules/",
+    ".npm/",
+    ".cache/",
+    ".mypy_cache/",
+    ".ruff_cache/",
+    "dist/",
+)
 
 
 def get_git_commit_hash(repo_path="."):
@@ -43,16 +69,13 @@ def apply_patch(git_dname, patch_str):
 def diff_versus_commit(git_dname, commit):
     """
     Take a diff of `git_dname` current contents versus the `commit`, including untracked files,
-    without modifying the repository state.
+    while excluding local run artifacts that should never become model patches.
     """
-    # Get diff of tracked files
-    diff_cmd = ["git", "-C", git_dname, "diff", commit]
-    result = subprocess.run(
-        diff_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
-    )
-    diff_output = result.stdout.decode()
+    pathspecs = ["."] + [f":(exclude){pattern}" for pattern in GENERATED_DIFF_EXCLUDES]
 
-    # Get list of untracked files
+    # Make untracked source files visible to git diff without staging content.
+    # This avoids hand-assembling --no-index hunks, which is easy to corrupt when
+    # files lack trailing newlines.
     untracked_files_cmd = [
         "git",
         "-C",
@@ -62,29 +85,34 @@ def diff_versus_commit(git_dname, commit):
         "--exclude-standard",
     ]
     result = subprocess.run(
-        untracked_files_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
+        untracked_files_cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
     )
-    untracked_files = result.stdout.decode().splitlines()
-
-    # Generate diffs for untracked files
-    for file in untracked_files:
-        # Diff untracked file against /dev/null (empty file)
-        file_path = os.path.join(git_dname, file)
-        devnull = "/dev/null"
-        if os.name == "nt":  # Handle Windows
-            devnull = "NUL"
-        diff_file_cmd = ["git", "-C", git_dname, "diff", "--no-index", devnull, file]
-        result = subprocess.run(
-            diff_file_cmd,
+    untracked_files = result.stdout.decode("utf-8", errors="replace").splitlines()
+    if untracked_files:
+        subprocess.run(
+            ["git", "-C", git_dname, "add", "--intent-to-add", "--", *untracked_files],
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            cwd=git_dname,
+            stderr=subprocess.PIPE,
             check=False,
         )
-        diff_file_output = result.stdout.decode("utf-8", errors="replace")
-        diff_output += diff_file_output
 
-    return diff_output
+    diff_cmd = [
+        "git",
+        "-C",
+        git_dname,
+        "diff",
+        "--binary",
+        commit,
+        "--",
+        *pathspecs,
+    ]
+    result = subprocess.run(
+        diff_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
+    )
+    return result.stdout.decode("utf-8", errors="replace")
 
 
 def reset_to_commit(git_dname, commit):
@@ -127,7 +155,7 @@ def filter_patch_by_files(patch_str, target_files):
     Returns:
         str: A string containing only the diff blocks for the specified target files.
     """
-    lines = patch_str.splitlines()
+    lines = patch_str.splitlines(keepends=True)
     filtered_lines = []
     include_block = False
 
@@ -140,7 +168,7 @@ def filter_patch_by_files(patch_str, target_files):
             )
         if include_block:
             filtered_lines.append(line)
-    return "\n".join(filtered_lines)
+    return _ensure_patch_trailing_newline("".join(filtered_lines))
 
 
 def remove_patch_by_files(patch_str, keyword="polyglot"):
@@ -154,7 +182,7 @@ def remove_patch_by_files(patch_str, keyword="polyglot"):
     Returns:
         str: A string containing the patch with diff blocks for matching files removed.
     """
-    lines = patch_str.splitlines()
+    lines = patch_str.splitlines(keepends=True)
     filtered_lines = []
     include_block = True
 
@@ -165,7 +193,13 @@ def remove_patch_by_files(patch_str, keyword="polyglot"):
         if include_block:
             filtered_lines.append(line)
 
-    return "\n".join(filtered_lines)
+    return _ensure_patch_trailing_newline("".join(filtered_lines))
+
+
+def _ensure_patch_trailing_newline(patch_str):
+    if patch_str and not patch_str.endswith("\n"):
+        return patch_str + "\n"
+    return patch_str
 
 
 if __name__ == "__main__":

@@ -107,11 +107,11 @@ def run_instance(
         copy_to_container(container, patch_file, Path("/tmp/patch.diff"))
 
         # Attempt to apply patch to container
-        val = container.exec_run(
-            "git apply --allow-empty -v /tmp/patch.diff",
-            workdir="/testbed",
-            user="root",
+        apply_patch_cmd = (
+            "if [ ! -s /tmp/patch.diff ]; then true; "
+            "else git apply -v /tmp/patch.diff; fi"
         )
+        val = container.exec_run(apply_patch_cmd, workdir="/testbed", user="root")
         if val.exit_code != 0:
             logger.info(f"Failed to apply patch to container, trying again...")
 

@@ -2,9 +2,9 @@
 # 由 polyglot_scripts/hgm_polyglot.slurm 默认引用。
 
 llm:
-  self_improve_llm: "Qwen/Qwen3-Coder-Next"
-  downstream_llm: "Qwen/Qwen3-Coder-Next"
-  diagnose_llm: "Qwen/Qwen3-Coder-Next"
+  self_improve_llm: "Qwen/Qwen3.6-35B-A3B"
+  downstream_llm: "Qwen/Qwen3.6-35B-A3B"
+  diagnose_llm: "Qwen/Qwen3.6-35B-A3B"
 
 optimization:
   alpha: 0.6

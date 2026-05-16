@@ -1,2 +1,0 @@
-2026-04-12 10:43:22,014 - ThreadPoolExecutor-190_0 - INFO - No existing container with name sweb.eval.django__django-9296.20260412_104321_580436 found.
-2026-04-12 10:43:24,678 - ThreadPoolExecutor-190_0 - INFO - Environment image sweb.env.py.x86_64.01c6e6c71349434a25f883:latest found for django__django-9296

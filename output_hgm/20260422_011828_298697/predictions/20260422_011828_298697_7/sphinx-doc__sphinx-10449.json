@@ -1,6 +1,0 @@
-{
-    "instance_id": "sphinx-doc__sphinx-10449",
-    "model_name_or_path": "20260422_011828_298697_7",
-    "model_patch": "diff --git a/tox.ini b/tox.ini\nindex 105a02597..90ada0821 100644\n--- a/tox.ini\n+++ b/tox.ini\n@@ -29,7 +29,7 @@ setenv =\n     PYTHONWARNINGS = all\n     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes\n commands=\n-    python -X dev -X warn_default_encoding -m pytest --durations 25 {posargs}\n+    python -X dev -X warn_default_encoding -m pytest -rA --durations 25 {posargs}\n \n [testenv:du-latest]\n commands =\n",
-    "proposed_model_patches": []
-}

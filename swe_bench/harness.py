@@ -4,6 +4,7 @@ import argparse
 import datetime
 import json
 import os
+import shlex
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -22,6 +23,17 @@ from utils.docker_utils import docker_from_env
 
 llm = ""  # Global variable to hold the LLM model name or path
 timeout = 1800
+
+
+def get_apply_patch_cmd(patch_path):
+    return (
+        f"if [ ! -s {shlex.quote(patch_path)} ]; then "
+        "true; "
+        "else "
+        f"git apply --whitespace=nowarn --recount {shlex.quote(patch_path)} || "
+        f"patch --batch --fuzz=5 -p1 < {shlex.quote(patch_path)}; "
+        "fi"
+    )
 
 
 def process_entry(
@@ -144,8 +156,9 @@ def process_entry(
             safe_log("Applying model patches")
             for model_patch_path in model_patch_paths:
                 copy_to_container(container, model_patch_path, "/hgm/parent_patch.txt")
+                apply_parent_patch_cmd = get_apply_patch_cmd("/hgm/parent_patch.txt")
                 exec_result = container.exec_run(
-                    "/bin/sh -c 'patch -p1 < /hgm/parent_patch.txt'", workdir="/hgm"
+                    ["/bin/sh", "-c", apply_parent_patch_cmd], workdir="/hgm"
                 )
                 log_container_output(exec_result)
                 exec_result = container.exec_run(
@@ -198,6 +211,19 @@ def process_entry(
             str(timeout),
         ]
         exec_result = container.exec_run(cmd, environment=env_vars, workdir="/")
+        log_container_output(exec_result)
+
+        refresh_model_patch_cmd = (
+            "printf '\\nnode_modules/\\n__pycache__/\\n*.pyc\\n.pytest_cache/\\n"
+            "target/\\nbuild/\\n.gradle/\\n.npm/\\n.cache/\\ndist/\\n' "
+            ">> /testbed/.git/info/exclude && "
+            "git -C /testbed ls-files --others --exclude-standard -z | "
+            "xargs -0 -r git -C /testbed add --intent-to-add -- && "
+            f"git -C /testbed diff --binary {base_commit} -- . > /hgm/model_patch.diff"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", refresh_model_patch_cmd], workdir="/testbed/"
+        )
         log_container_output(exec_result)
 
         # Copy output files back to host

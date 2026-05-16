@@ -31,6 +31,16 @@ timeout = 3600
 n_evals = 0
 
 
+def _log_final_diagnose_response(label, response):
+    safe_log(f"{label}: final diagnose attempt failed; raw LLM response follows.")
+    if response is None:
+        safe_log(f"{label}: raw LLM response is <None>.")
+        return
+    safe_log(f"{label}: raw LLM response start")
+    safe_log(str(response))
+    safe_log(f"{label}: raw LLM response end")
+
+
 def diagnose_problem(
     entry, commit, root_dir, out_dir, patch_files=[], max_attempts=2, polyglot=False
 ):
@@ -53,6 +63,7 @@ def diagnose_problem(
             dataset,
             patch_files=patch_files,
         )
+    response = None
     try:
         try:
             response, msg_history = get_response_from_llm(
@@ -68,7 +79,10 @@ def diagnose_problem(
                 f"Error with get_response_from_llm: {e}"
             )
         # safe_log(f"Message history: {msg_history}")
-        response_json = extract_json_between_markers(response)
+        response_json = extract_json_between_markers(
+            response,
+            required_keys={"implementation_suggestion", "problem_description"},
+        )
         assert response_json, "empty response json"
         problem_statement = get_problem_description_prompt(response_json, polyglot)
     except Exception as e:
@@ -85,6 +99,7 @@ def diagnose_problem(
                 polyglot=polyglot,
             )
         else:
+            _log_final_diagnose_response("diagnose_problem", response)
             return None
     return problem_statement
 
@@ -121,6 +136,7 @@ def diagnose_two_entries_same_commit(
             dataset,
             patch_files=patch_files,
         )
+    response = None
     try:
         try:
             response, msg_history = get_response_from_llm(
@@ -133,7 +149,10 @@ def diagnose_two_entries_same_commit(
             )
         except Exception as e:
             safe_log(f"Error with get_response_from_llm (joint two entries): {e}")
-        response_json = extract_json_between_markers(response)
+        response_json = extract_json_between_markers(
+            response,
+            required_keys={"implementation_suggestion", "problem_description"},
+        )
         assert response_json, "empty response json"
         problem_statement = get_problem_description_prompt(response_json, polyglot)
     except Exception as e:
@@ -148,6 +167,7 @@ def diagnose_two_entries_same_commit(
                 max_attempts=max_attempts - 1,
                 polyglot=polyglot,
             )
+        _log_final_diagnose_response("diagnose_two_entries_same_commit", response)
         return None
     return problem_statement
 
@@ -198,6 +218,7 @@ def diagnose_shared_task_two_commits(
                 strategy_c_meta=strategy_c_meta,
             )
         )
+    response = None
     try:
         try:
             response, msg_history = get_response_from_llm(
@@ -212,7 +233,10 @@ def diagnose_shared_task_two_commits(
             safe_log(
                 f"Error with get_response_from_llm (shared task two commits): {e}"
             )
-        response_json = extract_json_between_markers(response)
+        response_json = extract_json_between_markers(
+            response,
+            required_keys={"implementation_suggestion", "problem_description"},
+        )
         assert response_json, "empty response json"
         problem_statement = get_problem_description_prompt(response_json, polyglot)
     except Exception as e:
@@ -231,6 +255,7 @@ def diagnose_shared_task_two_commits(
                 context_label=context_label,
                 strategy_c_meta=strategy_c_meta,
             )
+        _log_final_diagnose_response("diagnose_shared_task_two_commits", response)
         return None
     return problem_statement
 

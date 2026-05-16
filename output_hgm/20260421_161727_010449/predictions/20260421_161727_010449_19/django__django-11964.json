@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-11964",
-    "model_name_or_path": "20260421_161727_010449_19",
-    "model_patch": "diff --git a/django/db/models/enums.py b/django/db/models/enums.py\nindex bbe362a6ab..1c73ab21b2 100644\n--- a/django/db/models/enums.py\n+++ b/django/db/models/enums.py\n@@ -60,7 +60,9 @@ class ChoicesMeta(enum.EnumMeta):\n \n class Choices(enum.Enum, metaclass=ChoicesMeta):\n     \"\"\"Class for creating enumerated choices.\"\"\"\n-    pass\n+\n+    def __str__(self):\n+        return str(self.value)\n \n \n class IntegerChoices(int, Choices):\n",
-    "proposed_model_patches": []
-}

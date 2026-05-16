@@ -28,17 +28,30 @@ from utils.evo_utils import load_hgm_metadata
 
 
 def update_metadata(output_dir, n_task_evals):
+    # num_evals / mean_utility are sourced from each node's metadata.json
+    # (overall_performance.total_submitted_instances / total_resolved_instances)
+    # rather than the in-memory utility_measures list, so the snapshot stays
+    # aligned with the on-disk evaluation record across resumes and re-tests.
+    nodes_payload = []
+    for node in hgm_utils.nodes.values():
+        if node.commit_id == "initial":
+            continue
+        d = node.save_as_dict()
+        meta_path = os.path.join(output_dir, node.commit_id, "metadata.json")
+        try:
+            with open(meta_path) as mf:
+                perf = json.load(mf).get("overall_performance", {}) or {}
+            submitted = int(perf.get("total_submitted_instances", d["num_evals"]))
+            resolved = int(perf.get("total_resolved_instances", 0))
+            d["num_evals"] = submitted
+            d["mean_utility"] = (resolved / submitted) if submitted else 0.0
+        except (FileNotFoundError, json.JSONDecodeError, ValueError, TypeError):
+            pass
+        nodes_payload.append(d)
     with open(os.path.join(output_dir, "hgm_metadata.jsonl"), "a") as f:
         f.write(
             json.dumps(
-                {
-                    "n_task_evals": n_task_evals,
-                    "nodes": [
-                        node.save_as_dict()
-                        for node in hgm_utils.nodes.values()
-                        if node.commit_id != "initial"
-                    ],
-                },
+                {"n_task_evals": n_task_evals, "nodes": nodes_payload},
                 indent=2,
             )
             + "\n"
@@ -447,7 +460,7 @@ def main():
         si_cfg = config.self_improve_strategy
 
         def _load_perf(cid):
-            if cid in ("initial", "failed"):
+            if cid == "failed":
                 return None
             mp = os.path.join(output_dir, cid, "metadata.json")
             if not os.path.exists(mp):
@@ -460,6 +473,7 @@ def main():
         selected_perf = _load_perf(selected_node.commit_id)
         selected_submitted = hgm_utils.submitted_task_ids(selected_perf)
         selected_resolved = hgm_utils.resolved_task_ids(selected_perf)
+        selected_failed = hgm_utils.failed_task_ids(selected_perf)
 
         peer_nodes = []
         if selected_submitted:
@@ -495,11 +509,24 @@ def main():
             except RuntimeError:
                 pass
 
-        weighted = [(si_cfg.weight_a, "A", {})]
+        weighted = []
+        if selected_failed:
+            weighted.append((si_cfg.weight_a, "A", {}))
         if b_eligible:
             weighted.append((si_cfg.weight_b, "B", {"entries": b_entries}))
         if c_eligible:
             weighted.append((si_cfg.weight_c, "C", {}))
+
+        if not weighted:
+            logger.info(
+                "No eligible self-improvement strategy for commit %s "
+                "(submitted=%s resolved=%s failed=%s); measuring more tasks first",
+                selected_node.commit_id,
+                len(selected_submitted),
+                len(selected_resolved),
+                len(selected_failed),
+            )
+            return False
 
         total_w = sum(w for w, _, _ in weighted)
         strategy = "A"
@@ -515,6 +542,7 @@ def main():
                     break
 
         parent_commit = selected_node.commit_id
+        attach_node = selected_node
         entries = None
         peer_commit = None
         shared_task = None
@@ -532,20 +560,45 @@ def main():
                 strategy = "A"
             else:
                 shared_task = random.choice(candidates)
-                if selected_node.mean_utility >= peer_node.mean_utility:
-                    parent_commit = selected_node.commit_id
-                    peer_commit = peer_node.commit_id
-                    primary_utility = selected_node.mean_utility
-                    context_utility = peer_node.mean_utility
+                selected_solved_shared = shared_task in selected_resolved
+                peer_solved_shared = shared_task in other_resolved
+
+                # Strategy C primary/context selection rule:
+                #   * If exactly one side solved the shared task, the **failing**
+                #     side is Primary (the one we want to upgrade) and the
+                #     **succeeding** side is Context (capability donor). The new
+                #     child agent is attached as a descendant of Primary so the
+                #     evolutionary lineage of the failing agent receives the
+                #     transferred general skill.
+                #   * If both sides failed, fall back to "higher overall utility
+                #     = Primary" so we keep evolving the stronger lineage.
+                if selected_solved_shared and not peer_solved_shared:
+                    primary_node = peer_node
+                    context_node = selected_node
+                    primary_resolved = other_resolved
+                    context_resolved = selected_resolved
+                elif peer_solved_shared and not selected_solved_shared:
+                    primary_node = selected_node
+                    context_node = peer_node
                     primary_resolved = selected_resolved
                     context_resolved = other_resolved
                 else:
-                    parent_commit = peer_node.commit_id
-                    peer_commit = selected_node.commit_id
-                    primary_utility = peer_node.mean_utility
-                    context_utility = selected_node.mean_utility
-                    primary_resolved = other_resolved
-                    context_resolved = selected_resolved
+                    if selected_node.mean_utility >= peer_node.mean_utility:
+                        primary_node = selected_node
+                        context_node = peer_node
+                        primary_resolved = selected_resolved
+                        context_resolved = other_resolved
+                    else:
+                        primary_node = peer_node
+                        context_node = selected_node
+                        primary_resolved = other_resolved
+                        context_resolved = selected_resolved
+
+                parent_commit = primary_node.commit_id
+                peer_commit = context_node.commit_id
+                primary_utility = primary_node.mean_utility
+                context_utility = context_node.mean_utility
+                attach_node = primary_node
 
         strategy_c_meta = None
         if strategy == "C" and shared_task:
@@ -555,6 +608,16 @@ def main():
                 "primary_resolved_task": shared_task in primary_resolved,
                 "context_resolved_task": shared_task in context_resolved,
             }
+            logger.info(
+                "Strategy C: shared_task=%s primary_commit=%s (solved=%s) "
+                "context_commit=%s (solved=%s) attach_under_node=%s",
+                shared_task,
+                parent_commit,
+                strategy_c_meta["primary_resolved_task"],
+                peer_commit,
+                strategy_c_meta["context_resolved_task"],
+                attach_node.id,
+            )
 
         nonlocal consecutive_docker_failures
         with lock:
@@ -576,10 +639,11 @@ def main():
         with lock:
             if child_commit != "failed":
                 consecutive_docker_failures = 0
-                selected_node.children.append(
-                    Node(child_commit, parent_id=selected_node.id)
+                attach_node.children.append(
+                    Node(child_commit, parent_id=attach_node.id)
                 )
                 update_metadata(output_dir, hgm_utils.n_task_evals)
+                return True
             else:
                 consecutive_docker_failures += 1
                 if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
@@ -594,11 +658,17 @@ def main():
                         f"{MAX_CONSECUTIVE_DOCKER_FAILURES}), backing off {backoff}s"
                     )
                     time.sleep(backoff)
+                return True
 
     def sample():
-        time.sleep(random.random())
         with lock:
             nonlocal n_pending_expands, n_pending_measures
+            if hgm_utils.n_task_evals >= exec_cfg.max_task_evals:
+                return
+            if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
+                return
+        time.sleep(random.random())
+        with lock:
             if hgm_utils.n_task_evals >= exec_cfg.max_task_evals:
                 return
             if consecutive_docker_failures >= MAX_CONSECUTIVE_DOCKER_FAILURES:
@@ -613,9 +683,12 @@ def main():
             else:
                 is_expand = False
         if is_expand:
-            expand()
-            with lock:
-                n_pending_expands -= 1
+            try:
+                did_expand = expand()
+            finally:
+                with lock:
+                    n_pending_expands -= 1
+            if did_expand:
                 return
 
         with lock:

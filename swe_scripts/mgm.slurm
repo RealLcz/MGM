@@ -5,6 +5,9 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=256G
 #SBATCH --gres=gpu:8
+# If jobs share the node and vLLM dies with NCCL/TCPStore errors, use a clean node, e.g.:
+#   #SBATCH --exclusive
+# or submit with only free GPU indices: sbatch --export=ALL,MGM_CUDA_VISIBLE_DEVICES=4,5,6,7 swe_scripts/mgm.slurm
 #SBATCH --time=96:00:00
 #SBATCH --output=logs/hgm_%j.out
 #SBATCH --error=logs/hgm_%j.err
@@ -31,25 +34,21 @@ export PYTHON_BIN="${PYTHON_BIN:-$HOME/mm/python311/bin/python}"
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
 export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3-Coder-Next}"
 export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen/Qwen3-Coder-Next}"
-# Respect Slurm-injected CUDA_VISIBLE_DEVICES; only fall back when not set.
-if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
-    export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
-fi
-echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
-NUM_VISIBLE_GPUS=$(echo "${CUDA_VISIBLE_DEVICES}" | tr ',' '\n' | grep -c '.')
-TP_AUTO=1
-while [ $((TP_AUTO * 2)) -le "${NUM_VISIBLE_GPUS}" ]; do
-    TP_AUTO=$((TP_AUTO * 2))
-done
+# GPU / tensor-parallel: see swe_scripts/cuda_and_tensor_parallel.inc.sh
+# If you share a node, prefer #SBATCH --exclusive, or pass only free indices, e.g.:
+#   sbatch --export=ALL,MGM_CUDA_VISIBLE_DEVICES=4,5,6,7 swe_scripts/mgm.slurm
+REPO_ROOT_CUDA="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT_CUDA}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+cuda_and_tensor_parallel_setup
+
 export VLLM_PORT="${VLLM_PORT:-8000}"
-export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-${TP_AUTO}}"
-echo "Visible GPUs: ${NUM_VISIBLE_GPUS}; using TENSOR_PARALLEL_SIZE=${TENSOR_PARALLEL_SIZE}"
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.92}"
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-98304}"
 export HGM_MAX_WORKERS="${HGM_MAX_WORKERS:-2}"
 export ENABLE_REMOTE_DOCKER="${ENABLE_REMOTE_DOCKER:-1}"
 export REMOTE_DOCKER_USER="${REMOTE_DOCKER_USER:-ubuntu}"
-export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-106.52.53.141}"
+export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-43.131.5.182}"
 export REMOTE_DOCKER_SOCKET="${REMOTE_DOCKER_SOCKET:-/tmp/docker-remote.sock}"
 
 HOST_IP="$(hostname -I | awk '{print $1}')"
@@ -205,9 +204,13 @@ timeout "${PRE_PULL_TIMEOUT:-600}" "${PYTHON_BIN}" -u scripts/pull_epoch_images_
     echo "Missing images will cause per-task failures that are handled gracefully."
 }
 
-echo "Starting HGM..."
+echo "Starting MGM (resume from output_mgm; A:B:C=0.1:0.45:0.45, failed_pool_boost=1.0, max_task_evals=200 from config.yaml)..."
 PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py \
     --max_workers "${HGM_MAX_WORKERS}" \
     --self_improve_llm "${HGM_LLM_MODEL_ID}" \
     --downstream_llm "${HGM_LLM_MODEL_ID}" \
-    --diagnose_llm "${HGM_LLM_MODEL_ID}"
+    --diagnose_llm "${HGM_LLM_MODEL_ID}" \
+    --failed_pool_boost 1.0 \
+    --self_improve_weight_a 0.1 \
+    --self_improve_weight_b 0.45 \
+    --self_improve_weight_c 0.45

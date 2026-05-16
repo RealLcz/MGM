@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-11951",
-    "model_name_or_path": "20260421_161727_010449_19",
-    "model_patch": "diff --git a/django/db/models/query.py b/django/db/models/query.py\nindex 794e0faae7..6ef5ecfcf9 100644\n--- a/django/db/models/query.py\n+++ b/django/db/models/query.py\n@@ -1209,7 +1209,12 @@ class QuerySet:\n         if ignore_conflicts and not connections[self.db].features.supports_ignore_conflicts:\n             raise NotSupportedError('This database backend does not support ignoring conflicts.')\n         ops = connections[self.db].ops\n-        batch_size = (batch_size or max(ops.bulk_batch_size(fields, objs), 1))\n+        max_batch_size = ops.bulk_batch_size(fields, objs)\n+        if batch_size is not None:\n+            batch_size = min(batch_size, max_batch_size)\n+        else:\n+            batch_size = max_batch_size\n+        batch_size = max(batch_size, 1)\n         inserted_rows = []\n         bulk_return = connections[self.db].features.can_return_rows_from_bulk_insert\n         for item in [objs[i:i + batch_size] for i in range(0, len(objs), batch_size)]:\n",
-    "proposed_model_patches": []
-}

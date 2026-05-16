@@ -1,6 +1,0 @@
-{
-    "instance_id": "django__django-12325",
-    "model_name_or_path": "20260418_171043_902017_1",
-    "model_patch": "diff --git a/django/db/models/base.py b/django/db/models/base.py\nindex 8ea6c05ef9..8dc6023115 100644\n--- a/django/db/models/base.py\n+++ b/django/db/models/base.py\n@@ -204,7 +204,12 @@ class ModelBase(type):\n             for field in base._meta.local_fields:\n                 if isinstance(field, OneToOneField):\n                     related = resolve_relation(new_class, field.remote_field.model)\n-                    parent_links[make_model_tuple(related)] = field\n+                    field_key = make_model_tuple(related)\n+                    # Only use this field as a parent link if:\n+                    # 1. It's marked with parent_link=True, OR\n+                    # 2. There's no existing parent link for this parent yet\n+                    if field.remote_field.parent_link or field_key not in parent_links:\n+                        parent_links[field_key] = field\n \n         # Track fields inherited from base models.\n         inherited_attributes = set()\n",
-    "proposed_model_patches": []
-}

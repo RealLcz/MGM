@@ -116,7 +116,7 @@ Your response will be automatically parsed, so ensure that the string response i
             msg_history=None,
         )
         logging(repr(response))
-        response_json = extract_json_between_markers(response)
+        response_json = extract_json_between_markers(response, required_keys={"scores"})
         llm_scores = response_json["scores"]
         llm_best_score_index = random.choice(
             [i for i, score in enumerate(llm_scores) if score == max(llm_scores)]

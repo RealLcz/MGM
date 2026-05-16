@@ -75,6 +75,13 @@ diagnose_system_message = """Here is the implementation of the coding agent.
 ----- Coding Agent Implementation End -----
 
 Your task is to identify ONE detailed plan that would improve the agent's coding ability. The improvement should not be specific to any particular GitHub issue or repository. Focus on general improvements that can enhance the agent's overall coding capabilities.
+
+**CRITICAL — evolve GENERAL capabilities, not task-specific ones:**
+- The improvement MUST be a *general* capability that helps the agent on a wide variety of unseen issues, repositories, languages, and codebases.
+- Do NOT propose anything tied to a specific bug, file path, function name, framework quirk, library version, repository structure, or test fixture seen in the logs.
+- Do NOT hard-code keywords, strings, regexes, prompt examples, or branch logic that only matter for the specific tasks shown.
+- Prefer changes to the agent's reasoning workflow, planning, tool design, error recovery, self-verification, or context management — capabilities that compound across tasks.
+- If the only viable improvement you can think of is task-specific, step back and ask: "what *general skill* was missing here that, if added, would also help on hundreds of unrelated tasks?" Propose that skill instead.
 """
 
 swe_issue_prompt = (
@@ -115,15 +122,17 @@ Respond precisely in the following format including the JSON start and end marke
 
 In <JSON>, provide a JSON response with the following fields:
 - "log_summarization": Analyze the above logs and summarize how the agent tried to solve the GitHub issue. Note which tools and how they are used, the agent's problem-solving approach, and any issues encountered.
-- "potential_improvements": Identify potential improvements to the coding agent that could enhance its coding capabilities. Focus on the agent's general coding abilities (e.g., better or new tools usable across any repository) rather than issue-specific fixes (e.g., tools only usable in one framework). All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
-- "improvement_proposal": Choose ONE high-impact improvement from the identified potential improvements and describe it in detail. This should be a focused and comprehensive plan to enhance the agent's overall coding ability.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature or tool could be added or improved to best implement the proposed improvement. If the proposed feature can be implemented by modifying the existing tools, describe the modifications needed, instead of suggesting a new tool.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the feature so that a software engineer viewing the issue and the repository can implement it.
+- "potential_improvements": Identify potential improvements to the coding agent that could enhance its coding capabilities. **Each item MUST be a *general* capability** (e.g., better tool design, smarter planning, more robust error recovery, better self-verification, better context management) that transfers across any repository, language, and task. Reject any candidate that is tied to this specific issue, file, function, framework, or test. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
+- "improvement_proposal": Choose ONE high-impact *general* improvement and describe it in detail. The proposal must be phrased so that an engineer reading it without seeing this specific issue could still implement it — if removing the task context would make it unimplementable, it is too task-specific and you must reframe it more abstractly.
+- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature or tool could be added or improved to best implement the proposed improvement. If the proposed feature can be implemented by modifying the existing tools, describe the modifications needed, instead of suggesting a new tool. Do NOT hard-code repository-specific paths, names, or strings.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the *general* feature so that a software engineer viewing the issue and the repository can implement it as a reusable capability, not a one-off fix.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
 diagnose_prompt_emptypatches = """There are some empty patches when attempting to solve GitHub issues. Since the coding agent is stochastic, it may not always produce a patch. Handle cases where the coding agent fails to generate a patch or generates one that only modifies the test cases without editing the primary source code. For example, the simplest solution is to ask the agent to try again.
 
+**CRITICAL — propose a GENERAL capability, not a one-off fix.** The improvement must be a reusable mechanism (e.g., a retry/verification/self-check workflow) that helps on any unseen task and repository, not something tied to specific files, frameworks, or error strings.
+
 Respond precisely in the following format including the JSON start and end markers:
 
 ```json
@@ -131,15 +140,17 @@ Respond precisely in the following format including the JSON start and end marke
 ```
 
 In <JSON>, provide a JSON response with the following fields:
-- "potential_improvements": Identify potential improvements to the coding agent's system. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
-- "improvement_proposal": Choose ONE high-impact improvement from the identified potential improvements and describe it in detail. This should be a focused and comprehensive plan to enhance the agent's overall coding ability.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the feature so that a software engineer viewing the issue and the repository can implement it.
+- "potential_improvements": Identify potential improvements to the coding agent's system. **Every item must be a general capability** that helps across any repository and task, not a task-specific patch. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
+- "improvement_proposal": Choose ONE high-impact *general* improvement and describe it in detail. This should be a focused and comprehensive plan to enhance the agent's overall coding ability across many unseen tasks.
+- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement. Avoid hard-coding repo-, framework-, or task-specific details.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the *general* feature so that a software engineer can implement it as a reusable capability.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
 diagnose_prompt_stochasticity = """Since the coding agent is stochastic, it may not produce the correct patch for the given problem statement on the first try. Take into account the agent's stochastic nature and provide a solution to handle such cases. For example, one solution could be to ask the agent to try multiple times and select the best patch. The file `utils/eval_utils.py` contains helper functions to evaluate the generated patches. Giving previous attempts as context to the agent may also help.
 
+**CRITICAL — propose a GENERAL capability, not a one-off fix.** The improvement must be a reusable mechanism (e.g., a multi-sample / self-consistency / candidate-ranking workflow) that helps on any unseen task and repository, not something tied to a specific issue.
+
 Respond precisely in the following format including the JSON start and end markers:
 
 ```json
@@ -147,10 +158,10 @@ Respond precisely in the following format including the JSON start and end marke
 ```
 
 In <JSON>, provide a JSON response with the following fields:
-- "potential_improvements": Identify potential improvements to the coding agent's system. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
-- "improvement_proposal": Choose ONE high-impact improvement from the identified potential improvements and describe it in detail. This should be a focused and comprehensive plan to enhance the agent's overall coding ability.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the feature so that a software engineer viewing the issue and the repository can implement it.
+- "potential_improvements": Identify potential improvements to the coding agent's system. **Every item must be a general capability** that helps across any repository and task. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
+- "improvement_proposal": Choose ONE high-impact *general* improvement and describe it in detail. This should be a focused, reusable plan to enhance the agent's overall coding ability.
+- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement. Avoid hard-coding repo-, framework-, or task-specific details.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the *general* feature so that a software engineer can implement it as a reusable capability.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
@@ -175,7 +186,21 @@ In <JSON>, provide a JSON response with the following fields:
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
 problem_description_prompt = (
-    """# To Implement\n\n{implementation_suggestion}\n\n{problem_description}"""
+    """# To Implement
+
+{implementation_suggestion}
+
+{problem_description}
+
+---
+
+**REMINDER — implement a GENERAL capability, not a task-specific patch.**
+- The change you ship must improve the agent on a wide variety of *unseen* issues, repositories, and (where applicable) languages.
+- Do NOT hard-code task-specific paths, file names, function names, framework idioms, error strings, or example bugs. No `if "django" in ...`, no whitelists of repos/files, no special cases for the diagnostic task.
+- Prefer extending the agent's general workflow, planning, tool design, error recovery, self-verification, or context management.
+- Tools you add or modify must remain repo-, language-, and task-agnostic, with clean schemas.
+- Sanity check before finalizing: would your change still help the agent on a brand-new repository it has never seen? If not, generalize it further before committing.
+"""
 )
 
 # ---------------------------------------------------------------------------
@@ -190,6 +215,9 @@ Analyze both scenarios carefully:
 - Look for **contrasting signals**: If one run succeeded and the other failed, what capability was present in the successful run but missing in the failed one?
 - Focus on the agent's **general approach and decision-making**, not on repository-specific knowledge.
 
+**CRITICAL — evolve GENERAL capabilities only:**
+The whole point of looking at TWO different tasks is to factor out task-specific accidents. Any improvement you propose must apply broadly across unseen issues and repositories. Do NOT propose changes that hard-code keywords, paths, function/class names, framework idioms, or example bugs from these two tasks. If a candidate improvement only "works" because of details visible in these logs, discard it and search for the *underlying general skill* the agent was lacking.
+
 """
 
 STRATEGY_B_INTRO_POLYGLOT = """You are given TWO runs of the coding agent on **different** programming tasks using the **same agent codebase**. At least one of the runs failed. Your goal is to identify a **systematic weakness** in the agent that manifests across different tasks and languages.
@@ -198,6 +226,9 @@ Analyze both scenarios:
 - Look for **common patterns** in how the agent approaches problems across languages.
 - If one run succeeded and the other failed, identify what capability made the difference.
 - Focus on **general coding strategies** that work across C++, Go, Java, JavaScript, Python, and Rust.
+
+**CRITICAL — evolve GENERAL capabilities only:**
+The improvement must be a transferable, language-agnostic, task-agnostic skill. Reject anything tied to a specific algorithm, problem statement, language, file name, or test case from these two tasks. The right question is: "what general coding/debugging/planning skill would have helped the agent solve *both* tasks AND hundreds of unseen tasks?"
 
 """
 
@@ -211,57 +242,85 @@ Respond precisely in the following format including the JSON start and end marke
 In <JSON>, provide a JSON response with the following fields:
 - "task_1_analysis": Analyze how the agent approached Task 1. Summarize the tools used, the problem-solving strategy, and the outcome (success or failure). If it failed, identify the specific failure mode.
 - "task_2_analysis": Analyze how the agent approached Task 2. Same structure as above.
-- "common_weakness": Identify the **systematic weakness** that connects the two scenarios. This should be a general agent limitation (e.g., poor error recovery, lack of incremental testing, weak codebase navigation) rather than a task-specific issue. If one task succeeded and the other failed, explain why the successful approach did not transfer.
-- "potential_improvements": List potential improvements to the coding agent that address the identified common weakness. Focus on general agent capabilities rather than fixing one repository-specific issue.
-- "improvement_proposal": Choose ONE high-impact improvement from the list that best addresses the common weakness across both tasks. Describe it in detail.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, describe what feature or tool to add or change. Prefer extending existing tools over inventing redundant ones.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description so an engineer can implement it.
+- "common_weakness": Identify the **systematic weakness** that connects the two scenarios. This MUST be a *general* agent limitation (e.g., poor error recovery, lack of incremental testing, weak codebase navigation, fragile planning, missing self-verification) — NOT a task-specific issue. If one task succeeded and the other failed, explain why the successful approach did not transfer, again at the level of a general skill.
+- "potential_improvements": List potential improvements that address the identified common weakness. **Every item must be a general capability that would help the agent on completely unseen issues, repositories, and languages.** Reject any candidate that depends on the specific tasks, files, frameworks, or error messages shown.
+- "improvement_proposal": Choose ONE high-impact *general* improvement from the list. Describe it in detail. Sanity check: if you removed all references to Task 1 and Task 2, would the proposal still make sense and be implementable? It must.
+- "implementation_suggestion": Describe what feature or tool to add or change in the agent. Prefer extending existing tools over inventing redundant ones. Do NOT hard-code task-, repo-, or language-specific strings, paths, or rules.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description so an engineer can implement it as a *reusable, general-purpose* capability — not a patch for these two tasks.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
 # ---------------------------------------------------------------------------
 # Strategy C: same (or overlapping) task, two different agent versions.
 # Goal: differential analysis -- learn from how different versions handle the
-# same problem, especially when one succeeds and the other fails.
+# same problem.
+#
+# IMPORTANT routing convention used by hgm.py:
+#   * When exactly one version solved the shared task, the **failing** version
+#     is labeled "Primary" (the one we want to upgrade) and the **succeeding**
+#     version is labeled "Context" (the donor of the missing capability).
+#     The new self-improved child node is also attached as a child of Primary.
+#   * When both versions failed, we fall back to "higher overall utility =
+#     Primary" so we keep evolving the stronger lineage.
 # ---------------------------------------------------------------------------
 
 STRATEGY_C_INTRO_BOTH_FAILED_SWE = """You are given **one** GitHub issue attempted by **two different versions** of the coding agent. **Both versions failed** to solve this issue.
 
 Logs are labeled:
-- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- the version you should optimize.
+- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- the version you should optimize. The new improved child agent will be attached to this version.
 - **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) -- for comparison only.
 
 Your goal is a **differential analysis**: compare how the two versions approached the same problem, identify which got closer to a solution and why, and propose one improvement for the Primary version.
+
+**CRITICAL — propose only GENERAL capabilities:**
+Even though both versions failed on this *one* task, your proposal must NOT be a fix for this specific task. The shared task is just a probe. Use it to discover a *general* missing skill (e.g., better hypothesis testing, better reproduction-script discipline, better failure-mode triage, better context navigation, better self-verification) that would help the agent on hundreds of unseen issues. Anything tied to this specific repo/file/function/error string must be discarded and re-abstracted.
 
 """
 
 STRATEGY_C_INTRO_ONE_SUCCEEDED_SWE = """You are given **one** GitHub issue attempted by **two different versions** of the coding agent. One version **succeeded** and the other **failed**.
 
-Logs are labeled:
-- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- the version you should optimize.
-- **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) -- for comparison.
+By convention in this self-improvement loop:
+- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) is the version that **FAILED** on this shared task. Primary is the version you should optimize, and the new improved child agent will be attached as Primary's descendant.
+- **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) is the version that **SUCCEEDED** on this shared task. It is shown only as a reference donor.
 
-This is a powerful diagnostic signal: by comparing a successful and failed attempt on the **same** issue, you can pinpoint exactly what capability or approach made the difference. Focus on extracting a **transferable lesson** -- not a task-specific fix, but a general improvement.
+**The objective is capability transfer**: figure out which *general* skill or behavior allowed Context to succeed where Primary failed, and propose how to instill that skill into Primary so it generalizes.
+
+This is a powerful diagnostic signal: by comparing a successful and failed attempt on the **same** issue, you can pinpoint exactly what capability made the difference. But your proposal must be a **transferable, general lesson** — not a task-specific fix, not a copy of Context's exact actions, and not anything keyed to this repo/file/function/test.
+
+**CRITICAL — evolve GENERAL capabilities only:**
+- Do NOT propose memorizing Context's exact tool sequence, exact diff, or exact reasoning steps for this issue.
+- Do NOT add hard-coded keywords, paths, framework names, or example bugs from this task into the agent.
+- DO propose a *general* skill (better planning, better test-writing discipline, better self-critique, better tool design, better error-recovery loop, better information-gathering strategy, etc.) such that Primary, once equipped with it, would solve this task **and** many other unrelated tasks.
+- Sanity check: if you removed every mention of this specific issue from your proposal, would it still be a coherent, implementable improvement? It must be.
 
 """
 
 STRATEGY_C_INTRO_BOTH_FAILED_POLYGLOT = """You are given **one** programming task attempted by **two different versions** of the coding agent. **Both versions failed**.
 
 Logs are labeled:
-- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- optimize this version.
+- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- optimize this version. The new improved child agent will be attached here.
 - **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) -- for comparison.
 
 Compare how each version approached the same task. Identify which got closer and why, then propose one improvement for the Primary version.
+
+**CRITICAL — propose only GENERAL, language-agnostic capabilities:**
+This task is just a probe; the improvement must transfer across all of C++, Go, Java, JavaScript, Python, and Rust, and across unseen problems. Reject anything tied to this specific algorithm, language, file, or test fixture. Search for the *underlying general skill* (planning, debugging discipline, test-writing, self-verification, tool ergonomics) that was missing.
 
 """
 
 STRATEGY_C_INTRO_ONE_SUCCEEDED_POLYGLOT = """You are given **one** programming task attempted by **two different versions** of the coding agent. One version **succeeded** and the other **failed**.
 
-Logs are labeled:
-- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) -- optimize this version.
-- **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) -- for comparison.
+By convention in this self-improvement loop:
+- **Primary** (commit: `{primary_commit}`, overall accuracy: {primary_utility:.1%}) is the version that **FAILED** on this shared task. Primary is the version to optimize, and the new improved child agent will be attached as Primary's descendant.
+- **Context** (commit: `{context_commit}`, overall accuracy: {context_utility:.1%}) is the version that **SUCCEEDED**. It is a reference donor only.
 
-Analyze what the successful version did differently and extract a **transferable lesson** that applies beyond this specific task.
+**The objective is capability transfer**: extract the *general* skill that allowed Context to succeed and design how to instill it into Primary so the new skill helps on many unseen tasks.
+
+**CRITICAL — evolve GENERAL capabilities only:**
+- Do NOT copy Context's specific tool calls, diff, or chain-of-thought for this task into Primary.
+- Do NOT hard-code anything language-, framework-, file-, or test-specific from this task.
+- DO propose a *general*, language-agnostic skill (planning, decomposition, reproduction, incremental testing, self-verification, error-recovery, tool design) such that Primary, once equipped, would solve this task **and** hundreds of unrelated tasks across all six supported languages.
+- Sanity check: if you removed every mention of this specific task from your proposal, would it still stand on its own as an implementable improvement? It must.
 
 """
 
@@ -273,14 +332,16 @@ Respond precisely in the following format including the JSON start and end marke
 ```
 
 In <JSON>, provide a JSON response with the following fields:
-- "primary_approach": Analyze how the Primary version approached the task. Summarize tools used, problem-solving strategy, and outcome.
-- "context_approach": Analyze how the Context version approached the same task. Same structure.
+- "primary_approach": Analyze how the **Primary** (the version we are optimizing — the one that *failed* on this task when one side succeeded) approached the task. Summarize tools used, problem-solving strategy, and outcome.
+- "context_approach": Analyze how the **Context** (the donor / comparison version — the one that *succeeded* on this task when one side succeeded) approached the same task. Same structure.
 - "differential_insight": Compare the two approaches side-by-side. What specific differences in behavior, tool usage, or strategy led to the different outcomes? If both failed, which got closer and why?
-- "transferable_lesson": Extract a generalizable lesson from this comparison that applies beyond this specific task. What general capability or strategy should the Primary agent adopt?
-- "potential_improvements": Based on the differential analysis, list potential improvements for the Primary agent.
-- "improvement_proposal": Choose ONE high-impact improvement. Describe it in detail as a unified plan to enhance the Primary agent.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, describe what feature or tool to add or change. Prefer extending existing tools over inventing redundant ones.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description so an engineer can implement it.
+- "transferable_lesson": Extract a **generalizable** lesson from this comparison that applies far beyond this specific task. Phrase it as a general capability or strategy that the Primary agent should adopt — never as "do exactly what Context did on this issue". The lesson must be reusable on unseen issues, repositories, and (for polyglot) other languages.
+- "potential_improvements": Based on the differential analysis, list potential improvements for the Primary agent. **Every item must be a general capability** (planning, decomposition, reproduction, debugging discipline, test-writing, self-verification, error-recovery, tool design, context management, etc.). Reject any candidate that is tied to this specific issue/file/function/framework/test/language. If your only ideas feel task-specific, climb the abstraction ladder and re-propose them as general skills.
+- "improvement_proposal": Choose ONE high-impact *general* improvement. Describe it in detail as a unified plan to enhance the Primary agent. Sanity check: if you scrubbed every reference to this specific task, would the proposal still be a coherent, implementable upgrade? It must.
+- "implementation_suggestion": Referring to the coding agent's summary and implementation, describe what feature or tool to add or change in Primary so the proposed *general* capability is realized. Prefer extending existing tools over inventing redundant ones. Do NOT hard-code task-, repo-, framework-, or language-specific strings, paths, regexes, or branch logic — the change must be useful on tasks the agent has never seen.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description so an engineer can implement it as a *reusable, general-purpose* capability that ships with the Primary agent's lineage.
+
+Reminder: the new improved child agent produced from this analysis will be attached as a descendant of **Primary**. So the proposal is literally what Primary's offspring will inherit — make sure it is a *general* upgrade that compounds across many future tasks, not a one-off fix for the shared task.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
@@ -382,6 +443,48 @@ def _format_swe_scenario(instance_id, ctx, label="Scenario"):
 """
 
 
+# Strategy-C-only helpers. Both attempts run the SAME task, so `github_issue`
+# and `test_patch` are byte-identical between Primary and Context. We render
+# them once in a shared header and only render the per-attempt fields
+# (predicted_patch + eval_log) twice. This is a pure-dedup change and does not
+# remove any information visible to the diagnose LLM.
+def _format_swe_strategy_c_shared(instance_id, ctx):
+    return f"""
+# Shared Task (instance_id: {instance_id})
+Both Primary and Context attempted the SAME GitHub issue below, so the issue
+text and private tests are shown once and apply to both attempts.
+
+## GitHub Issue
+----- GitHub Issue Start -----
+{ctx["github_issue"]}
+----- GitHub Issue End -----
+
+## Private Test Patch
+SWE-bench's official private tests used to detect whether the issue is solved.
+This is not available to either agent during evaluation; each agent had to
+write its own tests.
+----- Private Test Patch Start -----
+{ctx["test_patch"]}
+----- Private Test Patch End -----
+"""
+
+
+def _format_swe_strategy_c_attempt(ctx, label):
+    return f"""
+## {label} attempt
+
+### Predicted Patch
+----- Predicted Patch Start -----
+{ctx["predicted_patch"]}
+----- Predicted Patch End -----
+
+### Issue Test Results
+----- Issue Test Results Start -----
+{ctx["eval_log"]}
+----- Issue Test Results End -----
+"""
+
+
 def build_joint_diagnose_user_prompt_swe_two_entries(
     entry_id_a, entry_id_b, commit, out_dir, dataset
 ):
@@ -458,6 +561,50 @@ def _format_polyglot_failure_scenario(instance_id, ctx):
 """
 
 
+# Strategy-C-only helpers (polyglot). Same rationale as the SWE versions:
+# `github_issue`, `answer_patch` (reference_answers) and `test_patch`
+# (reference_tests) are byte-identical between Primary and Context because
+# they come from the same dataset entry, so we render them once.
+def _format_polyglot_strategy_c_shared(instance_id, ctx):
+    return f"""
+# Shared Task (instance_id: {instance_id})
+Both Primary and Context attempted the SAME programming task below, so the
+problem statement, reference solution and reference tests are shown once and
+apply to both attempts.
+
+## Task / problem statement
+----- Task Start -----
+{ctx["github_issue"]}
+----- Task End -----
+
+## Reference solution (not seen by either agent)
+----- Reference Answers Start -----
+{ctx["answer_patch"]}
+----- Reference Answers End -----
+
+## Reference tests (not seen by either agent)
+----- Reference Tests Start -----
+{ctx["test_patch"]}
+----- Reference Tests End -----
+"""
+
+
+def _format_polyglot_strategy_c_attempt(ctx, label):
+    return f"""
+## {label} attempt
+
+### Predicted Patch
+----- Predicted Patch Start -----
+{ctx["predicted_patch"]}
+----- Predicted Patch End -----
+
+### Evaluation / test results
+----- Evaluation Results Start -----
+{ctx["eval_log"]}
+----- Evaluation Results End -----
+"""
+
+
 def build_joint_diagnose_user_prompt_polyglot_two_entries(
     entry_id_a, entry_id_b, commit, out_dir, dataset
 ):
@@ -516,11 +663,20 @@ def build_joint_diagnose_user_prompt_swe_two_commits(
     body = (
         intro
         + swe_issue_prompt
-        + f"\n## {primary_label} ({commit_primary})\n"
-        + _format_swe_scenario(task_id, ctx_p, label=primary_label)
-        + f"\n## {context_label} ({commit_context})\n"
-        + _format_swe_scenario(task_id, ctx_c, label=context_label)
+        + _format_swe_strategy_c_shared(task_id, ctx_p)
+        + _format_swe_strategy_c_attempt(
+            ctx_p, label=f"{primary_label} (commit: {commit_primary})"
+        )
+        + _format_swe_strategy_c_attempt(
+            ctx_c, label=f"{context_label} (commit: {commit_context})"
+        )
         + STRATEGY_C_JSON_BLOCK
+    )
+    saved = len(ctx_p["github_issue"]) + len(ctx_p["test_patch"])
+    safe_log(
+        f"[strategy C swe] task={task_id} primary={commit_primary} "
+        f"context={commit_context} body_len={len(body)} "
+        f"deduped_shared_chars={saved} (issue+test_patch shown once instead of twice)"
     )
     return body
 
@@ -546,11 +702,25 @@ def build_joint_diagnose_user_prompt_polyglot_two_commits(
     body = (
         intro
         + polyglot_issue_prompt
-        + f"\n## {primary_label} ({commit_primary})\n"
-        + _format_polyglot_failure_scenario(task_id, ctx_p)
-        + f"\n## {context_label} ({commit_context})\n"
-        + _format_polyglot_failure_scenario(task_id, ctx_c)
+        + _format_polyglot_strategy_c_shared(task_id, ctx_p)
+        + _format_polyglot_strategy_c_attempt(
+            ctx_p, label=f"{primary_label} (commit: {commit_primary})"
+        )
+        + _format_polyglot_strategy_c_attempt(
+            ctx_c, label=f"{context_label} (commit: {commit_context})"
+        )
         + STRATEGY_C_JSON_BLOCK
+    )
+    saved = (
+        len(ctx_p["github_issue"])
+        + len(ctx_p["answer_patch"])
+        + len(ctx_p["test_patch"])
+    )
+    safe_log(
+        f"[strategy C polyglot] task={task_id} primary={commit_primary} "
+        f"context={commit_context} body_len={len(body)} "
+        f"deduped_shared_chars={saved} "
+        f"(issue+reference_answers+reference_tests shown once instead of twice)"
     )
     return body
 
@@ -771,13 +941,9 @@ def process_selfimprove_eval_logs(md_logs, eval_logs, predicted_patches, eval_re
         else "No predicted patch available. Assume the agent failed."
     )
 
-    # truncate logs if too long
-    if len(md_log) > 100000:
-        md_log = md_log[:100000] + "\n<log clipped>"
-    # if len(eval_log) > 100000:
-    #     eval_log = eval_log[:100000] + "\n<log clipped>"
-    # if len(predicted_patch) > 100000:
-    #     predicted_patch = predicted_patch[:100000] + "\n<patch clipped>"
+    md_log = _clip_text_for_joint(md_log, max_len=30000)
+    eval_log = _clip_text_for_joint(eval_log, max_len=30000)
+    predicted_patch = _clip_text_for_joint(predicted_patch, max_len=20000)
 
     eval_result = (
         eval_results[0]
@@ -810,6 +976,8 @@ Giving previous attempts and test results as context to the agent may also help.
 The tests for tasks are not provided in the repo, and the agent needs workflow design to implement them.
 Agent's own tests that validate the solution may not cover all the cases that will be checked by the private tests during official scoring. So the quality of implemented tests are crucial.
 
+**CRITICAL — propose a GENERAL, language-agnostic capability, not a one-off fix.** The improvement must be a reusable mechanism (multi-sample, self-consistency, candidate ranking, test-driven self-verification, etc.) that works on any unseen task across all six supported languages.
+
 Respond precisely in the following format including the JSON start and end markers:
 
 ```json
@@ -817,10 +985,10 @@ Respond precisely in the following format including the JSON start and end marke
 ```
 
 In <JSON>, provide a JSON response with the following fields:
-- "potential_improvements": Identify potential improvements to the coding agent's system. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
-- "improvement_proposal": Choose ONE high-impact improvement from the identified potential improvements and describe it in detail. This should be a focused and comprehensive plan to enhance the agent's overall coding ability.
-- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement.
-- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the feature so that a software engineer viewing the issue and the repository can implement it.
+- "potential_improvements": Identify potential improvements to the coding agent's system. **Every item must be a general, language-agnostic capability** that helps across any task and language. All necessary dependencies and environment setup have already been handled, so do not focus on these aspects.
+- "improvement_proposal": Choose ONE high-impact *general* improvement and describe it in detail. This should be a focused, reusable plan that compounds across many unseen tasks.
+- "implementation_suggestion": Referring to the coding agent's summary and implementation, think critically about what feature could be added or improved to best implement the proposed improvement. Avoid hard-coding language-, framework-, or task-specific details.
+- "problem_description": Phrase the improvement proposal and implementation suggestion as a GitHub issue description. It should clearly describe the *general* feature so that a software engineer can implement it as a reusable capability.
 
 Your response will be automatically parsed, so ensure that the string response is precisely in the correct format. Do NOT include the `<JSON>` tag in your output."""
 
@@ -915,17 +1083,9 @@ def get_diagnose_prompt_polyglot(
     safe_log(
         f"Code text length: {len(code_text)}, md_log length: {len(md_log)}, eval_log length: {len(eval_log)}, predicted_patch length: {len(predicted_patch)}, answer_patch length: {len(answer_patch)}, test_patch length: {len(test_patch)}, github_issue length: {len(github_issue)}, "
     )
-    import random
-
-    if random.random() < 0.25:
-        # Get user prompt for solving stochasticity
-        return coding_agent_summary_polyglot + diagnose_system_message.format(
-            code=code_text
-        ), diagnose_prompt_stochasticity_polyglot
-    if "empty_patch" in eval_result:
-        return coding_agent_summary_polyglot + diagnose_system_message.format(
-            code=code_text
-        ), diagnose_prompt_emptypatches_polyglot
+    # Fairness across self-improvement strategies: keep Strategy A on the same
+    # task-grounded diagnosis path as Strategies B/C, rather than switching to
+    # special failure-type prompts such as stochasticity or empty-patch handling.
     return coding_agent_summary_polyglot + diagnose_system_message.format(
         code=code_text
     ), polyglot_issue_prompt + diagnose_prompt.format(
