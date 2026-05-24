@@ -4,9 +4,9 @@
 
 # Mendel Gödel Machine (MGM)
 
-**Comparative Evolution Self-Improving Coding Agent**
+**Mendelian Evolution Self-Improving Coding Agent**
 
-MGM extends the [Hierarchical Gödel Machine (HGM)](https://github.com/jennyzzt/dgm) framework with **comparative evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
+MGM extends the [Huxley Gödel Machine (HGM)](https://github.com/metauto-ai/HGM) framework with **mendelian evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
 
 ---
 
@@ -30,7 +30,7 @@ Default MGM weights: **A : B : C = 0.1 : 0.45 : 0.45**. The HGM baseline uses st
 
 - **Linux** with **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
 - **Conda** (Python 3.11)
-- **Docker** on a reachable host (HPC nodes typically use a remote VM via SSH tunnel)
+- **Docker** on a reachable host
 - **SSH key access** to the remote Docker host
 - **Hugging Face cache** for model weights (`HF_HOME`)
 
