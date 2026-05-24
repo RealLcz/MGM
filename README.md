@@ -10,18 +10,7 @@ MGM extends the [Hierarchical Gödel Machine (HGM)](https://github.com/jennyzzt/
 
 ---
 
-## Overview
-
-| Component | Description |
-|-----------|-------------|
-| **Search engine** | `hgm.py` — optimistic tree search over agent variants |
-| **Self-improvement** | `self_improve_step.py` — LLM-driven diagnosis and code patching |
-| **SWE-bench harness** | `swe_bench/harness.py` — Python repo bug-fixing tasks |
-| **Polyglot harness** | `polyglot/harness.py` — 6-language programming exercises |
-| **LLM backend** | vLLM OpenAI-compatible API server |
-| **Execution** | Docker containers (local or remote via SSH tunnel) |
-
-### Self-Improve Strategies
+## Self-Improve Strategies
 
 MGM samples among three strategies when expanding a tree node:
 
