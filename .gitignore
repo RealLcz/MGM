@@ -12,6 +12,9 @@ logs/
 # SWEbench_Pro locally generated artifacts (never push upstream)
 SWEbench_Pro/logs/
 SWEbench_Pro/outputs/
+SWEbench_Multilingual/logs/
+SWEbench_Multilingual/outputs/
+SWEbench_Multilingual/subsets/
 
 swe_bench/predictions/
 swe_bench/tmp_repos/
@@ -22,6 +25,7 @@ swe_bench/*.json
 
 initial_swe/
 initial_polyglot/
+initial_polyglot_evaluation/
 results/
 
 polyglot/polyglot_benchmark_metadata.json

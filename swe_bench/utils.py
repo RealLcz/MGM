@@ -52,6 +52,12 @@ def setup_logger(log_file):
     # Add handler to logger
     logger.addHandler(handler)
 
+    # swebench's build helpers (build_image / BuildImageError) expect the logger
+    # to expose a `log_file` attribute. Our logger is passed straight into those
+    # helpers, so without this attribute a build failure raises a confusing
+    # "'Logger' object has no attribute 'log_file'" that masks the real error.
+    setattr(logger, "log_file", log_file)
+
     # Store logger in thread local storage
     _thread_local.logger = logger
 

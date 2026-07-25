@@ -1,0 +1,3 @@
+nohup: ignoring input
+time="2026-06-12T09:31:19Z" level=warning msg="Network file system detected as backing store.  Enforcing overlay option `force_mask=\"700\"`.  Add it to storage.conf to silence this warning"
+time="2026-06-12T10:05:41Z" level=warning msg="The storage 'driver' option should be set in /mnt/vast/home/ym56kacy/.config/containers/storage.conf. A driver was picked automatically."

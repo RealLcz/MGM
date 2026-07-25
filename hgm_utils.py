@@ -684,6 +684,29 @@ def sample_child(
                 "Generated model_patch.diff is empty, malformed, or not reversible"
             )
 
+        # Smoke test the patched agent (/hgm already contains the patched state):
+        # catches syntax errors, a deleted __main__ entrypoint, and broken
+        # module-level imports before the child is accepted into the tree.
+        safe_log("Running smoke test on patched coding_agent.py")
+        smoke_test_cmd = (
+            "cd /hgm && "
+            "python -m py_compile coding_agent.py && "
+            "grep -q '^if __name__' coding_agent.py && "
+            "help_out=$(timeout 120 python coding_agent.py --help 2>&1); "
+            "status=$?; "
+            "printf '%s\\n' \"$help_out\" | tail -5; "
+            "[ \"$status\" -eq 0 ] && printf '%s' \"$help_out\" | grep -qi usage"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", smoke_test_cmd], workdir="/hgm"
+        )
+        log_container_output(exec_result, raise_error=False)
+        if exec_result.exit_code != 0:
+            raise RuntimeError(
+                "Smoke test failed: patched coding_agent.py is broken "
+                "(syntax error, missing __main__ entrypoint, or --help crashed)"
+            )
+
         chat_history_file = os.path.join(output_dir, run_id, "self_evo.md")
         copy_from_container(container, chat_history_file_container, chat_history_file)
         model_patch_file = os.path.join(output_dir, run_id, "model_patch.diff")
