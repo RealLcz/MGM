@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mendel Gödel Machine — Recursive Self-Improving Coding Agents via Comparative Evolution</title>
+<meta name="description" content="Mendel Gödel Machine (MGM): self-improving coding agents that edit their own scaffolds using Mendelian comparative evolution — clonal mutation, reaction-norm mutation, and cross-lineage hybridization.">
+<meta property="og:title" content="Mendel Gödel Machine (MGM)">
+<meta property="og:description" content="Recursive self-improving coding agents via comparative evolution. 50.8% → 93.3% on Polyglot with a 35B open model — surpassing GPT-5.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reallcz.github.io/MGM/">
+<meta property="og:image" content="assets/images/fig1_mgm_overview.png">
+<link rel="canonical" href="https://reallcz.github.io/MGM/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D1B16;
+  --leaf:#2E8B57;
+  --leaf-bright:#3DA66A;
+  --pollen:#D4A017;
+  --soil:#3A4A42;
+  --dim:#6B7A72;
+  --sage:#E7EFE9;
+  --mist:#F4F7F5;
+  --white:#FFFFFF;
+  --hair:rgba(13,27,22,.12);
+  --disp:'Fraunces',Georgia,serif;
+  --body:'Outfit',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--mist);color:var(--soil);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--leaf);color:var(--white);}
+a{color:var(--leaf);}
+
+#scrollbar{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:70;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transform-origin:left;transform:scaleX(0);
+}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 34px;
+  background:rgba(244,247,245,.86);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--hair);
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);}
+.brand svg{height:36px;width:36px;display:block;}
+.brand b{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.02em;color:var(--ink);}
+.brand b span{color:var(--leaf);}
+.navlinks{display:flex;gap:22px;align-items:center;}
+.navlinks a{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color .25s;
+}
+.navlinks a:hover{color:var(--ink);}
+.navlinks .pill{
+  padding:8px 16px;border-radius:100px;background:var(--ink);color:var(--white);
+  transition:background .25s;
+}
+.navlinks .pill:hover{background:var(--leaf);color:var(--white);}
+
+.masthead{
+  padding:140px 6vw 0;position:relative;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(46,139,87,.14), transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 20%, rgba(212,160,23,.08), transparent 50%),
+    var(--mist);
+}
+.conf{
+  display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--leaf);border:1px solid rgba(46,139,87,.4);
+  border-radius:100px;padding:7px 18px;margin-bottom:28px;
+}
+.brand-hero{
+  font-family:var(--disp);font-weight:700;color:var(--ink);
+  font-size:clamp(42px,7vw,84px);line-height:1.05;letter-spacing:-.02em;
+  max-width:980px;margin:0 auto;text-align:center;
+}
+.brand-hero em{font-style:italic;color:var(--leaf);font-weight:600;}
+h1.subhead{
+  font-family:var(--body);font-weight:500;color:var(--soil);
+  font-size:clamp(18px,2.2vw,24px);line-height:1.45;letter-spacing:-.01em;
+  max-width:720px;margin:22px auto 0;text-align:center;
+}
+.lede-hero{
+  margin:18px auto 0;max-width:640px;text-align:center;
+  font-size:16px;line-height:1.7;color:var(--dim);
+}
+.authors{
+  margin-top:28px;font-size:15px;color:var(--soil);text-align:center;
+}
+.authors a{color:var(--soil);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.45);}
+.authors a:hover{color:var(--leaf);}
+.affil{margin-top:8px;font-size:13px;color:var(--dim);text-align:center;}
+.affil sup{color:var(--leaf);}
+.btnrow{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;
+  padding:12px 22px;border-radius:100px;text-decoration:none;
+  background:var(--ink);color:var(--white);
+  transition:background .25s var(--ease),transform .25s var(--ease);
+}
+.btn:hover{background:var(--leaf);transform:translateY(-2px);}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid rgba(58,74,66,.35);}
+.btn.alt:hover{border-color:var(--leaf);color:var(--leaf);}
+
+.hero-fig{
+  max-width:1180px;margin:56px auto 0;padding:0 2vw 0;
+}
+.hero-fig img{
+  width:100%;height:auto;display:block;
+  border:1px solid var(--hair);border-radius:8px;
+  background:var(--white);
+  box-shadow:0 24px 60px rgba(13,27,22,.08);
+}
+.hero-cap{
+  max-width:860px;margin:16px auto 0;text-align:center;
+  font-size:13.5px;line-height:1.7;color:var(--dim);padding:0 4vw 48px;
+}
+.hero-cap b{color:var(--soil);font-weight:600;}
+
+section{position:relative;padding:88px 0;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 5vw;}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--leaf);display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.eyebrow::before{content:"";width:28px;height:2px;background:var(--leaf);}
+h2{
+  font-family:var(--disp);font-weight:700;color:var(--ink);
+  font-size:clamp(28px,3.8vw,46px);line-height:1.15;letter-spacing:-.015em;
+}
+h2 .leaf{color:var(--leaf);}
+h2 .gold{color:var(--pollen);}
+.lede{margin-top:18px;max-width:720px;color:var(--soil);font-size:16px;line-height:1.8;}
+.lede b{color:var(--ink);font-weight:600;}
+.hairline{border:none;border-top:1px solid var(--hair);max-width:1100px;margin:0 auto;}
+
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
+.rv.in{opacity:1;transform:none;}
+.rv-st>*{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.rv-st.in>*{opacity:1;transform:none;}
+.rv-st.in>*:nth-child(1){transition-delay:.05s;}
+.rv-st.in>*:nth-child(2){transition-delay:.12s;}
+.rv-st.in>*:nth-child(3){transition-delay:.19s;}
+.rv-st.in>*:nth-child(4){transition-delay:.26s;}
+.rv-st.in>*:nth-child(5){transition-delay:.33s;}
+.rv-st.in>*:nth-child(6){transition-delay:.4s;}
+
+.tldr{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:42px;
+}
+.tl{border-top:2px solid var(--leaf);padding-top:18px;}
+.tl.hot{border-top-color:var(--pollen);}
+.t-big{
+  font-family:var(--disp);font-weight:700;font-size:clamp(26px,3vw,36px);
+  color:var(--ink);line-height:1.15;margin-bottom:10px;
+}
+.tl p{font-size:14.5px;line-height:1.7;color:var(--soil);}
+.tl p b{color:var(--ink);}
+
+details.abs-details{
+  margin-top:36px;border:1px solid var(--hair);border-radius:8px;
+  background:var(--white);overflow:hidden;
+}
+details.abs-details summary{
+  cursor:pointer;padding:16px 22px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  list-style:none;display:flex;align-items:center;justify-content:space-between;
+}
+details.abs-details summary::-webkit-details-marker{display:none;}
+details.abs-details summary::after{content:"+";color:var(--leaf);font-size:18px;}
+details.abs-details[open] summary::after{content:"−";}
+.abstract{padding:0 22px 22px;font-size:15px;line-height:1.85;color:var(--soil);text-align:justify;}
+.abstract p+p{margin-top:14px;}
+.abstract .k{font-family:var(--mono);font-size:.9em;color:var(--leaf);}
+.abstract .o{color:var(--pollen);font-weight:600;}
+
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px;
+}
+.stat{
+  background:var(--white);border:1px solid var(--hair);border-radius:8px;
+  padding:22px 20px;
+}
+.stat.peak{border-color:rgba(46,139,87,.45);background:linear-gradient(160deg,var(--white),var(--sage));}
+.stat .v{
+  font-family:var(--disp);font-weight:700;font-size:clamp(28px,3.2vw,40px);
+  color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;
+}
+.stat .v i{font-style:normal;font-size:.55em;color:var(--leaf);margin-left:2px;}
+.stat .k{margin-top:10px;font-size:13px;line-height:1.5;color:var(--dim);}
+
+.ops{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;
+}
+.op{
+  background:var(--white);border:1px solid var(--hair);border-radius:10px;
+  padding:28px 24px;position:relative;overflow:hidden;
+  transition:transform .35s var(--ease),border-color .35s;
+}
+.op:hover{transform:translateY(-4px);border-color:rgba(46,139,87,.4);}
+.op .glyph{
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.op .glyph i{
+  width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-style:normal;font-weight:600;font-size:13px;color:var(--white);
+}
+.op.cm .glyph i{background:#C45C4A;}
+.op.rm .glyph i{background:var(--leaf);}
+.op.ch .glyph i{background:var(--pollen);}
+.op h3{font-family:var(--disp);font-size:22px;color:var(--ink);margin-bottom:10px;}
+.op p{font-size:14.5px;line-height:1.7;color:var(--soil);}
+.op .weight{
+  margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  color:var(--dim);
+}
+.op .weight b{color:var(--ink);}
+
+.fig-block{margin-top:48px;}
+.fig-block img{
+  width:100%;height:auto;display:block;border-radius:8px;
+  border:1px solid var(--hair);background:var(--white);
+}
+.fig-block.pair{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.fig-label{
+  margin-top:12px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  color:var(--dim);line-height:1.6;
+}
+.fig-label b{color:var(--ink);}
+
+.ladder{margin-top:40px;display:flex;flex-direction:column;gap:0;}
+.step{
+  display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;
+  padding:22px 0;border-bottom:1px solid var(--hair);
+}
+.step:last-child{border-bottom:none;}
+.step .node{
+  width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:600;background:var(--sage);color:var(--soil);
+}
+.step.this .node{background:var(--leaf);color:var(--white);box-shadow:0 0 0 6px rgba(46,139,87,.18);}
+.step h4{font-family:var(--disp);font-size:20px;color:var(--ink);margin-bottom:6px;}
+.step h4 .flag{
+  display:inline-block;margin-left:10px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;padding:3px 8px;border-radius:100px;
+  background:var(--pollen);color:var(--ink);vertical-align:middle;
+}
+.step p{font-size:14.5px;line-height:1.65;color:var(--soil);max-width:560px;}
+
+.mech-grid{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;margin-top:16px;
+}
+.pulse-ring{
+  width:min(100%,420px);margin:0 auto;aspect-ratio:1;position:relative;
+}
+.pulse-ring svg{width:100%;height:100%;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-slow{transform-origin:280px 280px;animation:spin 28s linear infinite;}
+.flow-dash{stroke-dasharray:6 10;animation:dash 1.8s linear infinite;}
+@keyframes dash{to{stroke-dashoffset:-32;}}
+
+.bench{
+  margin-top:40px;overflow-x:auto;border:1px solid var(--hair);border-radius:10px;
+  background:var(--white);
+}
+table.results{
+  width:100%;border-collapse:collapse;font-size:14px;min-width:720px;
+}
+table.results th,table.results td{
+  padding:14px 16px;text-align:left;border-bottom:1px solid var(--hair);
+}
+table.results th{
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);background:var(--sage);font-weight:500;
+}
+table.results td{color:var(--soil);}
+table.results td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+table.results tr:last-child td{border-bottom:none;}
+table.results .hi{color:var(--leaf);font-weight:600;}
+table.results .gain{color:var(--pollen);font-weight:600;font-size:12px;}
+
+.bars{margin-top:36px;display:flex;flex-direction:column;gap:14px;}
+.bar-row{display:grid;grid-template-columns:180px 1fr 72px;gap:14px;align-items:center;}
+.bar-row .name{font-family:var(--mono);font-size:12px;color:var(--dim);}
+.bar-track{height:10px;background:rgba(13,27,22,.06);border-radius:100px;overflow:hidden;}
+.bar-fill{
+  height:100%;border-radius:100px;width:0;
+  transition:width 1.2s var(--ease);
+  background:linear-gradient(90deg,var(--leaf),var(--leaf-bright));
+}
+.bar-fill.gold{background:linear-gradient(90deg,#B8860B,var(--pollen));}
+.bar-fill.ink{background:var(--ink);}
+.bar-row .pct{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);text-align:right;}
+
+.xfer{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:36px;
+}
+.xfer-card{
+  background:var(--white);border:1px solid var(--hair);border-radius:10px;padding:28px 24px;
+}
+.xfer-card .tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--leaf);margin-bottom:12px;
+}
+.xfer-card .arrow{
+  font-family:var(--disp);font-weight:700;font-size:clamp(28px,3vw,40px);
+  color:var(--ink);margin-bottom:10px;
+}
+.xfer-card .arrow span{color:var(--leaf);}
+.xfer-card p{font-size:14.5px;line-height:1.65;color:var(--soil);}
+
+.cite-box{
+  margin-top:28px;background:var(--ink);color:var(--sage);border-radius:10px;
+  padding:28px;position:relative;
+}
+.cite-box pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap;
+  overflow-x:auto;color:#C8D9CF;
+}
+.cite-box .copy{
+  position:absolute;top:16px;right:16px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(255,255,255,.08);color:var(--sage);border:1px solid rgba(255,255,255,.12);
+  border-radius:100px;padding:8px 14px;cursor:pointer;
+  transition:background .2s;
+}
+.cite-box .copy:hover{background:var(--leaf);color:var(--white);border-color:var(--leaf);}
+.cite-box .copy.ok{background:var(--pollen);color:var(--ink);border-color:var(--pollen);}
+
+footer{
+  background:var(--ink);color:#9BB0A4;padding:64px 5vw 40px;
+}
+.foot-inner{max-width:1100px;margin:0 auto;}
+.foot-brand{
+  font-family:var(--disp);font-size:28px;font-weight:700;color:var(--white);margin-bottom:12px;
+}
+.foot-brand span{color:var(--leaf-bright);}
+.foot-links{display:flex;gap:22px;flex-wrap:wrap;margin:24px 0 40px;}
+.foot-links a{
+  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:#9BB0A4;text-decoration:none;
+}
+.foot-links a:hover{color:var(--white);}
+.foot-note{font-size:13px;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:24px;}
+
+@media (max-width:900px){
+  .tldr,.ops,.stats,.xfer,.fig-block.pair,.mech-grid{grid-template-columns:1fr;}
+  .bar-row{grid-template-columns:1fr;gap:6px;}
+  .bar-row .pct{text-align:left;}
+  nav{padding:12px 18px;}
+  .navlinks a:not(.pill){display:none;}
+  .masthead{padding-top:120px;}
+}
+</style>
+</head>
+<body>
+<div id="scrollbar"></div>
+
+<nav>
+  <a class="brand" href="#top">
+    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="#0D1B16"/>
+      <circle cx="32" cy="22" r="10" fill="#2E8B57"/>
+      <circle cx="22" cy="38" r="8" fill="#3DA66A"/>
+      <circle cx="42" cy="38" r="8" fill="#D4A017"/>
+      <path d="M32 32v14" stroke="#E7EFE9" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 38c4 6 10 8 10 8s6-2 10-8" stroke="#E7EFE9" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <b>Mendel <span>Gödel</span> Machine</b>
+  </a>
+  <div class="navlinks">
+    <a href="#abstract">Abstract</a>
+    <a href="#operators">Operators</a>
+    <a href="#results">Results</a>
+    <a href="#theory">Theory</a>
+    <a href="#bibtex">Cite</a>
+    <a class="pill" href="https://github.com/RealLcz/MGM">Code</a>
+  </div>
+</nav>
+
+<header class="masthead" id="top">
+  <div style="text-align:center">
+    <p class="conf rv">Preprint · Self-Improving Coding Agents · Comparative Evolution</p>
+    <p class="brand-hero rv">Mendel <em>Gödel</em> Machine</p>
+    <h1 class="subhead rv">Recursive self-improving coding agents via comparative evolution</h1>
+    <p class="lede-hero rv">Beyond single-failure edits: MGM reuses archived trajectories across tasks and lineages — Mendelian inheritance for agent scaffolds.</p>
+    <p class="authors rv">
+      <a href="mailto:changzhiliu1@gmail.com">Changzhi Liu</a><sup>∗,§</sup> ·
+      <a href="mailto:yilun.liu@tum.de">Yilun Liu</a><sup>†,‡,§</sup> ·
+      Sikuan Yan<sup>†,‡</sup> ·
+      Volker Tresp<sup>†,‡</sup> ·
+      <a href="mailto:cognitive.yunpu@gmail.com">Yunpu Ma</a><sup>†,‡</sup>
+    </p>
+    <p class="affil rv">
+      <sup>∗</sup>UESTC &nbsp;·&nbsp; <sup>†</sup>LMU Munich &nbsp;·&nbsp; <sup>‡</sup>MCML &nbsp;·&nbsp; <sup>§</sup>Equal contribution
+    </p>
+    <div class="btnrow rv">
+      <a class="btn" href="https://github.com/RealLcz/MGM">Code</a>
+      <a class="btn" href="#bibtex">Citation</a>
+      <a class="btn alt" href="#results">Results ↓</a>
+      <a class="btn alt" href="https://github.com/metauto-ai/HGM">Builds on HGM</a>
+    </div>
+  </div>
+
+  <div class="hero-fig rv">
+    <img src="assets/images/fig1_mgm_overview.png" alt="Mendel Gödel Machine overview: archive lineage tree, sampling–evaluation–expansion loop, and three self-modification operators" width="1676" height="832" loading="eager">
+  </div>
+  <p class="hero-cap rv">
+    <b>Figure 1.</b> MGM organizes self-modification via controlled inheritance.
+    The archive stores agent genotypes (source) and phenotypes (outcomes);
+    each expansion samples among clonal mutation, reaction-norm mutation, and cross-lineage hybridization.
+  </p>
+</header>
+
+<section id="abstract">
+  <div class="wrap">
+    <p class="eyebrow rv">01 · TL;DR</p>
+    <h2 class="rv">Self-improvement that learns<br>from <span class="leaf">comparisons</span>, not accidents</h2>
+    <div class="tldr rv-st rv">
+      <div class="tl">
+        <p class="t-big">Three operators</p>
+        <p><b>Clonal · Reaction-norm · Hybridization</b> — edit scaffolds using single failures, multi-task phenotypes, or peer lineages that solved the same task.</p>
+      </div>
+      <div class="tl hot">
+        <p class="t-big">50.8 → 93.3</p>
+        <p>Polyglot with Qwen3.6-35B-A3B. <b>Surpasses GPT-5 (88%)</b> with ~117× fewer parameters. DeepSeek-V4-Pro + MGM reaches <b>96.9%</b>.</p>
+      </div>
+      <div class="tl">
+        <p class="t-big">Proven faster</p>
+        <p>Under an additive fitness model, comparative operators raise effective fix probability — confirmed in Monte Carlo surrogate simulations and SWE-bench / Polyglot.</p>
+      </div>
+    </div>
+
+    <details class="abs-details rv">
+      <summary>Full abstract</summary>
+      <div class="abstract">
+        <p>
+          Self-improving coding agents that iteratively rewrite their own source code have demonstrated
+          impressive performance on coding tasks. However, existing solutions generally derive self-modification
+          from a single failure trajectory at a time, overlooking rich comparative signals available in the
+          agent’s expanding archive of past attempts. According to Mendelian principles of controlled inheritance,
+          we introduce <span class="k">Mendel Gödel Machine (MGM)</span>. In addition to the general single-trajectory
+          <span class="k">clonal mutation</span>, MGM includes two new types of self-modification that better utilize
+          accumulated evidence: the <span class="k">reaction-norm mutation</span> edits an agent based on its trajectories
+          on multiple tasks simultaneously, and the <span class="k">cross-lineage hybridization</span> edits an agent using
+          the trajectory of a reference agent from another lineage on the same task.
+        </p>
+        <p>
+          Under an additive fitness landscape model, we prove theoretically and demonstrate via controlled surrogate
+          simulation that the new strategies facilitate a faster and better convergence over single-trajectory baselines.
+          Experiments on <span class="o">SWE-bench</span> and <span class="o">Polyglot</span> confirm MGM’s consistent
+          improvement in performance, efficiency, and generalizability. Code:
+          <a href="https://github.com/RealLcz/MGM">github.com/RealLcz/MGM</a>.
+        </p>
+      </div>
+    </details>
+
+    <div class="stats rv-st rv">
+      <div class="stat peak"><div class="v"><span class="cnt" data-to="93.3" data-dec="1">0</span><i>%</i></div><div class="k">Polyglot · Qwen3.6-35B + MGM — above GPT-5 (88%)</div></div>
+      <div class="stat"><div class="v"><span class="cnt" data-to="96.9" data-dec="1">0</span><i>%</i></div><div class="k">Polyglot · DeepSeek-V4-Pro + transferred MGM scaffold</div></div>
+      <div class="stat"><div class="v">+<span class="cnt" data-to="42.4" data-dec="1">0</span><i>pp</i></div><div class="k">Gain over initial scaffold on Polyglot-60</div></div>
+      <div class="stat"><div class="v"><span class="cnt" data-to="78.3" data-dec="1">0</span><i>%</i></div><div class="k">SWE-bench Verified-60 after MGM evolution</div></div>
+      <div class="stat"><div class="v"><span class="cnt" data-to="210" data-dec="0">0</span><i>/225</i></div><div class="k">Full Polyglot tasks solved by the MGM-evolved agent</div></div>
+      <div class="stat"><div class="v"><span class="cnt" data-to="3" data-dec="0">0</span></div><div class="k">Mendelian self-modification operators</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="operators">
+  <div class="wrap">
+    <p class="eyebrow rv">02 · Mendelian Operators</p>
+    <h2 class="rv">Three ways to edit.<br>One archive of <span class="leaf">evidence</span>.</h2>
+    <p class="lede rv">
+      Default sampling weights <b>A : B : C = 0.1 : 0.45 : 0.45</b>.
+      Comparative operators reuse trajectories already collected during routine evaluation — no extra task runs required.
+    </p>
+    <div class="ops rv-st rv">
+      <div class="op cm">
+        <p class="glyph"><i>A</i> Φ<sub>CM</sub></p>
+        <h3>Clonal Mutation</h3>
+        <p>Improve from a single failed task on the selected node — the HGM-style baseline that keeps search moving when the archive is still sparse.</p>
+        <p class="weight">Default weight <b>0.10</b></p>
+      </div>
+      <div class="op rm">
+        <p class="glyph"><i>B</i> Φ<sub>RM</sub></p>
+        <h3>Reaction-norm Mutation</h3>
+        <p>Compare multiple phenotypes of the same genotype across tasks. Recurring failures compress the candidate defect set — fewer accidents, clearer diagnoses.</p>
+        <p class="weight">Default weight <b>0.45</b> · needs ≥2 evals</p>
+      </div>
+      <div class="op ch">
+        <p class="glyph"><i>C</i> Φ<sub>CH</sub></p>
+        <h3>Cross-lineage Hybridization</h3>
+        <p>Transfer capability from a peer lineage that solved a shared task. Contrastive traces reveal which behaviors are causal — and which to inherit.</p>
+        <p class="weight">Default weight <b>0.45</b></p>
+      </div>
+    </div>
+
+    <div class="mech-grid" style="margin-top:56px">
+      <div>
+        <p class="eyebrow rv">Loop</p>
+        <h2 class="rv" style="font-size:clamp(24px,3vw,34px)">Sample · Evaluate · Expand</h2>
+        <div class="ladder rv-st rv">
+          <div class="step"><div class="node">π</div><div><h4>π-sampling</h4><p>Select an operation and the archive resources it needs — node, tasks, and optional reference lineage.</p></div></div>
+          <div class="step"><div class="node">φ</div><div><h4>φ-evaluation</h4><p>Run the agent on untested tasks; record trajectories and binary outcomes as phenotype.</p></div></div>
+          <div class="step this"><div class="node">Φ</div><div><h4>Φ-expansion<span class="flag">MGM</span></h4><p>Rewrite the scaffold with CM, RM, or CH evidence — then insert the child into the lineage tree.</p></div></div>
+        </div>
+      </div>
+      <div class="pulse-ring rv">
+        <svg viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="280" cy="280" r="252" fill="none" stroke="rgba(58,74,66,.18)" stroke-width="8" stroke-dasharray="1.5 11.7"/>
+          <g class="spin-slow">
+            <circle cx="280" cy="280" r="232" fill="none" stroke="#2E8B57" stroke-width="1" opacity=".35" stroke-dasharray="2 16"/>
+            <circle cx="280" cy="48" r="3.5" fill="#2E8B57"/>
+            <circle cx="280" cy="512" r="3.5" fill="#D4A017"/>
+          </g>
+          <path d="M 280 470 A 190 190 0 0 1 90 280 A 190 190 0 0 1 280 90" fill="none" stroke="#2E8B57" stroke-width="2" class="flow-dash"/>
+          <path d="M 280 90 A 190 190 0 0 1 470 280 A 190 190 0 0 1 280 470" fill="none" stroke="#D4A017" stroke-width="2" class="flow-dash"/>
+          <circle r="3.4" fill="#2E8B57"><animateMotion dur="4.2s" repeatCount="indefinite" path="M 280 470 A 190 190 0 0 1 90 280 A 190 190 0 0 1 280 90"/></circle>
+          <circle r="3.4" fill="#D4A017"><animateMotion dur="4.2s" repeatCount="indefinite" path="M 280 90 A 190 190 0 0 1 470 280 A 190 190 0 0 1 280 470"/></circle>
+          <g>
+            <rect x="170" y="58" width="220" height="64" rx="8" fill="#0D1B16"/>
+            <text x="280" y="86" text-anchor="middle" font-family="Fraunces" font-size="18" font-weight="700" fill="#FFFFFF">Archive Gt</text>
+            <text x="280" y="106" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#9BB0A4">genotype · phenotype · lineages</text>
+          </g>
+          <g>
+            <rect x="170" y="438" width="220" height="64" rx="8" fill="#FFFFFF" stroke="#0D1B16" stroke-width="1.5"/>
+            <text x="280" y="466" text-anchor="middle" font-family="Fraunces" font-size="18" font-weight="700" fill="#0D1B16">Φ operators</text>
+            <text x="280" y="486" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#3A4A42">CM · RM · CH</text>
+          </g>
+          <circle cx="280" cy="280" r="8" fill="none" stroke="#D4A017" stroke-width="1.4">
+            <animate attributeName="r" values="8;36" dur="2.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur="2.6s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="280" cy="280" r="6" fill="#2E8B57"/>
+          <text x="280" y="320" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" letter-spacing="3" fill="#0D1B16" font-weight="600">COMPARATIVE EVOLUTION</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="results" style="background:var(--white)">
+  <div class="wrap">
+    <p class="eyebrow rv">03 · Benchmarks</p>
+    <h2 class="rv">A 35B open model at the<br>table of <span class="gold">frontier</span> systems</h2>
+    <p class="lede rv">
+      Same evaluation &amp; expansion budget as HGM. Gains come from <b>better diagnostic evidence</b>, not more compute.
+    </p>
+
+    <div class="fig-block rv">
+      <img src="assets/images/fig2_polyglot_performance.png" alt="Polyglot performance vs model size: MGM lifts 35B open models above GPT-5" width="864" height="623" loading="lazy">
+      <p class="fig-label"><b>Figure 2.</b> Polyglot performance vs model size. Qwen3.6-35B-A3B + MGM reaches 93.3%; DeepSeek-V4-Pro + MGM reaches 96.9%.</p>
+    </div>
+
+    <div class="bars rv" id="perfBars" style="margin-top:48px">
+      <div class="bar-row">
+        <span class="name">Initial · 35B</span>
+        <div class="bar-track"><div class="bar-fill ink" data-w="50.8"></div></div>
+        <span class="pct">50.8%</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">HGM · 35B</span>
+        <div class="bar-track"><div class="bar-fill" data-w="77.9" style="background:linear-gradient(90deg,#5A7A68,#7A9A88)"></div></div>
+        <span class="pct">77.9%</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">MGM · 35B</span>
+        <div class="bar-track"><div class="bar-fill" data-w="93.2"></div></div>
+        <span class="pct">93.2%</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">GPT-5</span>
+        <div class="bar-track"><div class="bar-fill gold" data-w="88.0"></div></div>
+        <span class="pct">88.0%</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">DS-V4-Pro + MGM</span>
+        <div class="bar-track"><div class="bar-fill" data-w="96.9"></div></div>
+        <span class="pct">96.9%</span>
+      </div>
+    </div>
+
+    <div class="bench rv" style="margin-top:48px">
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Initial</th>
+            <th>HGM</th>
+            <th>MGM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SWE-bench Verified-60</td>
+            <td class="num">68.3</td>
+            <td class="num">73.3 <span class="gain">+5.0</span></td>
+            <td class="num hi">78.3 <span class="gain">+10.0</span></td>
+          </tr>
+          <tr>
+            <td>Polyglot-60</td>
+            <td class="num">50.8</td>
+            <td class="num">77.9 <span class="gain">+27.1</span></td>
+            <td class="num hi">93.2 <span class="gain">+42.4</span></td>
+          </tr>
+          <tr>
+            <td>Average</td>
+            <td class="num">59.6</td>
+            <td class="num">75.6 <span class="gain">+16.0</span></td>
+            <td class="num hi">85.8 <span class="gain">+26.2</span></td>
+          </tr>
+          <tr>
+            <td>Wall-clock (avg)</td>
+            <td class="num">—</td>
+            <td class="num">68.61 h</td>
+            <td class="num">68.12 h</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fig-label rv">Table 1 · Qwen3.6-35B-A3B · 200 φ-evaluations · 24 Φ-expansions · 8×H100</p>
+
+    <div class="fig-block pair rv" style="margin-top:56px">
+      <div>
+        <img src="assets/images/polyglot_accuracy_by_language.png" alt="Polyglot-225 accuracy by language for the MGM-evolved agent" width="800" height="500" loading="lazy">
+        <p class="fig-label"><b>By language.</b> 210 / 225 tasks solved across C++, Go, Java, JS, Python, Rust.</p>
+      </div>
+      <div>
+        <img src="assets/images/fig6_token_boxplot.png" alt="Token cost distributions for evaluation and MGM operators" width="800" height="500" loading="lazy">
+        <p class="fig-label"><b>Token costs.</b> CM, RM, and CH stay in the same order of magnitude — gains are not from spending more tokens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="generalization">
+  <div class="wrap">
+    <p class="eyebrow rv">04 · Transfer</p>
+    <h2 class="rv">Scaffolds that travel —<br>across <span class="leaf">benchmarks</span> and models</h2>
+    <p class="lede rv">
+      MGM edits the agent workflow, not LLM weights. Evolved scaffolds remain useful when the task distribution or backbone changes.
+    </p>
+    <div class="xfer rv-st rv">
+      <div class="xfer-card">
+        <p class="tag">Cross-benchmark · zero-shot</p>
+        <p class="arrow">29.2% → <span>40.9%</span></p>
+        <p>Polyglot-evolved MGM scaffolds transfer to SWE-bench Pro &amp; Multilingual. HGM average drops; MGM gains <b>+11.7 pp</b>.</p>
+      </div>
+      <div class="xfer-card">
+        <p class="tag">Cross-model · scaffold freeze</p>
+        <p class="arrow">47.5% → <span>70.8%</span></p>
+        <p>Scaffolds evolved on Qwen3.6 transfer to DeepSeek-V4-Flash / Pro. MGM average lift <b>+23.3 pp</b> vs HGM +17.5.</p>
+      </div>
+    </div>
+
+    <div class="bench rv" style="margin-top:36px">
+      <table class="results">
+        <thead>
+          <tr><th>Ablation · Polyglot-60</th><th>Accuracy</th><th>vs Initial</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Full MGM</td><td class="num hi">93.2</td><td class="num gain">↑ 83.5%</td></tr>
+          <tr><td>w/o Φ<sub>RM</sub></td><td class="num">79.7</td><td class="num">↑ 56.9%</td></tr>
+          <tr><td>w/o Φ<sub>CH</sub></td><td class="num">74.6</td><td class="num">↑ 46.9%</td></tr>
+          <tr><td>Initial</td><td class="num">50.8</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fig-label rv">Table 4 · Both comparative operators matter; removing hybridization hurts most.</p>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="trees" style="background:var(--white)">
+  <div class="wrap">
+    <p class="eyebrow rv">05 · Evolution Trees</p>
+    <h2 class="rv">Lineages you can <span class="leaf">read</span></h2>
+    <p class="lede rv">
+      Edge color encodes the operator that created each child. Node color tracks accuracy; ★ marks full-eval nodes.
+    </p>
+    <div class="fig-block pair rv">
+      <div>
+        <img src="assets/images/hgm_tree_hgm_polyglot.png" alt="HGM evolution tree on Polyglot" width="700" height="700" loading="lazy">
+        <p class="fig-label"><b>HGM</b> — clonal mutation only (A = 1.0).</p>
+      </div>
+      <div>
+        <img src="assets/images/hgm_tree_mgm_polyglot.png" alt="MGM evolution tree on Polyglot" width="700" height="700" loading="lazy">
+        <p class="fig-label"><b>MGM</b> — red CM · orange RM · purple CH (0.1 : 0.45 : 0.45).</p>
+      </div>
+    </div>
+    <div class="fig-block rv" style="margin-top:28px">
+      <img src="assets/images/to_implement_tsne_mgm_vs_hgm.png" alt="t-SNE of agent behavioral features: MGM vs HGM" width="1200" height="700" loading="lazy">
+      <p class="fig-label"><b>Behavioral geometry.</b> t-SNE of agent features — MGM explores a different region of scaffold space than single-trajectory HGM.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="theory">
+  <div class="wrap">
+    <p class="eyebrow rv">06 · Theory &amp; Simulation</p>
+    <h2 class="rv">Comparative evidence as<br><span class="gold">diagnostic compression</span></h2>
+    <p class="lede rv">
+      In an additive fitness landscape, Φ<sub>RM</sub> and Φ<sub>CH</sub> produce smaller candidate defect sets than Φ<sub>CM</sub> —
+      raising effective fix probability when the editor targets a true mismatched locus.
+    </p>
+    <div class="fig-block pair rv">
+      <div>
+        <img src="assets/images/fig3_fitness_landscape.png" alt="Additive fitness landscape model illustration" width="1000" height="900" loading="lazy">
+        <p class="fig-label"><b>Figure 3.</b> Genotype loci · task subsets · Hamming distance to oracle.</p>
+      </div>
+      <div>
+        <img src="assets/images/fig4_5_simulation.png" alt="Monte Carlo simulation: MGM vs HGM vs DGM across difficulty and fix-probability ratios" width="1000" height="1200" loading="lazy">
+        <p class="fig-label"><b>Figures 4–5.</b> Surrogate search: as diagnostic advantage ρ grows, MGM converges faster with tighter final spread.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<section id="bibtex">
+  <div class="wrap">
+    <p class="eyebrow rv">07 · Citation</p>
+    <h2 class="rv">Use it. Cite it. <span class="leaf">Evolve it.</span></h2>
+    <p class="lede rv">Code is open at <a href="https://github.com/RealLcz/MGM">github.com/RealLcz/MGM</a>. Community runs on new models and benchmarks are welcome as co-contributions.</p>
+    <div class="cite-box rv">
+      <button class="copy" type="button" id="copyBtn">Copy</button>
+      <pre id="bibtexBlock">@misc{liu2026mgm,
+  title={Mendel G\"odel Machine: Recursive Self-Improving Coding Agents via Comparative Evolution},
+  author={Changzhi Liu and Yilun Liu and Sikuan Yan and Volker Tresp and Yunpu Ma},
+  year={2026},
+  url={https://github.com/RealLcz/MGM}
+}</pre>
+    </div>
+    <div class="btnrow rv" style="justify-content:flex-start;margin-top:28px">
+      <a class="btn" href="https://github.com/RealLcz/MGM">Open repository</a>
+      <a class="btn alt" href="https://github.com/RealLcz/MGM#readme">Setup guide</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <p class="foot-brand">Mendel <span>Gödel</span> Machine</p>
+    <p>Recursive self-improving coding agents via comparative evolution.</p>
+    <div class="foot-links">
+      <a href="https://github.com/RealLcz/MGM">GitHub</a>
+      <a href="#abstract">Abstract</a>
+      <a href="#results">Results</a>
+      <a href="#bibtex">Cite</a>
+      <a href="https://github.com/metauto-ai/HGM">HGM</a>
+    </div>
+    <p class="foot-note">
+      Adapted from the DGM and HGM self-improving agent frameworks.
+      Affiliations: University of Electronic Science and Technology of China · Ludwig Maximilian University of Munich · Munich Center for Machine Learning.
+    </p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const bar = document.getElementById('scrollbar');
+  const onScroll = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    bar.style.transform = `scaleX(${max > 0 ? h.scrollTop / max : 0})`;
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, {threshold: 0.12, rootMargin: '0px 0px -40px 0px'});
+  document.querySelectorAll('.rv, .rv-st').forEach(el => io.observe(el));
+
+  const animateCount = (el) => {
+    const to = parseFloat(el.dataset.to);
+    const dec = parseInt(el.dataset.dec || '0', 10);
+    const dur = 1100;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * eased).toFixed(dec);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const cio = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.cnt').forEach(animateCount);
+      cio.unobserve(e.target);
+    });
+  }, {threshold: 0.3});
+  document.querySelectorAll('.stats').forEach(el => cio.observe(el));
+
+  const bio = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.bar-fill').forEach(f => {
+        f.style.width = f.dataset.w + '%';
+      });
+      bio.unobserve(e.target);
+    });
+  }, {threshold: 0.25});
+  const bars = document.getElementById('perfBars');
+  if (bars) bio.observe(bars);
+
+  const btn = document.getElementById('copyBtn');
+  const block = document.getElementById('bibtexBlock');
+  if (btn && block) {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(block.textContent);
+        btn.textContent = 'Copied';
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600);
+      } catch (_) {
+        btn.textContent = 'Select & copy';
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
