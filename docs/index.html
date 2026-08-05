@@ -701,21 +701,44 @@ footer{
     <p class="eyebrow rv">05 · Evolution Trees</p>
     <h2 class="rv">Lineages you can <span class="leaf">read</span></h2>
     <p class="lede rv">
-      Edge color encodes the operator that created each child. Node color tracks accuracy; ★ marks full-eval nodes.
+      Circular cladograms after 200 φ-evaluations and 24 Φ-expansions on Polyglot.
+      Edge color = operator; node color = utility; grey arcs = hybridization references.
     </p>
     <div class="fig-block pair rv">
       <div>
-        <img src="assets/images/hgm_tree_hgm_polyglot.png" alt="HGM evolution tree on Polyglot" width="700" height="700" loading="lazy">
-        <p class="fig-label"><b>HGM</b> — clonal mutation only (A = 1.0).</p>
+        <img src="assets/images/tree_mgm.png" alt="MGM evolution tree with clonal, reaction-norm, and cross-lineage edges" width="848" height="801" loading="lazy">
+        <p class="fig-label"><b>(a) MGM</b> — CM · RM · CH with hybridization references.</p>
       </div>
       <div>
-        <img src="assets/images/hgm_tree_mgm_polyglot.png" alt="MGM evolution tree on Polyglot" width="700" height="700" loading="lazy">
-        <p class="fig-label"><b>MGM</b> — red CM · orange RM · purple CH (0.1 : 0.45 : 0.45).</p>
+        <img src="assets/images/tree_hgm.png" alt="HGM evolution tree using clonal mutation only" width="848" height="801" loading="lazy">
+        <p class="fig-label"><b>(b) HGM</b> — clonal mutation only.</p>
       </div>
     </div>
+    <div class="fig-block pair rv" style="margin-top:18px">
+      <div>
+        <img src="assets/images/tree_wo_rm.png" alt="Ablation without reaction-norm mutation" width="848" height="796" loading="lazy">
+        <p class="fig-label"><b>(c) w/o Φ<sub>RM</sub></b> — CM + CH remain.</p>
+      </div>
+      <div>
+        <img src="assets/images/tree_wo_ch.png" alt="Ablation without cross-lineage hybridization" width="848" height="796" loading="lazy">
+        <p class="fig-label"><b>(d) w/o Φ<sub>CH</sub></b> — within-lineage evolution only.</p>
+      </div>
+    </div>
+
+    <div class="fig-block pair rv" style="margin-top:36px">
+      <div>
+        <img src="assets/images/fig9_final_utility.png" alt="Final per-node utilities for MGM, HGM, and ablations" width="1736" height="630" loading="lazy">
+        <p class="fig-label"><b>Final utilities.</b> Marker area ∝ evaluations; + marks the selected result.</p>
+      </div>
+      <div>
+        <img src="assets/images/fig10_skill_transfer.png" alt="Cross-lineage hybridization skill emergence and transfer" width="758" height="528" loading="lazy">
+        <p class="fig-label"><b>Skill transfer.</b> A solved lineage donates capability to a failing peer via Φ<sub>CH</sub>.</p>
+      </div>
+    </div>
+
     <div class="fig-block rv" style="margin-top:28px">
-      <img src="assets/images/to_implement_tsne_mgm_vs_hgm.png" alt="t-SNE of agent behavioral features: MGM vs HGM" width="1200" height="700" loading="lazy">
-      <p class="fig-label"><b>Behavioral geometry.</b> t-SNE of agent features — MGM explores a different region of scaffold space than single-trajectory HGM.</p>
+      <img src="assets/images/to_implement_tsne_mgm_vs_hgm.png" alt="t-SNE of To-Implement semantics: MGM vs HGM" width="1200" height="700" loading="lazy">
+      <p class="fig-label"><b>Semantic geometry.</b> t-SNE of evolved “To Implement” skills — MGM clusters differently from HGM.</p>
     </div>
   </div>
 </section>
