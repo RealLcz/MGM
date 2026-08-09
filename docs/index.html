@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mendel Gödel Machine — Recursive Self-Improving Coding Agents via Comparative Evolution</title>
+<title>Mendel Gödel Machine</title>
 <meta name="description" content="Mendel Gödel Machine (MGM): self-improving coding agents that edit their own scaffolds using Mendelian comparative evolution — clonal mutation, reaction-norm mutation, and cross-lineage hybridization.">
 <meta property="og:title" content="Mendel Gödel Machine (MGM)">
 <meta property="og:description" content="Recursive self-improving coding agents via comparative evolution. 50.8% → 93.3% on Polyglot with a 35B open model — surpassing GPT-5.">
@@ -18,7 +18,6 @@
 <style>
 :root{
   --ink:#273330;
-  --ink-rgb:39,51,48;
   --leaf:#2E8B57;
   --leaf-bright:#3DA66A;
   --pollen:#D4A017;
@@ -26,7 +25,6 @@
   --dim:#6B7A72;
   --sage:#E7EFE9;
   --paper:#F4F7F5;
-  --paper-tint:#E8EEEA;
   --white:#FFFFFF;
   --hair:rgba(39,51,48,.12);
   --disp:'Platypi',Georgia,serif;
@@ -60,10 +58,10 @@ nav{
   border-bottom:1px solid var(--hair);
 }
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);}
-.brand b{font-family:var(--disp);font-weight:800;font-size:18px;letter-spacing:.06em;color:var(--ink);}
+.brand b{font-family:var(--disp);font-weight:800;font-size:18px;color:var(--ink);}
 .navlinks{display:flex;gap:22px;align-items:center;}
 .navlinks a{
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
   color:var(--dim);text-decoration:none;transition:color .25s;
 }
 .navlinks a:hover{color:var(--ink);}
@@ -106,10 +104,10 @@ nav{
 }
 .brand-hero{
   font-family:var(--disp);font-weight:800;font-style:normal;color:var(--ink);
-  font-size:clamp(44px,7.2vw,88px);line-height:1.02;letter-spacing:-.025em;
+  font-size:clamp(44px,7.2vw,88px);line-height:1.02
 }
 h1.subhead{
-  font-family:var(--disp);font-weight:700;font-style:normal;color:var(--ink);
+  font-family:var(--disp);font-weight:800;font-style:normal;color:var(--ink);
   font-size:clamp(24px,2.8vw,34px);line-height:1.35;
   max-width:90vw;width:100%;margin:10px auto 0;
 }
@@ -129,15 +127,16 @@ h1.subhead{
 .emails a:hover{color:var(--leaf);}
 .btnrow{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
 .btn{
-  display:inline-flex;align-items:center;gap:9px;
-  font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--mono);font-size:12px;font-weight:500;
   padding:12px 22px;border-radius:2px;text-decoration:none;
-  background:var(--ink);color:var(--white);
-  transition:background .25s var(--ease),transform .25s var(--ease);
+  background:var(--ink);color:var(--white);border:1px solid var(--ink);
+  transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);
 }
-.btn:hover{background:var(--leaf);transform:translateY(-1px);}
+.btn svg{width:14px;height:14px;flex:0 0 auto;display:block;}
+.btn:hover{background:var(--leaf);border-color:var(--leaf);transform:translateY(-1px);}
 .btn.alt{background:transparent;color:var(--ink);border:1px solid rgba(58,74,66,.35);}
-.btn.alt:hover{border-color:var(--leaf);color:var(--leaf);}
+.btn.alt:hover{background:transparent;border-color:var(--leaf);color:var(--leaf);}
 
 section{position:relative;padding:52px 0;}
 section.band{background:var(--white);}
@@ -186,8 +185,8 @@ section.ink table.results .hi{color:var(--leaf-bright);}
 section.ink table.results .sup{color:var(--pollen);}
 .wrap{max-width:min(var(--wrap),96vw);margin:0 auto;padding:0 2.5vw;}
 h2{
-  font-family:var(--disp);font-weight:700;color:var(--ink);
-  font-size:clamp(28px,3.6vw,44px);line-height:1.12;letter-spacing:-.02em;
+  font-family:var(--disp);font-weight:800;color:var(--ink);
+  font-size:clamp(28px,3.6vw,44px);line-height:1.1;
   max-width:none;
 }
 h2 .leaf{color:var(--leaf);font-style:italic;}
@@ -215,7 +214,7 @@ h2 .gold{color:var(--pollen);}
 .hook-stats .hs-group:first-child{padding-right:28px;}
 .hook-stats .hs-group:last-child{padding-left:28px;}
 .hook-stats .hs-tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
   color:var(--leaf);margin-bottom:16px;
 }
 .hook-stats .hs-cols{
@@ -224,7 +223,7 @@ h2 .gold{color:var(--pollen);}
 .hook-stats .hs{min-width:0;}
 .hook-stats .n{
   font-family:var(--disp);font-weight:700;font-size:clamp(32px,4vw,52px);
-  color:var(--ink);line-height:.95;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  color:var(--ink);line-height:.95;font-variant-numeric:tabular-nums;
 }
 .hook-stats .n i{font-style:normal;font-size:.48em;color:var(--leaf);margin-left:2px;}
 .hook-stats .n .sub{
@@ -233,65 +232,25 @@ h2 .gold{color:var(--pollen);}
 }
 .hook-stats .l{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);max-width:none;}
 
-details.abs-details{
-  margin-top:28px;border-top:1px solid var(--hair);padding-top:8px;
-}
-details.abs-details summary{
-  cursor:pointer;padding:14px 0;font-family:var(--mono);font-size:12px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
-  list-style:none;display:flex;align-items:center;justify-content:space-between;
-  max-width:var(--text);
-}
-details.abs-details summary::-webkit-details-marker{display:none;}
-details.abs-details summary::after{content:"+";color:var(--leaf);font-size:18px;}
-details.abs-details[open] summary::after{content:"−";}
-.abstract{padding:0 0 8px;font-size:15px;line-height:1.85;color:var(--soil);max-width:var(--text);}
-.abstract p+p{margin-top:14px;}
-.abstract .k{font-family:var(--mono);font-size:.9em;color:var(--leaf);}
-.abstract .o{color:var(--pollen);font-weight:600;}
-
 .ops{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;
   margin-top:32px;border-top:1px solid var(--hair);
 }
-.op{padding:28px 0 8px;}
-.op:last-child{padding-right:0;}
+.op{padding:28px 0 8px;min-width:0;}
 .op h3{
-  font-family:var(--disp);font-size:22px;color:var(--ink);margin-bottom:10px;font-weight:600;
-  display:flex;align-items:center;gap:10px;line-height:1.2;
+  font-family:var(--disp);font-size:20px;color:var(--ink);margin-bottom:10px;font-weight:800;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.2;text-align:left;
 }
 .op h3 i{
-  flex:0 0 auto;width:auto;min-width:28px;height:22px;padding:0 6px;
+  flex:0 0 auto;width:auto;min-width:26px;height:20px;padding:0 6px;margin-top:.15em;
   display:inline-flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-style:normal;font-weight:600;font-size:11px;
-  letter-spacing:.06em;color:var(--white);
+  font-family:var(--mono);font-style:normal;font-weight:600;font-size:10px;
+  color:var(--white);
 }
 .op.cm h3 i{background:#A8B5AD;}
 .op.rm h3 i{background:#E0B84A;color:var(--ink);}
 .op.ch h3 i{background:#3DA66A;}
 .op p{font-size:14.5px;line-height:1.7;color:var(--soil);max-width:none;}
-.op .weight{
-  margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim);
-}
-.op .weight b{color:var(--ink);}
-
-.ladder{margin-top:32px;display:flex;flex-direction:column;gap:0;max-width:none;}
-.step{
-  display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:start;
-  padding:20px 0;border-bottom:1px solid var(--hair);
-}
-.step:last-child{border-bottom:none;}
-.step .node{
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:13px;font-weight:600;background:var(--sage);color:var(--soil);
-}
-.step.this .node{background:var(--leaf);color:var(--white);}
-.step h4{font-family:var(--disp);font-size:20px;color:var(--ink);margin-bottom:6px;font-weight:600;}
-.step h4 .flag{
-  display:inline-block;margin-left:10px;font-family:var(--mono);font-size:10px;
-  letter-spacing:.1em;padding:3px 8px;background:var(--pollen);color:var(--ink);vertical-align:middle;
-}
-.step p{font-size:14.5px;line-height:1.65;color:var(--soil);}
 
 .fig-block{margin-top:32px;}
 .fig-block img{
@@ -300,7 +259,86 @@ details.abs-details[open] summary::after{content:"−";}
 }
 .fig-block.fig1{max-width:none;}
 .fig-block.fig1 img{border:none;background:transparent;}
-.fig-block.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+.fig-block.trio{display:flex;flex-direction:column;gap:10px;}
+.trio-visuals{
+  display:grid;grid-template-columns:1fr 2fr;gap:18px;
+  align-items:stretch;
+}
+.trio-left{min-width:0;}
+.trio-left .trio-frame{
+  position:relative;width:100%;aspect-ratio:1 / 1;
+  background:transparent;border:none;overflow:hidden;
+}
+.trio-left .trio-frame img{
+  width:100%;height:100%;display:block;object-fit:contain;
+  border:none;background:transparent;
+}
+.trio-right{
+  min-width:0;
+  height:0;min-height:100%;
+  display:flex;flex-direction:column;gap:8px;
+}
+.sim-charts{
+  flex:1 1 auto;min-height:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.sim-charts .trio-frame{
+  position:relative;width:100%;height:100%;min-height:0;
+  background:transparent;border:none;overflow:hidden;
+}
+.sim-charts .trio-frame canvas{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+}
+.sim-shared{
+  flex:0 0 auto;
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+}
+.sim-controls{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
+  flex:0 1 auto;
+}
+.sim-ctrl{
+  display:flex;flex-direction:column;gap:4px;
+  width:clamp(166px,12vw,200px);max-width:100%;
+}
+.sim-ctrl label{
+  font-family:var(--mono);font-size:4px;color:var(--dim);
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  white-space:nowrap;
+}
+.sim-ctrl label b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.sim-ctrl input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:2px;
+  background:rgba(39,51,48,.16);border-radius:1px;outline:none;cursor:pointer;
+}
+.sim-ctrl input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-ctrl input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-legend{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  margin-left:auto;
+  font-family:var(--mono);font-size:11px;line-height:1.4;color:var(--dim);
+}
+.sim-legend span{display:inline-flex;align-items:center;gap:6px;}
+.sim-legend i{display:inline-block;width:14px;height:2.5px;border-radius:1px;}
+.sim-legend i.dgm{background:#E74C3C;}
+.sim-legend i.hgm{background:#2980B9;}
+.sim-legend i.mgm{background:#27AE60;}
+.sim-legend i.oracle{
+  height:0;border-top:1.5px dashed rgba(39,51,48,.45);background:transparent;width:14px;
+}
+.trio-captions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;
+}
+.trio-captions .fig-label{margin-top:0;}
 
 .polyglot-chart{
   position:relative;width:100%;
@@ -416,16 +454,20 @@ details.abs-details[open] summary::after{content:"−";}
   .polyglot-chart.ready .frontier-shade{animation:none;}
   .polyglot-chart .frontier-shade{opacity:1;}
 }
-.fig-label{
-  margin-top:12px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;
-  color:var(--dim);line-height:2;max-width:none;
+.fig-label,.mgm-cap{
+  max-width:none;margin:14px 0 0;
+  font-family:var(--body);font-size:13.5px;line-height:2;color:var(--dim);
 }
-.fig-label b{color:var(--ink);}
+.fig-label b,.mgm-cap b{color:var(--ink);font-weight:600;}
+.fig-label a,.mgm-cap a{color:var(--leaf);}
+.fig-label a:hover,.mgm-cap a:hover{color:var(--leaf-bright);}
 .fig-label sub,.mgm-cap sub,.lede sub{
   font-size:.72em;line-height:0;vertical-align:baseline;position:relative;bottom:-.18em;
 }
-section.ink .fig-label{color:rgba(232,238,234,.55);}
-section.ink .fig-label b{color:rgba(232,238,234,.88);}
+section.ink .fig-label,section.ink .mgm-cap{color:rgba(232,238,234,.55);}
+section.ink .fig-label b,section.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+section.ink .fig-label a,section.ink .mgm-cap a{color:var(--leaf-bright);}
+section.ink .fig-label a:hover,section.ink .mgm-cap a:hover{color:#E8EEEA;}
 
 .mgm-figure{margin-top:0;}
 #archive{padding:36px 0 40px;}
@@ -443,7 +485,7 @@ section.ink .fig-label b{color:rgba(232,238,234,.88);}
 #mgmCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .mgm-legend{
   display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
-  margin-top:6px;font-family:var(--mono);font-size:11px;color:rgba(232,238,234,.55);
+  margin-top:6px;font-family:var(--mono);font-size:11px;line-height:1.5;color:rgba(232,238,234,.55);
 }
 .mgm-legend span{display:inline-flex;align-items:center;gap:8px;}
 .mgm-line{
@@ -458,13 +500,6 @@ section.ink .fig-label b{color:rgba(232,238,234,.88);}
   width:18px;height:8px;display:inline-block;
   background:linear-gradient(90deg,#E07A76,#F0B878,#F0D56A,#8FCF7A);
 }
-.mgm-cap{
-  max-width:none;margin:8px 0 0;
-  font-size:13.5px;line-height:2;color:rgba(232,238,234,.55);
-}
-.mgm-cap b{color:rgba(232,238,234,.88);font-weight:600;}
-.mgm-cap a{color:var(--leaf-bright);}
-.mgm-cap a:hover{color:#E8EEEA;}
 
 .bench{
   margin-top:28px;overflow-x:auto;border:1px solid var(--hair);
@@ -477,17 +512,17 @@ table.results th,table.results td{
   padding:12px 10px;text-align:left;border-bottom:1px solid var(--hair);
 }
 table.results th{
-  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
   color:var(--dim);background:var(--sage);font-weight:500;
 }
 table.results thead th.group{
-  text-align:center;letter-spacing:.06em;
+  text-align:center
 }
 table.results thead tr:last-child th{
-  text-align:center;font-size:10px;letter-spacing:.06em;background:rgba(231,239,233,.65);
+  text-align:center;font-size:10px;background:rgba(231,239,233,.65);
 }
 table.results th.stub,table.results td.stub{
-  text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+  text-align:left;font-family:var(--mono);font-size:12px;
   color:var(--ink);white-space:nowrap;
 }
 table.results.performance td.stub{text-align:right;}
@@ -513,7 +548,6 @@ table.results td.num{
 table.results td.dash{text-align:center;color:var(--dim);}
 table.results tr:last-child td{border-bottom:none;}
 table.results .hi{color:var(--leaf);font-weight:600;}
-table.results .gain{color:var(--pollen);font-weight:600;font-size:11px;}
 table.results .sup{
   font-size:10px;vertical-align:super;line-height:0;color:var(--pollen);font-weight:600;
 }
@@ -528,7 +562,7 @@ table.results .sup{
 }
 .cite-box .copy{
   position:absolute;top:16px;right:16px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
   background:rgba(255,255,255,.08);color:var(--sage);border:1px solid rgba(255,255,255,.12);
   padding:8px 14px;cursor:pointer;transition:background .2s;
 }
@@ -542,10 +576,9 @@ footer{
 .foot-brand{
   font-family:var(--disp);font-size:28px;font-weight:700;color:var(--white);margin-bottom:12px;
 }
-.foot-brand span{color:var(--leaf-bright);}
 .foot-links{display:flex;gap:22px;flex-wrap:wrap;margin:24px 0 40px;}
 .foot-links a{
-  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-family:var(--mono);font-size:12px;text-transform:uppercase;
   color:#9BB0A4;text-decoration:none;
 }
 .foot-links a:hover{color:var(--white);}
@@ -560,7 +593,12 @@ footer{
 .foot-note .fn-mark{text-align:right;user-select:none;}
 
 @media (max-width:900px){
-  .hook-stats,.ops,.fig-block.pair{grid-template-columns:1fr;}
+  .hook-stats,.ops{grid-template-columns:1fr;}
+  .trio-visuals{grid-template-columns:1fr;}
+  .trio-right{height:auto;min-height:min(72vw,420px);}
+  .trio-captions{grid-template-columns:1fr;}
+  .sim-legend{margin-left:0;}
+  .sim-ctrl{width:100%;max-width:220px;}
   .hook-stats .hs-group:first-child{
     padding-right:0;border-bottom:1px solid var(--hair);padding-bottom:20px;
   }
@@ -589,7 +627,6 @@ footer{
     <b>Mendel Gödel Machine</b>
   </a>
   <div class="navlinks">
-    <a href="#archive">Archive</a>
     <a href="#method">Method</a>
     <a href="#results">Results</a>
     <a href="#theory">Theory</a>
@@ -609,7 +646,7 @@ footer{
   </figure>
   <div class="wrap-narrow">
     <p class="brand-hero rv">Mendel Gödel Machine</p>
-    <h1 class="subhead rv">Recursive Self-Improving Coding Agents via Comparative Evolution</h1>
+    <h1 class="subhead rv"><i>Recursive Self-Improving Coding Agents via Comparative Evolution</i></h1>
     <p class="authors rv">
       <a href="https://github.com/RealLcz" target="_blank" rel="noopener noreferrer">Changzhi Liu</a><sup>∗,§</sup>&nbsp;&nbsp;
       <a href="https://liuyilun2000.github.io/" target="_blank" rel="noopener noreferrer">Yilun Liu</a><sup>†,‡,§</sup>&nbsp;&nbsp;
@@ -626,9 +663,15 @@ footer{
       <a href="mailto:cognitive.yunpu@gmail.com">cognitive.yunpu@gmail.com</a>
     </p>
     <div class="btnrow rv">
-      <a class="btn" href="https://github.com/RealLcz/MGM">Code</a>
+      <a class="btn" href="https://github.com/RealLcz/MGM" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Code
+      </a>
+      <a class="btn" href="https://github.com/RealLcz/MGM" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+        Paper
+      </a>
       <a class="btn" href="#bibtex">Citation</a>
-      <a class="btn alt" href="#archive">Watch the archive ↓</a>
     </div>
   </div>
 </header>
@@ -828,7 +871,7 @@ footer{
     </p>
     <div class="hook-stats rv-st rv">
       <div class="hs-group">
-        <p class="hs-tag">Cross-benchmark · Polyglot → SWE-bench Pro &amp; Multilingual</p>
+        <p class="hs-tag">Cross-benchmark<br><i>Polyglot → SWE-bench Pro &amp; Multilingual</i></p>
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="29.2" data-to="40.9" data-dec="1">29.2</span><span class="sub">+<span class="cnt" data-to="11.7" data-dec="1">0</span> pp</span></div>
@@ -841,7 +884,7 @@ footer{
         </div>
       </div>
       <div class="hs-group">
-        <p class="hs-tag">Cross-model · Qwen3.6-35B-A3B → DeepSeek-V4-Flash &amp; Pro</p>
+        <p class="hs-tag">Cross-model<br><i>Qwen3.6-35B-A3B → DeepSeek-V4-Flash &amp; Pro</i></p>
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="47.5" data-to="70.8" data-dec="1">47.5</span><span class="sub">+<span class="cnt" data-to="23.3" data-dec="1">0</span> pp</span></div>
@@ -974,18 +1017,64 @@ footer{
   <div class="wrap">
     <h2 class="rv">Reliably Better,<br><span class="leaf">Across All Conditions.</span></h2>
     <p class="lede rv">
-      Under an additive fitness landscape, Φ<sub>RM</sub> and Φ<sub>CH</sub> produce smaller candidate defect sets than Φ<sub>CM</sub> —
-      raising effective fix probability when the editor hits a true mismatched locus.
+      To validate MGM's design against baselines,
+      we utilize an additive fitness landscape model where agents possess a binary genotype representing scaffold-level capabilities, and tasks evaluate specific loci subsets that must be correct for a successful phenotype. 
+      We theoretically demonstrate that comparative evidence acts as diagnostic compression, significantly improving the effective fix probability of self-modification by cross-referencing multiple genotypes or phenotypes to isolate recurring defects and filter out non-causal loci.
     </p>
-    <div class="fig-block pair rv">
-      <div>
-        <img src="assets/images/fig3_fitness_landscape.png" alt="Additive fitness landscape model illustration" width="2181" height="2083" loading="lazy">
-        <p class="fig-label"><b>Figure 3.</b> Genotype loci · task subsets · Hamming distance to oracle.</p>
+    <div class="fig-block trio rv" id="simPanel">
+      <div class="trio-visuals">
+        <div class="trio-left">
+          <div class="trio-frame">
+            <img src="assets/images/fig3_fitness_landscape.png" alt="Additive fitness landscape model illustration" width="2260" height="2190" loading="lazy">
+          </div>
+        </div>
+        <div class="trio-right">
+          <div class="sim-charts">
+            <div class="trio-frame">
+              <canvas id="simEvo" aria-label="Evolution dynamics: best edit distance versus cumulative cost"></canvas>
+            </div>
+            <div class="trio-frame">
+              <canvas id="simHist" aria-label="Edit-distance distribution across Monte Carlo seeds"></canvas>
+            </div>
+          </div>
+          <div class="sim-shared">
+            <div class="sim-controls">
+              <div class="sim-ctrl">
+                <label for="simD0">Initial distance <b id="simD0Val">20</b></label>
+                <input id="simD0" type="range" min="0" max="8" step="1" value="2" aria-label="Initial distance">
+              </div>
+              <div class="sim-ctrl">
+                <label for="simRho">Diagnostic advantage <b id="simRhoVal">2.0</b></label>
+                <input id="simRho" type="range" min="0" max="8" step="1" value="6" aria-label="Diagnostic advantage">
+              </div>
+            </div>
+            <div class="sim-legend">
+              <span><i class="dgm"></i>DGM</span>
+              <span><i class="hgm"></i>HGM</span>
+              <span><i class="mgm"></i>MGM</span>
+              <span><i class="oracle"></i>oracle</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <img src="assets/images/fig4_5_simulation.png" alt="Monte Carlo simulation: MGM vs HGM vs DGM across difficulty and fix-probability ratios" width="804" height="398" loading="lazy">
-        <p class="fig-label"><b>Figures 4–5.</b> As diagnostic advantage ρ grows, MGM converges faster with tighter final spread.</p>
+      <div class="trio-captions">
+        <p class="fig-label"><b>
+          Additive fitness landscape model.</b>
+        Each agent carries genotype with loci, which is only exposed through φ-evaluation, where each task τ<sub>i</sub> examines a subset of loci for a successful phenotype.
+        Φ-expansion modifies the examined loci under certain probabilities.
+        </p>
+        <p class="fig-label"><b>
+          Real-time simulation of performance evolution over cumulative budget spent.</b>
+          The panel shows the edit distance results (lower is better) averaged across random seeds with 95% CIs. 
+          Dashed lines mark oracle optima.
+        </p>
+        <p class="fig-label"><b>Real-time simulation of final performance distribution.</b> 
+          The panel shows the distribution of final edit distance results (lower is better) across all random seeds, with dashed lines marking per-method means.
+        </p>
       </div>
+    <p class="lede rv">
+      Controlled Monte Carlo simulations isolating this advantage across a range of tasks difficulities and fix-probability advantage ratio confirm that MGM consistently achieves faster convergence and lower final edit distances than baselines, which scales directly with the advantage, confirming that MGM's robust gains are driven by its superior diagnostic capabilities of comparaitive evidence.
+    </p>
     </div>
   </div>
 </section>
@@ -996,7 +1085,7 @@ footer{
 <section id="bibtex">
   <div class="wrap">
     <h2 class="rv">Cite it,<br><span class="leaf">Evolve it.</span></h2>
-    <p class="lede rv">Open at <a href="https://github.com/RealLcz/MGM">github.com/RealLcz/MGM</a>.</p>
+    <p class="lede rv">We would be delighted if MGM has been helpful in your research or development! If so, please consider citing our paper: </p>
     <div class="cite-box rv">
       <button class="copy" type="button" id="copyBtn">Copy</button>
       <pre id="bibtexBlock">@misc{liu2026mgm,
@@ -1006,10 +1095,6 @@ footer{
   url={https://github.com/RealLcz/MGM}
 }</pre>
     </div>
-    <div class="btnrow rv" style="justify-content:flex-start;margin-top:28px">
-      <a class="btn" href="https://github.com/RealLcz/MGM">Open repository</a>
-      <a class="btn alt" href="https://github.com/RealLcz/MGM#readme">Setup guide</a>
-    </div>
   </div>
 </section>
 
@@ -1018,11 +1103,11 @@ footer{
     <p class="foot-brand">Mendel Gödel Machine</p>
     <p>Recursive Self-Improving Coding Agents via Comparative Evolution</p>
     <div class="foot-links">
-      <a href="https://github.com/RealLcz/MGM">GitHub</a>
-      <a href="#archive">Archive</a>
+      <a href="#method">Method</a>
       <a href="#results">Results</a>
+      <a href="#theory">Theory</a>
       <a href="#bibtex">Cite</a>
-      <a href="https://github.com/metauto-ai/HGM">HGM</a>
+      <a href="https://github.com/RealLcz/MGM">Code</a>
     </div>
     <div class="foot-notes">
       <p class="foot-note"><span class="fn-mark">*</span><span>This work is distributed under the standard arXiv.org perpetual, non-exclusive license; this grants the public the right to access and download the manuscript, but strictly forbids unauthorized third-party redistribution, modification, or commercial reuse without explicit author permission.</span></p>
@@ -1034,6 +1119,7 @@ footer{
 
 <script src="assets/evo-trees.js" defer></script>
 <script src="assets/polyglot-chart.js" defer></script>
+<script src="assets/sim-panel.js" defer></script>
 <script>
 (() => {
   const bar = document.getElementById('scrollbar');
