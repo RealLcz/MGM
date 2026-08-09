@@ -1,0 +1,50 @@
+{
+    "run_id": "20260617_221028_501040",
+    "parent_commit": "20260616_024835_287218",
+    "self_improve_strategy": "B",
+    "entries": [
+        "django__django-12308",
+        "sphinx-doc__sphinx-7985"
+    ],
+    "entry": null,
+    "problem_statement": "# Coding Agent Summary\n\n- **Main File**: `coding_agent.py`\n  - Primary Class: `AgenticSystem`\n  - The `forward()` function is the central entry point.\n  - Prompts are located either within the `forward()` function or in the `prompts/` directory.\n- **Tools**: `tools/`\n  - The `tools/` directory contains various tools that LLMs can use to perform specific tasks.\n  - Each tool must have a `tool_info()` function that returns a JSON object containing 'name', 'description', and 'input_schema'. The 'input_schema' should be a JSON object containing 'type', 'properties', and 'required'.\n  - Each tool must have a `tool_function()` function that takes the arguments defined in input_schema, performs the tool's task, and returns a string.\n  - See other tools for reference.\n- **Utilities**: `utils/`\n  - The `utils/` directory contains utility functions used across the codebase.\n\n- **Additional Details**:\n  - The agent is very good at automatically utilizing the right available tools at the right time. So do not have an agentic flow that explicitly forces a tool's usage.\n  - Common tools, such as file editing and bash commands, are easy for the agent to recognize and use appropriately. However, more complex and niche tools may require explicit instructions in the prompt.\n  - Tools should be designed to be as general as possible, ensuring they work across any GitHub repository. Avoid hardcoding repository-specific details or behaviors (e.g., paths).\n  - Do not use 'while True' loops in the agent's code. This can cause the agent to get stuck and not respond.\n  - Verify the implementation details of helper functions prior to usage to ensure proper integration and expected behavior.\n  - Do not install additional packages or dependencies directly. Update `requirements.txt` if new dependencies are required and install them using `pip install -r requirements.txt`.\n\n\n# To Implement\n\nAdd a new method `_discovery_phase()` to the `AgenticSystem` class in `coding_agent.py` and call it at the start of `forward()` before the first LLM call. The method should:\n\n1. Extract keywords from the problem statement (e.g., split on common words, filter out stop words).\n2. Use `bash` tool to find test files: `find <git_tempdir> -name '*test*.py' | xargs grep -l '<keyword>'`\n3. For each matching test file, read its content via the `editor` tool and extract test function names and assertion patterns.\n4. Search implementation files referenced by imports or containing related keywords.\n5. Return a structured summary string.\n\nIn `forward()`, if the problem statement does not contain an explicit file path (detected by checking for patterns like `/` or `.` in the problem text), call `_discovery_phase()` and prepend its output to the instruction. The agent should then have enough context to find and fix the relevant code.\n\nWire point: In `forward()`, before the `chat_with_agent` call, add:\n```python\nif not self._has_explicit_target(self.problem_statement):\n    discovery_summary = self._discovery_phase()\n    instruction = f\"<discovery_summary>\\n{discovery_summary}\\n</discovery_summary>\\n\\n\" + instruction\n```\n\nThe `_has_explicit_target()` helper checks if the problem statement contains a file path pattern (e.g., `module.submodule.function_name` or `/path/to/file.py`). If it does, skip the discovery phase (as in Task 1). If not, run it (as needed for Task 2).\n\n## Add Discovery Phase for Vague Problem Statements\n\n**Problem:** When the problem statement does not explicitly name a file or function to modify, the agent fails to start working or produces no meaningful output. For example, in a Sphinx issue asking to \"also check local links in linkcheck,\" the agent never identified the relevant test files or implementation code. In contrast, when the problem statement explicitly names the target (e.g., \"add a special case in `django.contrib.admin.utils.display_for_field`\"), the agent succeeds.\n\n**Proposed Solution:** Add a discovery phase that activates when the problem statement lacks an explicit target. The phase should:\n\n1. Extract keywords from the problem statement (e.g., \"linkcheck\" \u2192 search for files containing this term)\n2. Find test files matching those keywords using `find` + `grep` (e.g., `find /repo -name '*test*.py' | xargs grep -l 'linkcheck'`)\n3. Read the test files to understand expected behavior (e.g., assertions about local link validation)\n4. Search implementation files for the relevant code paths\n5. Present a summary to the agent before it starts editing\n\n**Implementation Details:**\n- Add `_has_explicit_target(problem_statement)` to check if the problem contains a file path or function name pattern (e.g., `module.submodule.function` or `/path/to/file.py`) \u2014 *do not hard-code specific module names; use generic pattern matching*\n- Add `_discovery_phase()` method that runs keyword-based file search and reads relevant test files\n- In `forward()`, call `_discovery_phase()` only when `_has_explicit_target()` returns False\n- Prepend the discovery summary to the instruction so the agent has context\n\n**Example (non-binding):** For the Sphinx issue, the discovery phase would find `tests/test_build_linkcheck.py` containing assertions about link validation, and `sphinx/ext/linkcheck/__init__.py` or `sphinx/ext/linkcheck/build.py` containing the link checking logic. For the Django issue, the discovery phase would be skipped because the problem statement explicitly names `django.contrib.admin.utils.display_for_field`.\n\n---\n\n**REMINDER \u2014 implement the full diagnosis:**\n- Do not leave helper functions or modules dead/unused. Wire changes into `forward()` and the tool path the agent actually uses.\n- Do not add generic verification loops unless the diagnosis explicitly calls for them.\n- Focus on making the agent **solve problems correctly**, not only on checking its own work.\n\n**GENERALIZATION GUARDRAILS (the fix must target a *class* of failures, not this instance):**\n- Fix the underlying *mechanism* of the failure, not its surface tokens. The change must help on a DIFFERENT repository/domain you have never seen.\n- FORBIDDEN: hard-coding task-specific identifiers \u2014 repo names, file paths, module names, library names, instance ids, or static keyword / \"bug-category\" lookup tables (e.g. mapping \"docstring\"/\"linkcheck\" to directories). Any concrete names in the issue above are ILLUSTRATIVE EXAMPLES ONLY; never copy them into code as constants.\n- Derive any relevance / category / decision from *runtime signals available in every repo* (files named in the failing test or traceback, files the agent actually opened or read, symbols quoted in the issue, the diff itself), NOT from a fixed dictionary keyed on this task's vocabulary.\n- Prefer a mechanism whose behavior is *data-driven* (computed per task from the problem statement + repo state) over one that *enumerates known cases*.\n- Sanity check before finishing: \"If the next task were in an unrelated repo, would this code path still do something useful and not block correct edits?\" If not, redesign it.\n",
+    "overall_performance": {
+        "accuracy_score": 0.42857142857142855,
+        "total_resolved_instances": 3,
+        "total_submitted_instances": 7,
+        "files": [
+            "20260617_221028_501040_1.20260617_221028_501040_0.json",
+            "20260617_221028_501040_2.20260617_221028_501040_0.json",
+            "20260617_221028_501040_3.20260617_221028_501040_0.json",
+            "20260617_221028_501040_4.20260617_221028_501040_0.json",
+            "20260617_221028_501040_5.20260617_221028_501040_0.json",
+            "20260617_221028_501040_6.20260617_221028_501040_0.json",
+            "20260617_221028_501040_7.20260617_221028_501040_0.json"
+        ],
+        "total_unresolved_ids": [
+            "django__django-12308",
+            "sphinx-doc__sphinx-7748"
+        ],
+        "total_emptypatch_ids": [
+            "django__django-12325",
+            "sphinx-doc__sphinx-9229"
+        ],
+        "total_resolved_ids": [
+            "django__django-12050",
+            "sphinx-doc__sphinx-9320",
+            "sphinx-doc__sphinx-10449"
+        ],
+        "total_submitted_ids": [
+            "django__django-12325",
+            "sphinx-doc__sphinx-9229",
+            "django__django-12308",
+            "django__django-12050",
+            "sphinx-doc__sphinx-9320",
+            "sphinx-doc__sphinx-7748",
+            "sphinx-doc__sphinx-10449"
+        ]
+    },
+    "swe_dnames": [
+        "/mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260617_221028_501040/predictions/20260617_221028_501040_7"
+    ]
+}
