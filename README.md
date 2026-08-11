@@ -295,19 +295,6 @@ After running `eval_full_polyglot.slurm` on your chosen node, aggregate accuracy
 
 ![Polyglot accuracy by language](docs/assets/images/polyglot_accuracy_by_language.png)
 
-### Evolution trees: HGM vs MGM
-
-**HGM baseline** (strategy A only):
-
-![HGM evolution tree](docs/assets/images/tree_hgm.png)
-
-**MGM** (A:B:C = 0.1:0.45:0.45). Edge colors encode strategy: red = Clonal (A), orange = Reaction-norm (B), purple = Cross-lineage (C). Node color = accuracy; ★ marks full-eval nodes.
-
-![MGM evolution tree](docs/assets/images/tree_mgm.png)
-
-Generate your own tree plot with `scripts/draw_hgm_tree.py --run-dir <your_run_dir>`.
-
-
 ### SWE-bench (60-task subset)
 
 During the default 200-eval search budget, resolve rates on the small + medium subset vary by node. Use `eval_remaining.slurm` with your `HGM_OUTPUT_DIR` and optional `EVAL_NODE_ID` to finish unevaluated tasks.
