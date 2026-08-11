@@ -6,7 +6,7 @@
 
 **Mendelian Evolution Self-Improving Coding Agent**
 
-[🌐 Project Page](https://reallcz.github.io/MGM/) · [📦 Code](https://github.com/RealLcz/MGM)
+[🌐 Project Page](https://reallcz.github.io/MGM/) · [📄 Paper](https://arxiv.org/abs/2608.07645) · [📦 Code](https://github.com/RealLcz/MGM)
 
 MGM extends the [Huxley Gödel Machine (HGM)](https://github.com/metauto-ai/HGM) framework with **mendelian evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
 
@@ -277,7 +277,7 @@ python scripts/draw_hgm_tree.py \
 
 ## Experimental Results
 
-Example figures from completed MGM/HGM runs are in [`docs/images/`](docs/images/). Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
+Example figures from completed MGM/HGM runs are in [`docs/assets/images/`](docs/assets/images/). Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
 
 ### Polyglot: accuracy by language (full 225-task eval)
 
@@ -293,17 +293,17 @@ After running `eval_full_polyglot.slurm` on your chosen node, aggregate accuracy
 | Python | 33 / 34 |
 | Rust | 27 / 30 |
 
-![Polyglot accuracy by language](docs/images/polyglot_accuracy_by_language.png)
+![Polyglot accuracy by language](docs/assets/images/polyglot_accuracy_by_language.png)
 
 ### Evolution trees: HGM vs MGM
 
 **HGM baseline** (strategy A only):
 
-![HGM evolution tree](docs/images/hgm_tree_hgm_polyglot.png)
+![HGM evolution tree](docs/assets/images/tree_hgm.png)
 
 **MGM** (A:B:C = 0.1:0.45:0.45). Edge colors encode strategy: red = Clonal (A), orange = Reaction-norm (B), purple = Cross-lineage (C). Node color = accuracy; ★ marks full-eval nodes.
 
-![MGM evolution tree](docs/images/hgm_tree_mgm_polyglot.png)
+![MGM evolution tree](docs/assets/images/tree_mgm.png)
 
 Generate your own tree plot with `scripts/draw_hgm_tree.py --run-dir <your_run_dir>`.
 
@@ -331,7 +331,7 @@ MendelGM/
 ├── prompts/                # Self-improvement prompt templates
 ├── utils/                  # Docker, git, eval helpers
 ├── SWEbench_Pro/           # SWE-bench Pro evaluation tools (separate benchmark)
-├── docs/images/            # Result figures for this README
+├── docs/assets/images/     # Result figures for this README / project page
 ├── output_mgm/             # SWE-bench run artifacts (gitignored)
 └── output_polyglot/        # Polyglot run artifacts (gitignored)
 ```
@@ -390,3 +390,21 @@ Open a GitHub issue or pull request with your findings, or contact the maintaine
 ## Acknowledgements
 
 This codebase is adapted from the [DGM](https://github.com/jennyzzt/dgm) and [HGM](https://github.com/metauto-ai/HGM) self-improving agent framework. Polyglot benchmark harness follows the [polyglot-benchmark](https://github.com/Aider-AI/polyglot-benchmark) format.
+
+---
+
+## Citation
+
+If you find MGM useful in your research, please cite:
+
+```bibtex
+@misc{liu2026mendelgodelmachinerecursive,
+      title={Mendel G\"odel Machine: Recursive Self-Improving Coding Agents via Comparative Evolution}, 
+      author={Changzhi Liu and Yilun Liu and Sikuan Yan and Volker Tresp and Yunpu Ma},
+      year={2026},
+      eprint={2608.07645},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.07645}, 
+}
+```
