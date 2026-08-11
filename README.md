@@ -1,16 +1,18 @@
 <p align="center">
-<img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
+  <a href="https://reallcz.github.io/MGM/">
+    <img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
+  </a>
 </p>
-
-# Mendel Gödel Machine (MGM)
-
-**Mendelian Evolution Self-Improving Coding Agent**
 
 <p align="center">
   <a href="https://arxiv.org/abs/2608.07645"><img src="https://img.shields.io/badge/arXiv-2608.07645-b31b1b.svg" alt="arXiv"></a>
   <a href="https://reallcz.github.io/MGM/"><img src="https://img.shields.io/badge/Project-Page-2E8B57.svg" alt="Project Page"></a>
   <a href="https://github.com/RealLcz/MGM"><img src="https://img.shields.io/badge/GitHub-Code-181717.svg?logo=github&logoColor=white" alt="Code"></a>
 </p>
+
+# Mendel Gödel Machine (MGM)
+
+**Mendelian Evolution Self-Improving Coding Agent**
 
 MGM extends the [Huxley Gödel Machine (HGM)](https://github.com/metauto-ai/HGM) framework with **mendelian evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
 
