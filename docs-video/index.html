@@ -645,7 +645,10 @@ body.deck{touch-action:none;}
   position:relative;
   width:100%;height:100%;
   background:var(--paper);
+  transition:background .7s var(--ease);
 }
+.deck:has(.slide.ink.is-active){background:var(--ink);}
+.slide.ink.blank{padding:0;}
 .slide{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
@@ -899,8 +902,11 @@ body.deck{touch-action:none;}
 <body class="deck">
 <div class="deck" id="deck">
 
+  <!-- 0 · Blank intro -->
+  <section class="slide ink blank is-active" data-slide="0" id="intro" aria-label="Intro"></section>
+
   <!-- 1 · Header -->
-  <section class="slide masthead is-active" data-slide="0" id="top">
+  <section class="slide masthead" data-slide="1" id="top">
     <div class="slide-frame">
       <div class="logo-row" aria-label="Affiliations">
         <img src="assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
@@ -946,7 +952,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 2 · Evolution tree -->
-  <section class="slide ink" data-slide="1" id="archive">
+  <section class="slide ink" data-slide="2" id="archive">
     <div class="slide-frame">
       <div class="wrap">
         <div class="mgm-figure rv">
@@ -969,7 +975,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 3 · Method: title + fig + caption -->
-  <section class="slide band" data-slide="2" id="method">
+  <section class="slide band" data-slide="3" id="method">
     <div class="slide-frame">
       <div class="wrap">
         <h2 class="rv">Evolution with <br><span class="leaf">Controlled Inheritance.</span></h2>
@@ -990,7 +996,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 4a · Results: title + chart + caption -->
-  <section class="slide" data-slide="3" id="results">
+  <section class="slide" data-slide="4" id="results">
     <div class="slide-frame">
       <div class="wrap">
         <h2 class="rv">Bringing Open Models<br>
@@ -1015,7 +1021,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 4b · Results: title + numbers + table -->
-  <section class="slide" data-slide="4" id="results-stats">
+  <section class="slide" data-slide="5" id="results-stats">
     <div class="slide-frame">
       <div class="wrap">
         <h2 class="rv">Bringing Open Models<br>
@@ -1117,7 +1123,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 5 · Generalization (no lede) -->
-  <section class="slide ink" data-slide="5" id="generalization">
+  <section class="slide ink" data-slide="6" id="generalization">
     <div class="slide-frame">
       <div class="wrap">
         <h2 class="rv"><span class="leaf">Genuinely Reusable</span> <br>Agent Scaffolds.</h2>
@@ -1267,7 +1273,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 6 · Theory (no opening lede) -->
-  <section class="slide band" data-slide="6" id="theory">
+  <section class="slide band" data-slide="7" id="theory">
     <div class="slide-frame">
       <div class="wrap">
         <h2 class="rv">Reliably Better,<br><span class="leaf">Across All Conditions.</span></h2>
@@ -1328,7 +1334,7 @@ body.deck{touch-action:none;}
   </section>
 
   <!-- 7 · Closing (duplicate front page) -->
-  <section class="slide masthead" data-slide="7" id="closing">
+  <section class="slide masthead" data-slide="8" id="closing">
     <div class="slide-frame">
       <div class="logo-row" aria-label="Affiliations">
         <img src="assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
@@ -1408,7 +1414,12 @@ body.deck{touch-action:none;}
   };
 
   const enterSlide = (slide) => {
-    slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.add('in'));
+    if (slide.classList.contains('masthead')) {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.remove('in'));
+    }
+    requestAnimationFrame(() => {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.add('in'));
+    });
     slide.querySelectorAll('.hook-stats').forEach(hs => {
       if (counted.has(hs)) return;
       counted.add(hs);
