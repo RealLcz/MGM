@@ -40,6 +40,7 @@ body{
   background:var(--paper);color:var(--soil);font-family:var(--body);
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
+body.deck{overflow:hidden;}
 ::selection{background:var(--leaf);color:var(--white);}
 a{color:var(--leaf);}
 
@@ -617,6 +618,160 @@ footer{
 @media (max-width:560px){
   .masthead .portrait{display:none;}
 }
+
+/* —— Video deck (1:1, fade between pages) —— */
+html,body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body.deck{touch-action:none;}
+#scrollbar{display:none;}
+.deck{
+  position:relative;
+  width:100%;height:100%;
+  background:var(--paper);
+}
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:0;
+  padding:clamp(16px,3vmin,36px);
+}
+.slide.is-active{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .7s var(--ease),visibility 0s linear 0s;
+  z-index:1;
+}
+.slide.is-leaving{
+  opacity:0;visibility:visible;pointer-events:none;
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:2;
+}
+.slide-frame{
+  width:min(calc(100vw - 2 * clamp(16px,3vmin,36px)),
+            calc(100vh - 2 * clamp(16px,3vmin,36px)));
+  height:min(calc(100vw - 2 * clamp(16px,3vmin,36px)),
+             calc(100vh - 2 * clamp(16px,3vmin,36px)));
+  max-width:100%;max-height:100%;
+  aspect-ratio:1 / 1;
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.slide.band .slide-frame,
+.slide.ink .slide-frame{background:transparent;}
+.slide.ink{background:var(--ink);color:rgba(232,238,234,.88);}
+.slide.ink h2{color:var(--white);}
+.slide.ink .lede{color:rgba(232,238,234,.78);}
+.slide.ink .hook-stats{border-top-color:rgba(232,238,234,.12);}
+.slide.ink .hook-stats .n{color:var(--white);}
+.slide.ink .hook-stats .n i,
+.slide.ink .hook-stats .n .sub{color:var(--leaf-bright);}
+.slide.ink .hook-stats .hs-tag{color:var(--leaf-bright);}
+.slide.ink .hook-stats .l{color:rgba(232,238,234,.55);}
+.slide.ink .bench{
+  border-color:rgba(232,238,234,.12);
+  background:rgba(232,238,234,.04);
+}
+.slide.ink table.results th,
+.slide.ink table.results td{border-bottom-color:rgba(232,238,234,.1);}
+.slide.ink table.results th{
+  color:rgba(232,238,234,.55);
+  background:rgba(232,238,234,.08);
+}
+.slide.ink table.results thead tr:last-child th{background:rgba(232,238,234,.05);}
+.slide.ink table.results th.stub,
+.slide.ink table.results td.stub{color:rgba(232,238,234,.88);}
+.slide.ink table.results.performance thead tr.groups th:not(:last-child),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(1),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(4),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(7),
+.slide.ink table.results.performance tbody td:nth-child(1),
+.slide.ink table.results.performance tbody td:nth-child(4),
+.slide.ink table.results.performance tbody td:nth-child(7),
+.slide.ink table.results.performance.transfer thead tr:last-child th:nth-child(10),
+.slide.ink table.results.performance.transfer tbody td:nth-child(10){
+  border-right-color:rgba(232,238,234,.12);
+}
+.slide.ink table.results td{color:rgba(232,238,234,.78);}
+.slide.ink table.results td.dash{color:rgba(232,238,234,.4);}
+.slide.ink table.results .hi{color:var(--leaf-bright);}
+.slide.ink table.results .sup{color:var(--pollen);}
+.slide.ink .fig-label,.slide.ink .mgm-cap{color:rgba(232,238,234,.55);}
+.slide.ink .fig-label b,.slide.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+.slide.ink .fig-label a,.slide.ink .mgm-cap a{color:var(--leaf-bright);}
+.slide.band{background:var(--white);}
+.slide .wrap{
+  max-width:100%;width:100%;height:100%;
+  margin:0;padding:clamp(18px,3.2%,28px);
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;
+}
+.slide.masthead{
+  padding:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(46,139,87,.12), transparent 58%),
+    var(--paper);
+}
+.slide.masthead .slide-frame{
+  justify-content:center;
+}
+.slide.masthead .wrap-narrow{
+  max-width:100%;padding:0 clamp(12px,3%,24px);
+}
+.slide.masthead .portrait{bottom:clamp(8px,2%,20px);}
+.slide.masthead .portrait img{height:min(28%,220px);opacity:.22;}
+.slide h2{font-size:clamp(22px,3.8vmin,40px);}
+.slide .brand-hero{font-size:clamp(32px,6.5vmin,72px);}
+.slide h1.subhead{font-size:clamp(16px,2.4vmin,28px);}
+.slide .fig-block{margin-top:clamp(12px,2vmin,24px);flex:0 1 auto;min-height:0;}
+.slide .fig-block img{max-height:100%;object-fit:contain;}
+.slide .fig-label,.slide .mgm-cap{
+  font-size:clamp(11px,1.45vmin,13.5px);line-height:1.65;margin-top:10px;
+}
+.slide .hook-stats{margin-top:clamp(14px,2.2vmin,28px);}
+.slide .hook-stats .n{font-size:clamp(26px,4.2vmin,48px);}
+.slide .bench{margin-top:clamp(14px,2vmin,24px);}
+.slide table.results{font-size:clamp(11px,1.5vmin,14px);min-width:0;}
+.slide table.results.performance.transfer{min-width:0;}
+.slide table.results th,table.results td{padding:8px 6px;}
+.slide .mgm-figure{display:flex;flex-direction:column;height:100%;min-height:0;}
+.slide .mgm-stage{
+  flex:1 1 auto;min-height:0;
+  aspect-ratio:auto;height:auto;
+}
+.slide .mgm-legend{font-size:clamp(9px,1.2vmin,11px);margin-top:8px;}
+.slide .polyglot-chart{flex:1 1 auto;min-height:0;}
+.slide .polyglot-chart svg{max-height:min(42vmin,360px);}
+.slide .ops{display:none;}
+.slide#theory .fig-block.trio{margin-top:clamp(10px,1.8vmin,20px);flex:1 1 auto;min-height:0;}
+.slide#theory .trio-visuals{gap:12px;flex:1 1 auto;min-height:0;}
+.slide#theory .trio-left .trio-frame{aspect-ratio:1/1;max-height:min(38vmin,280px);}
+.slide#theory .trio-right{min-height:min(32vmin,240px);}
+.slide#theory .trio-captions{gap:10px;}
+.slide#theory .trio-captions .fig-label{font-size:clamp(10px,1.25vmin,12.5px);line-height:1.55;}
+.slide#generalization .hook-stats .hs-tag{font-size:clamp(9px,1.15vmin,11px);}
+.slide#generalization .bench{margin-top:clamp(10px,1.5vmin,18px);}
+.deck-progress{
+  position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;
+  background:rgba(39,51,48,.08);
+}
+.deck-progress > i{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transition:width .45s var(--ease);
+}
+.deck-hint{
+  position:fixed;right:clamp(12px,2vw,24px);bottom:clamp(14px,2.5vh,28px);
+  z-index:80;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);opacity:.55;pointer-events:none;
+  transition:opacity .4s;
+}
+.slide.ink ~ .deck-hint,
+.deck:has(.slide.ink.is-active) .deck-hint{color:rgba(232,238,234,.45);}
 </style>
 </head>
 <body>
@@ -624,7 +779,7 @@ footer{
 
 <nav>
   <a class="brand" href="#top">
-    <b>🧬 Mendel Gödel Machine</b>
+    <b>Mendel Gödel Machine</b>
   </a>
   <div class="navlinks">
     <a href="#method">Method</a>
