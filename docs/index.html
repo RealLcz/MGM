@@ -72,7 +72,7 @@ nav{
 .navlinks .pill:hover{background:var(--leaf);color:var(--white);}
 
 .masthead{
-  padding:132px 6vw 64px;position:relative;
+  padding:120px 6vw 64px;position:relative;
   overflow:hidden;
   isolation:isolate;
   background:
@@ -101,6 +101,17 @@ nav{
 .masthead .wrap-narrow{
   position:relative;z-index:1;
   max-width:90vw;margin:0 auto;text-align:center;
+}
+.masthead .logo-row{
+  display:flex;align-items:center;justify-content:center;
+  width:min(72vw,420px);margin:0 auto 16px;
+  pointer-events:none;user-select:none;
+}
+.masthead .logo-row img{
+  width:100%;height:auto;
+  max-height:clamp(28px,4.5vw,48px);
+  object-fit:contain;display:block;
+  opacity:.92;
 }
 .brand-hero{
   font-family:var(--disp);font-weight:800;font-style:normal;color:var(--ink);
@@ -347,18 +358,18 @@ h2 .gold{color:var(--pollen);}
 }
 .polyglot-chart svg{display:block;width:100%;height:auto;margin:0;padding:0;}
 .polyglot-chart .tick{
-  font-family:var(--mono);font-size:8px;fill:var(--dim);
+  font-family:var(--mono);font-size:10px;fill:var(--dim);
 }
 .polyglot-chart .pt-label{
-  font-family:var(--body);font-size:8.5px;fill:rgba(39,51,48,.58);
+  font-family:var(--body);font-size:10.5px;fill:rgba(39,51,48,.58);
   pointer-events:none;
 }
 .polyglot-chart .pt-label.ours{font-weight:600;fill:rgba(46,139,87,.72);}
 .polyglot-chart .guide-score{
-  font-family:var(--mono);font-size:9px;font-weight:600;fill:rgba(46,139,87,.72);
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(46,139,87,.72);
 }
 .polyglot-chart .guide-sota{
-  font-family:var(--mono);font-size:9px;font-weight:600;fill:rgba(39,51,48,.4);
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(39,51,48,.4);
 }
 .polyglot-chart .guide-score,
 .polyglot-chart .pt-label.ours{
@@ -608,7 +619,7 @@ footer{
   .op:last-child{border-bottom:none;}
   nav{padding:12px 18px;}
   .navlinks a:not(.pill){display:none;}
-  .masthead{padding-top:120px;}
+  .masthead{padding-top:96px;}
   .masthead .portrait{width:min(32vw,180px);bottom:20px;}
   .masthead .portrait img{height:min(28vh,200px);opacity:.25;}
   .masthead .portrait figcaption{opacity:.5;letter-spacing:.14em;}
@@ -645,6 +656,9 @@ footer{
     <figcaption>Kurt F. Gödel</figcaption>
   </figure>
   <div class="wrap-narrow">
+    <div class="logo-row rv" aria-label="Affiliations">
+      <img src="assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
+    </div>
     <p class="brand-hero rv">Mendel Gödel Machine</p>
     <h1 class="subhead rv"><i>Recursive Self-Improving Coding Agents via Comparative Evolution</i></h1>
     <p class="authors rv">
@@ -755,7 +769,7 @@ footer{
     <div class="fig-block rv">
       <div class="polyglot-chart" id="polyglotChart" role="img" aria-label="Polyglot performance versus model size. Qwen3.6-35B-A3B plus MGM reaches 93.3 percent; DeepSeek-V4-Pro plus MGM reaches 96.9 percent.">
         <div class="polyglot-tip" id="polyTip" aria-hidden="true"></div>
-        <svg id="polySvg" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="polySvg" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div class="polyglot-legend">
         <span><i class="swatch open"></i>Open-source</span>
@@ -774,7 +788,7 @@ footer{
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="68.3" data-to="78.3" data-dec="1">68.3</span><span class="sub">+<span class="cnt" data-to="10.0" data-dec="1">0</span> pp</span></div>
-            <p class="l">Performance over Initial</p>
+            <p class="l">Performance</p>
           </div>
           <div class="hs">
             <div class="n">↑ <span class="cnt" data-to="14.6" data-dec="1">0</span><i>%</i></div>
@@ -787,7 +801,7 @@ footer{
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="50.8" data-to="93.2" data-dec="1">50.8</span><span class="sub">+<span class="cnt" data-to="42.4" data-dec="1">0</span> pp</span></div>
-            <p class="l">Performance over Initial</p>
+            <p class="l">Performance</p>
           </div>
           <div class="hs">
             <div class="n">↑ <span class="cnt" data-to="83.5" data-dec="1">0</span><i>%</i></div>
@@ -879,7 +893,7 @@ footer{
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="29.2" data-to="40.9" data-dec="1">29.2</span><span class="sub">+<span class="cnt" data-to="11.7" data-dec="1">0</span> pp</span></div>
-            <p class="l">Average Performance over Initial</p>
+            <p class="l">Average Performance</p>
           </div>
           <div class="hs">
             <div class="n">↑ <span class="cnt" data-to="40.1" data-dec="1">0</span><i>%</i></div>
@@ -892,7 +906,7 @@ footer{
         <div class="hs-cols">
           <div class="hs">
             <div class="n"><span class="cnt" data-from="47.5" data-to="70.8" data-dec="1">47.5</span><span class="sub">+<span class="cnt" data-to="23.3" data-dec="1">0</span> pp</span></div>
-            <p class="l">Average Performance over Initial</p>
+            <p class="l">Average Performance</p>
           </div>
           <div class="hs">
             <div class="n">↑ <span class="cnt" data-to="49.1" data-dec="1">0</span><i>%</i></div>

@@ -10,7 +10,7 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const W = 720;
-  const H = 360;
+  const H = 432;
   const M = { t: 12, r: 4, b: 4, l: 2 };
   const XMIN = 20;
   const XMAX = 6200;

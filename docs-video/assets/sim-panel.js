@@ -135,8 +135,8 @@
     return { mu, lo, hi, n };
   }
 
-  /** Match .polyglot-chart .tick { font-size: 8px }. */
-  const POLY_TICK_PX = 8;
+  /** Match .polyglot-chart .tick { font-size: 10px }. */
+  const POLY_TICK_PX = 10;
 
   function tickFont(dpr) {
     const mono = css('--mono', 'IBM Plex Mono, monospace');
