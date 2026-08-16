@@ -7,7 +7,7 @@ import threading
 from pathlib import Path
 from typing import Optional, Union
 
-import docker
+from utils import apptainer_errors as container_errors
 
 # Thread-local storage for loggers
 _thread_local = threading.local()
@@ -52,6 +52,12 @@ def setup_logger(log_file):
     # Add handler to logger
     logger.addHandler(handler)
 
+    # swebench's build helpers (build_image / BuildImageError) expect the logger
+    # to expose a `log_file` attribute. Our logger is passed straight into those
+    # helpers, so without this attribute a build failure raises a confusing
+    # "'Logger' object has no attribute 'log_file'" that masks the real error.
+    setattr(logger, "log_file", log_file)
+
     # Store logger in thread local storage
     _thread_local.logger = logger
 
@@ -76,10 +82,10 @@ def remove_existing_container(client, container_name):
         safe_log(f"Removing existing container with name {container_name}")
         existing_container.stop()
         existing_container.remove()
-    except docker.errors.NotFound:
+    except container_errors.NotFound:
         # Container does not exist, no action needed
         safe_log(f"No existing container with name {container_name} found.")
-    except docker.errors.APIError as e:
+    except container_errors.APIError as e:
         safe_log(
             f"Error removing existing container {container_name}: {e}", logging.ERROR
         )

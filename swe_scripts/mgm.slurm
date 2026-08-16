@@ -16,27 +16,26 @@ set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 mkdir -p logs
 
-SSH_TUNNEL_PID=""
 VLLM_PID=""
 cleanup() {
     echo "Cleaning up..."
     [ -n "${VLLM_PID}" ] && kill "${VLLM_PID}" 2>/dev/null && sleep 1 && kill -9 "${VLLM_PID}" 2>/dev/null
-    [ -n "${SSH_TUNNEL_PID}" ] && kill "${SSH_TUNNEL_PID}" 2>/dev/null
-    rm -f "${REMOTE_DOCKER_SOCKET:-}"
 }
 trap cleanup EXIT INT TERM
 
 eval "$(conda shell.bash hook)"
 conda activate HGM
-export PYTHON_BIN="${PYTHON_BIN:-$HOME/mm/python311/bin/python}"
+export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 "${PYTHON_BIN}" -V
 
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
+
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
-export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3-Coder-Next}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen/Qwen3-Coder-Next}"
-# GPU / tensor-parallel: see swe_scripts/cuda_and_tensor_parallel.inc.sh
-# If you share a node, prefer #SBATCH --exclusive, or pass only free indices, e.g.:
-#   sbatch --export=ALL,MGM_CUDA_VISIBLE_DEVICES=4,5,6,7 swe_scripts/mgm.slurm
+export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
 REPO_ROOT_CUDA="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
 . "${REPO_ROOT_CUDA}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
@@ -44,12 +43,8 @@ cuda_and_tensor_parallel_setup
 
 export VLLM_PORT="${VLLM_PORT:-8000}"
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.92}"
-export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-98304}"
+export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-262144}"
 export HGM_MAX_WORKERS="${HGM_MAX_WORKERS:-2}"
-export ENABLE_REMOTE_DOCKER="${ENABLE_REMOTE_DOCKER:-1}"
-export REMOTE_DOCKER_USER="${REMOTE_DOCKER_USER:-ubuntu}"
-export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-43.131.5.182}"
-export REMOTE_DOCKER_SOCKET="${REMOTE_DOCKER_SOCKET:-/tmp/docker-remote.sock}"
 
 HOST_IP="$(hostname -I | awk '{print $1}')"
 if [ -z "${HOST_IP}" ]; then
@@ -59,9 +54,9 @@ if [ -z "${HOST_IP}" ]; then
     HOST_IP="127.0.0.1"
 fi
 export VLLM_HOST="${VLLM_HOST:-$HOST_IP}"
+export VLLM_CONTAINER_HOST="${VLLM_CONTAINER_HOST:-127.0.0.1}"
 export HGM_LLM_MODEL_ID="${HGM_LLM_MODEL_ID:-${SERVED_MODEL_NAME}}"
 
-# Auto-detect tool-call-parser from model name if not explicitly set
 if [ -z "${TOOL_CALL_PARSER:-}" ]; then
     case "${VLLM_MODEL_NAME}" in
         *Qwen3-Coder*|*Qwen3*)  TOOL_CALL_PARSER="qwen3_coder" ;;
@@ -84,42 +79,7 @@ if ss -tln "sport = :${VLLM_PORT}" 2>/dev/null | grep -q ":${VLLM_PORT}"; then
     export VLLM_PORT=$((VLLM_PORT + 1))
     echo "Using port ${VLLM_PORT} instead"
 fi
-export REMOTE_VLLM_PORT="${REMOTE_VLLM_PORT:-${VLLM_PORT}}"
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
-    echo "Setting up SSH tunnel to remote Docker on ${REMOTE_DOCKER_HOST}..."
-
-    echo "Killing any stale SSH tunnels to ${REMOTE_DOCKER_HOST}..."
-    pkill -f "ssh.*${REMOTE_DOCKER_HOST}.*docker-remote" 2>/dev/null || true
-    ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-        "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" \
-        "fuser -k ${REMOTE_VLLM_PORT}/tcp 2>/dev/null || true" 2>/dev/null || true
-    sleep 2
-
-    rm -f "${REMOTE_DOCKER_SOCKET}"
-    ssh -nNT -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
-        -o ExitOnForwardFailure=yes \
-        -L "${REMOTE_DOCKER_SOCKET}:/var/run/docker.sock" \
-        -R "${REMOTE_VLLM_PORT}:127.0.0.1:${VLLM_PORT}" \
-        "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" &
-    SSH_TUNNEL_PID=$!
-
-    for i in $(seq 1 15); do
-        if [ -S "${REMOTE_DOCKER_SOCKET}" ]; then break; fi
-        sleep 1
-    done
-    if [ ! -S "${REMOTE_DOCKER_SOCKET}" ]; then
-        echo "ERROR: SSH tunnel failed — ${REMOTE_DOCKER_SOCKET} not created" >&2
-        exit 1
-    fi
-
-    export DOCKER_HOST="unix://${REMOTE_DOCKER_SOCKET}"
-    echo "Remote Docker tunnel ready (pid=${SSH_TUNNEL_PID})."
-    echo "vLLM reverse tunnel: VM:${REMOTE_VLLM_PORT} -> localhost:${VLLM_PORT}"
-fi
-
-# Slurm runs a copy under /var/spool/slurmd/.../ — use submit dir, not BASH_SOURCE.
-REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
 . "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
@@ -159,52 +119,13 @@ done
 
 echo "vLLM server is ready (took ~${VLLM_WAIT}s)."
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
-    echo "Verifying vLLM reverse tunnel from VM..."
-    TUNNEL_OK=0
-    for attempt in $(seq 1 3); do
-        VM_RESULT=$(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-            "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" \
-            "curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 http://127.0.0.1:${REMOTE_VLLM_PORT}/v1/models" 2>/dev/null || echo "000")
-        if [ "${VM_RESULT}" = "200" ]; then
-            TUNNEL_OK=1
-            echo "Reverse tunnel verified: VM can reach vLLM (attempt ${attempt})."
-            break
-        fi
-        echo "Reverse tunnel check failed (attempt ${attempt}/3, HTTP ${VM_RESULT}). Restarting tunnel..."
-        kill "${SSH_TUNNEL_PID}" 2>/dev/null || true
-        sleep 3
-        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-            "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" \
-            "fuser -k ${REMOTE_VLLM_PORT}/tcp 2>/dev/null || true" 2>/dev/null || true
-        sleep 2
-        rm -f "${REMOTE_DOCKER_SOCKET}"
-        ssh -nNT -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
-            -o ExitOnForwardFailure=yes \
-            -L "${REMOTE_DOCKER_SOCKET}:/var/run/docker.sock" \
-            -R "${REMOTE_VLLM_PORT}:127.0.0.1:${VLLM_PORT}" \
-            "${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST}" &
-        SSH_TUNNEL_PID=$!
-        for i in $(seq 1 10); do
-            if [ -S "${REMOTE_DOCKER_SOCKET}" ]; then break; fi
-            sleep 1
-        done
-        export DOCKER_HOST="unix://${REMOTE_DOCKER_SOCKET}"
-        sleep 2
-    done
-    if [ "${TUNNEL_OK}" -ne 1 ]; then
-        echo "ERROR: vLLM reverse tunnel could not be established after 3 attempts" >&2
-        exit 1
-    fi
-fi
-
-echo "Pre-pulling Docker images (timeout ${PRE_PULL_TIMEOUT:-600}s)..."
-timeout "${PRE_PULL_TIMEOUT:-600}" "${PYTHON_BIN}" -u scripts/pull_epoch_images_proxy.py all || {
+echo "Pre-pulling Apptainer images (timeout ${PRE_PULL_TIMEOUT:-600}s)..."
+timeout "${PRE_PULL_TIMEOUT:-600}" "${PYTHON_BIN}" -u scripts/pull_epoch_images.py all || {
     echo "WARNING: Image pre-pull incomplete (timeout or error). HGM will proceed."
     echo "Missing images will cause per-task failures that are handled gracefully."
 }
 
-echo "Starting MGM (resume from output_mgm; A:B:C=0.1:0.45:0.45, failed_pool_boost=1.0, max_task_evals=200 from config.yaml)..."
+echo "Starting MGM (fresh run unless paths.continue_from is set in config.yaml; A:B:C=0.1:0.45:0.45, max_task_evals=200)..."
 PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py \
     --max_workers "${HGM_MAX_WORKERS}" \
     --self_improve_llm "${HGM_LLM_MODEL_ID}" \

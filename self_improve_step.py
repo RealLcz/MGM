@@ -8,9 +8,13 @@ import random
 import re
 import subprocess
 
-import docker
-
-from llm import create_client, extract_json_between_markers, get_response_from_llm
+from llm import (
+    DEFAULT_LLM_MODEL,
+    create_client,
+    extract_json_between_markers,
+    get_response_from_llm,
+    resolve_llm_model,
+)
 
 from prompts.self_improvement_prompt import (
     get_diagnose_prompt_polyglot,
@@ -25,8 +29,8 @@ from prompts.self_improvement_prompt import (
 from utils.docker_utils import safe_log
 
 dataset = None
-diagnose_llm = ""
-self_improve_llm = ""
+diagnose_llm = DEFAULT_LLM_MODEL
+self_improve_llm = DEFAULT_LLM_MODEL
 timeout = 3600
 n_evals = 0
 
@@ -44,7 +48,7 @@ def _log_final_diagnose_response(label, response):
 def diagnose_problem(
     entry, commit, root_dir, out_dir, patch_files=[], max_attempts=2, polyglot=False
 ):
-    client = create_client(diagnose_llm)
+    client = create_client(resolve_llm_model(diagnose_llm))
     if polyglot:
         diagnose_sys_message, diagnose_prompt = get_diagnose_prompt_polyglot(
             entry,
@@ -117,7 +121,7 @@ def diagnose_two_entries_same_commit(
         patch_files = []
     if len(entries) != 2:
         raise ValueError("entries must contain exactly two entry ids")
-    client = create_client(diagnose_llm)
+    client = create_client(resolve_llm_model(diagnose_llm))
     if polyglot:
         diagnose_sys_message, diagnose_prompt = get_diagnose_prompt_polyglot_two_entries(
             entries,
@@ -187,7 +191,7 @@ def diagnose_shared_task_two_commits(
 ):
     if patch_files is None:
         patch_files = []
-    client = create_client(diagnose_llm)
+    client = create_client(resolve_llm_model(diagnose_llm))
     if polyglot:
         diagnose_sys_message, diagnose_prompt = (
             get_diagnose_prompt_polyglot_shared_task_two_commits(

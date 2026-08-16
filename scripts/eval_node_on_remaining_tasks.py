@@ -11,7 +11,7 @@ Usage (from MendelGM repo root):
   python scripts/eval_node_on_remaining_tasks.py \\
     --node-id 20260421_161727_010449 \\
     --hgm-output-dir output_mgm \\
-    --llm Qwen/Qwen3-Coder-Next \\
+    --llm Qwen/Qwen3.6-35B-A3B \\
     --max-workers 1
 
   # Preview only:
@@ -33,6 +33,7 @@ if REPO_ROOT not in sys.path:
 
 from utils.common_utils import load_json_file  # noqa: E402
 from utils.evo_utils import get_model_patch_paths  # noqa: E402
+from llm import resolve_llm_model  # noqa: E402
 
 
 STATUS_KEYS = {
@@ -209,7 +210,7 @@ def main() -> None:
         default="initial_swe/default_agent/src",
         help="Base agent source; patches from the node chain are applied on top",
     )
-    parser.add_argument("--llm", type=str, default="gpt-5")
+    parser.add_argument("--llm", type=str, default=None)
     parser.add_argument(
         "--eval-timeout",
         type=int,
@@ -312,15 +313,16 @@ def main() -> None:
     import swe_bench.harness  # noqa: E402
 
     # Same task universe as hgm.py (for any logic that scans total_tasks)
+    llm_model = resolve_llm_model(args.llm)
     hgm_utils.init(
         False,
         hgm_dir_rel,
         universe,
         _n_task_evals=0,
-        _llm=args.llm,
+        _llm=llm_model,
         _timeout=args.eval_timeout,
     )
-    swe_bench.harness.llm = args.llm
+    swe_bench.harness.llm = llm_model
     swe_bench.harness.timeout = args.eval_timeout
 
     print("Starting eval_agent (updates node metadata.json when done)...")

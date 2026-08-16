@@ -7,6 +7,7 @@ import os
 import random
 import re
 import shlex
+import shutil
 import threading
 import traceback
 from collections import Counter
@@ -14,9 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from statistics import stdev
 
-import docker
-import numpy as np
-
+from llm import DEFAULT_LLM_MODEL, llm_container_env, resolve_llm_model
 import self_improve_step
 from polyglot.harness import harness as polyglot_harness
 from prompts.self_improvement_prompt import find_selfimprove_eval_logs
@@ -37,7 +36,7 @@ from utils.docker_utils import (build_hgm_container, cleanup_container,
                                 setup_logger)
 from utils.eval_utils import get_acc_on_tasks
 from utils.evo_utils import (get_all_performance, get_model_patch_paths,
-                             is_compiled_self_improve)
+                             is_compiled_self_improve, normalize_overall_performance)
 
 dataset = None
 alpha = 0.5
@@ -60,7 +59,7 @@ output_dir = ""
 polyglot = False
 n_task_evals = 0
 init_evaluated_tasks = []
-llm = ""
+llm = DEFAULT_LLM_MODEL
 timeout = 3600
 
 pending_tasks_lock = threading.Lock()
@@ -103,7 +102,22 @@ def init(_polyglot, _output_dir, _tasks, _n_task_evals=0, _llm="", _timeout=3600
             total_tasks.append(item)
     polyglot = _polyglot
     n_task_evals = _n_task_evals
-    llm = _llm
+    llm = resolve_llm_model(_llm)
+    self_improve_step.diagnose_llm = llm
+    self_improve_step.self_improve_llm = llm
+    self_improve_step.timeout = _timeout
+    swe_harness.llm = llm
+    swe_harness.timeout = _timeout
+    if polyglot:
+        polyglot_harness.llm = llm
+        polyglot_harness.timeout = _timeout
+        with open("polyglot/polyglot_benchmark_metadata.json") as f:
+            self_improve_step.dataset = json.loads(f.read())
+    else:
+        from datasets import load_dataset
+
+        ds = load_dataset("princeton-nlp/SWE-bench_Verified")
+        self_improve_step.dataset = ds["test"]
 
 
 def any_exceeding_context_length(output_dir, commit_id, instance_ids):
@@ -130,15 +144,18 @@ def any_exceeding_context_length(output_dir, commit_id, instance_ids):
 
 def failed_task_ids(overall_performance):
     """
-    Instance IDs treated as failed (unresolved or empty patch), consistent with
+    Instance IDs treated as failed (unresolved, error, or empty patch), consistent with
     get_acc_on_tasks using total_resolved_ids for success.
     Used e.g. for strategy C shared-failure intersection.
     """
     if not overall_performance:
         return frozenset()
-    unresolved = overall_performance.get("total_unresolved_ids") or []
-    empty_patch = overall_performance.get("total_emptypatch_ids") or []
-    return frozenset(unresolved) | frozenset(empty_patch)
+    perf = normalize_overall_performance(overall_performance)
+    unresolved = perf.get("total_unresolved_ids") or []
+    empty_patch = perf.get("total_emptypatch_ids") or []
+    resolved = set(perf.get("total_resolved_ids") or [])
+    failed = set(unresolved) | set(empty_patch)
+    return frozenset(failed - resolved)
 
 
 def submitted_task_ids(overall_performance):
@@ -170,15 +187,13 @@ def choose_entry(parent_commit, debug=False):
     try:
         metadata_path = os.path.join(output_dir, parent_commit, "metadata.json")
         metadata = load_json_file(metadata_path)
+        perf = normalize_overall_performance(metadata["overall_performance"])
         metadata = {
-            "accuracy_score": metadata["overall_performance"]["accuracy_score"],
-            "total_unresolved_ids": metadata["overall_performance"][
-                "total_unresolved_ids"
-            ],
-            "total_emptypatch_ids": metadata["overall_performance"][
-                "total_emptypatch_ids"
-            ],
-            "total_resolved_ids": metadata["overall_performance"]["total_resolved_ids"],
+            "accuracy_score": perf["accuracy_score"],
+            "total_unresolved_ids": perf["total_unresolved_ids"],
+            "total_emptypatch_ids": perf["total_emptypatch_ids"],
+            "total_resolved_ids": perf["total_resolved_ids"],
+            "total_submitted_ids": perf.get("total_submitted_ids") or [],
             "children_count": 0,
         }
     except Exception as e:
@@ -190,6 +205,7 @@ def choose_entry(parent_commit, debug=False):
     empty_ids = metadata["total_emptypatch_ids"]
     resolved_ids = metadata["total_resolved_ids"]
     unresolved_ids = metadata["total_unresolved_ids"]
+    submitted_ids = metadata.get("total_submitted_ids") or []
 
     entry = None
 
@@ -197,6 +213,8 @@ def choose_entry(parent_commit, debug=False):
         entry_ids = empty_ids + unresolved_ids
         if not entry_ids:
             entry_ids = resolved_ids + empty_ids + unresolved_ids
+        if not entry_ids and submitted_ids:
+            entry_ids = submitted_ids
         entry = random.choice(entry_ids)
     else:
         # Fairness across self-improvement strategies: Strategy A should diagnose
@@ -207,7 +225,11 @@ def choose_entry(parent_commit, debug=False):
             entry = random.choice(entry_ids)
 
         else:
-            entry = random.choice(resolved_ids + empty_ids + unresolved_ids)
+            entry_ids = resolved_ids + empty_ids + unresolved_ids
+            if not entry_ids and submitted_ids:
+                entry_ids = submitted_ids
+            if entry_ids:
+                entry = random.choice(entry_ids)
     if entry is None:
         safe_log(metadata)
         raise RuntimeError(
@@ -226,7 +248,7 @@ def choose_two_entries(parent_commit, debug=False):
     try:
         metadata_path = os.path.join(output_dir, parent_commit, "metadata.json")
         metadata = load_json_file(metadata_path)
-        perf = metadata["overall_performance"]
+        perf = normalize_overall_performance(metadata["overall_performance"])
         metadata = {
             "accuracy_score": perf["accuracy_score"],
             "total_unresolved_ids": perf["total_unresolved_ids"],
@@ -355,12 +377,23 @@ def eval_agent(
         metadata.get("overall_performance", {}).get("total_submitted_ids", [])
     )
 
+    # FIX: When EVAL_SKIP_MODEL_PATCHES is set (e.g. using a pre-evolved
+    # best_agent directory that already has evolution patches applied),
+    # pass an empty list so the harness does not re-apply patches and
+    # cause conflicts. This is used for re-running tasks with bug-fixed
+    # evolved agent code.
+    if os.environ.get("EVAL_SKIP_MODEL_PATCHES", "").lower() in ("1", "true", "yes"):
+        _model_patch_paths = []
+        print("EVAL_SKIP_MODEL_PATCHES=1: skipping evolution patch application")
+    else:
+        _model_patch_paths = get_model_patch_paths(root_dir, output_dir, commit_id)
+
     if polyglot:
         polyglot_harness(
             test_task_list=tasks,
             max_workers=min(max_workers, len(tasks)),
             model_name_or_path=commit_id,
-            model_patch_paths=get_model_patch_paths(root_dir, output_dir, commit_id),
+            model_patch_paths=_model_patch_paths,
             pred_dname=os.path.join(root_dir, output_dir, commit_id, "predictions"),
             output_dir=os.path.join(root_dir, output_dir, commit_id),
             init_agent_path=init_agent_path,
@@ -368,27 +401,40 @@ def eval_agent(
         overall_performance = get_all_performance(
             commit_id, results_dir=os.path.join(output_dir, commit_id)
         )[1]
+        overall_performance = normalize_overall_performance(overall_performance)
     else:
         dnames = swe_harness(
             test_task_list=tasks,
             max_workers=min(max_workers, len(tasks)),
             model_name_or_path=commit_id,
-            model_patch_paths=get_model_patch_paths(root_dir, output_dir, commit_id),
+            model_patch_paths=_model_patch_paths,
             pred_dname=os.path.join(root_dir, output_dir, commit_id, "predictions"),
             init_agent_path=init_agent_path,
         )
         safe_log("Start make_report")
+        run_ids = [f"{commit_id}_{i}" for i in range(len(dnames))]
+        results_subdir = os.path.join(root_dir, output_dir, commit_id)
+        pred_dname = os.path.join(root_dir, output_dir, commit_id, "predictions")
         make_report(
             dnames,
-            run_ids=[f"{commit_id}_{i}" for i in range(len(dnames))],
+            run_ids=run_ids,
+            dataset_name=os.environ.get(
+                "SWE_EVAL_DATASET", "princeton-nlp/SWE-bench"
+            ),
             output_dir=os.path.join(output_dir, commit_id),
             num_eval_procs=min(max_workers, len(tasks)),
         )
+        _collect_swe_report_files(root_dir, results_subdir, run_ids)
         safe_log("Start get_performance")
 
         _, overall_performance = get_all_performance(
-            commit_id, results_dir=os.path.join(output_dir, commit_id)
+            commit_id, results_dir=results_subdir
         )
+        if not overall_performance.get("total_submitted_instances"):
+            overall_performance = _sync_metadata_from_predictions(
+                pred_dname, overall_performance
+            )
+        overall_performance = normalize_overall_performance(overall_performance)
         safe_log("End of evaluation")
         metadata["swe_dnames"] = [str(dn) for dn in dnames]
 
@@ -407,6 +453,137 @@ def eval_agent(
     return get_acc_on_tasks(actually_submitted, os.path.join(root_dir, output_dir, commit_id))
 
 
+def _collect_swe_report_files(root_dir: str, results_dir: str, run_ids: list[str]) -> None:
+    """Copy SWE grading JSON reports from repo root into per-commit results_dir."""
+    root = Path(root_dir)
+    dest = Path(results_dir)
+    dest.mkdir(parents=True, exist_ok=True)
+    copied_names: set[str] = set()
+    for run_id in run_ids:
+        for stale in dest.glob(f"*.{run_id}.json"):
+            stale.unlink()
+        for report_file in root.glob(f"*.{run_id}.json"):
+            try:
+                data = json.loads(report_file.read_text())
+            except Exception:
+                continue
+            if not isinstance(data, dict) or "submitted_instances" not in data:
+                continue
+            shutil.copy2(report_file, dest / report_file.name)
+            copied_names.add(report_file.name)
+    _prune_stale_swe_reports(dest, copied_names)
+
+
+def _prune_stale_swe_reports(dest: Path, current_report_names: set[str]) -> None:
+    """Remove leftover grading JSONs in results_dir that were not part of this eval."""
+    for report_file in dest.glob("*.json"):
+        if report_file.name in current_report_names:
+            continue
+        try:
+            data = json.loads(report_file.read_text())
+        except Exception:
+            continue
+        if not isinstance(data, dict) or "submitted_instances" not in data:
+            continue
+        report_file.unlink()
+
+
+def _sync_metadata_from_predictions(
+    pred_dname: str, overall_performance: dict
+) -> dict:
+    """Fill overall_performance from harness prediction JSONs when grading reports are missing."""
+    pred_root = Path(pred_dname)
+    if not pred_root.is_dir():
+        return normalize_overall_performance(overall_performance)
+    json_files = [p for p in pred_root.rglob("*.json") if p.is_file()]
+    if not json_files:
+        return normalize_overall_performance(overall_performance)
+
+    submitted: list[str] = []
+    emptypatch: list[str] = []
+    for jf in json_files:
+        try:
+            pred = json.loads(jf.read_text())
+        except Exception:
+            continue
+        inst = pred.get("instance_id")
+        if not inst:
+            continue
+        if inst not in submitted:
+            submitted.append(inst)
+        if not (pred.get("model_patch") or "").strip() and inst not in emptypatch:
+            emptypatch.append(inst)
+
+    if not submitted:
+        return normalize_overall_performance(overall_performance)
+
+    op = dict(overall_performance)
+    op["total_submitted_ids"] = submitted
+    op["total_submitted_instances"] = len(submitted)
+    op["total_emptypatch_ids"] = emptypatch
+    return normalize_overall_performance(op)
+
+
+_SELFIMPROVE_WORKSPACE_IGNORE = {
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    "output_mgm",
+    "output_polyglot",
+    "output_validation_si_full",
+    "initial_polyglot_evaluation",
+    "logs",
+    "node_modules",
+    ".npm",
+    ".cache",
+    ".mypy_cache",
+    ".ruff_cache",
+}
+
+
+def _selfimprove_copy_ignore(directory: str, names: list[str]) -> list[str]:
+    ignored = set(_SELFIMPROVE_WORKSPACE_IGNORE)
+    skip: list[str] = []
+    for name in names:
+        if name in ignored or name.startswith("output_"):
+            skip.append(name)
+        elif directory.endswith("SWEbench_Pro") and name in ("outputs", "logs"):
+            skip.append(name)
+    return skip
+
+
+def _refresh_model_patch_in_container(container, commit_hash: str) -> None:
+    """Write model_patch.diff via Python git_utils (avoids fragile shell xargs pipes)."""
+    if not re.fullmatch(r"[0-9a-f]{7,40}", commit_hash):
+        raise RuntimeError(f"Invalid git commit hash: {commit_hash!r}")
+    refresh_py = (
+        "from pathlib import Path; "
+        "from utils.git_utils import diff_versus_commit; "
+        f"patch = diff_versus_commit('/hgm', '{commit_hash}'); "
+        "Path('/hgm/model_patch.diff').write_text(patch)"
+    )
+    exec_result = container.exec_run(["python", "-c", refresh_py], workdir="/hgm")
+    log_container_output(exec_result, raise_error=False)
+    if exec_result.exit_code != 0:
+        raise RuntimeError("Failed to refresh model_patch.diff from git diff")
+
+
+def _prepare_selfimprove_workspace(host_repo: str, run_id: str) -> Path:
+    """Copy host repo into a per-run workspace so parallel workers do not share .git."""
+    workspace_root = Path(
+        os.environ.get(
+            "APPTAINER_WORKSPACE_ROOT",
+            os.path.join(os.environ.get("TMPDIR", "/tmp"), "apptainer-workspaces"),
+        )
+    )
+    workspace = workspace_root / f"selfimprove-{run_id}"
+    if workspace.exists():
+        shutil.rmtree(workspace, ignore_errors=True)
+
+    shutil.copytree(host_repo, workspace, ignore=_selfimprove_copy_ignore, dirs_exist_ok=False)
+    return workspace
+
+
 def sample_child(
     parent_commit,
     image_name,
@@ -420,10 +597,12 @@ def sample_child(
     record_strategy_usage=True,
 ):
     metadata = {}
-    root_dir = os.path.abspath("./")  # root_dir should be /hgm
+    root_dir = os.path.abspath("./")  # host MendelGM repo (patches, outputs)
     run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     out_dir_base = output_dir  # out_dir_base should be /hgm/output_selfimprove/ or /hgm/output_mgm/{hgm_run_id}/
     run_output_dir = os.path.join(root_dir, f"{output_dir}/{run_id}/")
+    hgm_workspace = None
+    container = None
 
     try:
         if parent_commit == "failed":
@@ -450,9 +629,10 @@ def sample_child(
 
         container_name = f"hgm-container-{run_id}"
         remove_existing_container(client, container_name)
+        hgm_workspace = _prepare_selfimprove_workspace(root_dir, run_id)
         container = build_hgm_container(
             client,
-            root_dir,
+            str(hgm_workspace),
             image_name,
             container_name,
             force_rebuild=force_rebuild,
@@ -490,26 +670,30 @@ def sample_child(
         git_setup_cmd = (
             "printf '__pycache__/\\n*.pyc\\n*.backup\\n.pytest_cache/\\n"
             "self_evo.md\\nmodel_patch.diff\\n.coverage\\ncoverage.xml\\n"
-            "htmlcov/\\nlogs/\\n*.log\\noutput_mgm/\\noutput_polyglot/\\n"
-            "initial_polyglot_evaluation/\\ntarget/\\nbuild/\\n.gradle/\\n"
+            "htmlcov/\\nlogs/\\n*.log\\noutput_*/\\noutput_mgm/\\n"
+            "output_polyglot/\\noutput_validation_si_full/\\n"
+            "initial_polyglot_evaluation/\\nSWEbench_Pro/outputs/\\n"
+            "SWEbench_Pro/logs/\\ntarget/\\nbuild/\\n.gradle/\\n"
             "node_modules/\\n.npm/\\n.cache/\\ndist/\\n' > .gitignore && "
             "git init && "
             "git add --all && "
-            "git -c user.name='user' -c user.email='you@example.com' "
-            "commit -m 'a nonsense commit message' && "
-            "git rev-parse HEAD"
+            "git -c user.name=user -c user.email=you@example.com "
+            "commit -m 'a nonsense commit message'"
         )
         exec_result = container.exec_run(
             ["/bin/sh", "-c", git_setup_cmd], workdir="/hgm/"
         )
         log_container_output(exec_result)
-        git_output = exec_result.output.decode("utf-8").strip()
-        if not git_output:
+        exec_result = container.exec_run(
+            ["git", "-C", "/hgm", "rev-parse", "HEAD"], workdir="/hgm/"
+        )
+        log_container_output(exec_result)
+        commit_hash = exec_result.output.decode("utf-8", errors="replace").strip()
+        if not commit_hash:
             raise RuntimeError(
-                "git setup returned empty output — container /hgm/ may be "
+                "git rev-parse HEAD returned empty output — container /hgm/ may be "
                 "empty or have no tracked files"
             )
-        commit_hash = git_output.strip().split("\n")[-1].strip()
 
         exec_result = container.exec_run(
             "python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "
@@ -568,13 +752,11 @@ def sample_child(
             metadata["self_improve_strategy"] = "A"
             try:
                 entry = choose_entry(parent_commit)
-            except Exception as e:
-                safe_log(f"Error choosing entry: {e}")
-            try:
                 safe_log(f"Task to improve: {entry}")
             except Exception as e:
+                safe_log(f"Error choosing entry: {e}")
                 choose_entry(parent_commit, debug=True)
-                raise e
+                raise
             problem_statement = diagnose_problem(
                 entry,
                 parent_commit,
@@ -616,17 +798,7 @@ def sample_child(
         safe_log("Running self-improvement")
         chat_history_file_container = "/hgm/self_evo.md"
         test_description = get_test_description(swerepo=False)
-        env_vars = {
-            "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
-            "AWS_REGION": os.getenv("AWS_REGION"),
-            "AWS_REGION_NAME": os.getenv("AWS_REGION_NAME"),
-            "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-            "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
-            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
-            "OpenRouter_API_KEY": os.getenv("OpenRouter_API_KEY"),
-            "VLLM_HOST": "127.0.0.1",
-            "VLLM_PORT": os.getenv("REMOTE_VLLM_PORT", os.getenv("VLLM_PORT", "8000")),
-        }
+        env_vars = llm_container_env()
         cmd = [
             "timeout",
             str(timeout),
@@ -653,17 +825,16 @@ def sample_child(
         exec_result = container.exec_run(cmd, environment=env_vars, workdir="/")
         log_container_output(exec_result, raise_error=False)
 
-        refresh_model_patch_cmd = (
-            "git -C /hgm ls-files --others --exclude-standard -z | "
-            "xargs -0 -r git -C /hgm add --intent-to-add -- && "
-            f"git -C /hgm diff --binary {commit_hash} -- . > /hgm/model_patch.diff"
-        )
-        exec_result = container.exec_run(
-            ["/bin/sh", "-c", refresh_model_patch_cmd], workdir="/hgm"
-        )
-        log_container_output(exec_result, raise_error=False)
-        if exec_result.exit_code != 0:
-            raise RuntimeError("Failed to refresh model_patch.diff from git diff")
+        try:
+            _refresh_model_patch_in_container(container, commit_hash)
+        except RuntimeError:
+            # coding_agent.py writes model_patch.diff on success; reuse if present.
+            check = container.exec_run(
+                ["/bin/sh", "-c", "test -s /hgm/model_patch.diff"],
+                workdir="/hgm",
+            )
+            if check.exit_code != 0:
+                raise
 
         validation_cmd = (
             "test -s /hgm/model_patch.diff && "
@@ -682,6 +853,29 @@ def sample_child(
         if exec_result.exit_code != 0:
             raise RuntimeError(
                 "Generated model_patch.diff is empty, malformed, or not reversible"
+            )
+
+        # Smoke test the patched agent (/hgm already contains the patched state):
+        # catches syntax errors, a deleted __main__ entrypoint, and broken
+        # module-level imports before the child is accepted into the tree.
+        safe_log("Running smoke test on patched coding_agent.py")
+        smoke_test_cmd = (
+            "cd /hgm && "
+            "python -m py_compile coding_agent.py && "
+            "grep -q '^if __name__' coding_agent.py && "
+            "help_out=$(timeout 120 python coding_agent.py --help 2>&1); "
+            "status=$?; "
+            "printf '%s\\n' \"$help_out\" | tail -5; "
+            "[ \"$status\" -eq 0 ] && printf '%s' \"$help_out\" | grep -qi usage"
+        )
+        exec_result = container.exec_run(
+            ["/bin/sh", "-c", smoke_test_cmd], workdir="/hgm"
+        )
+        log_container_output(exec_result, raise_error=False)
+        if exec_result.exit_code != 0:
+            raise RuntimeError(
+                "Smoke test failed: patched coding_agent.py is broken "
+                "(syntax error, missing __main__ entrypoint, or --help crashed)"
             )
 
         chat_history_file = os.path.join(output_dir, run_id, "self_evo.md")
@@ -738,6 +932,8 @@ def sample_child(
             cleanup_container(container)
         except Exception as e:
             safe_log(f"Error during container cleanup: {e}")
+        if hgm_workspace is not None and hgm_workspace.exists():
+            shutil.rmtree(hgm_workspace, ignore_errors=True)
         if os.path.isdir(run_output_dir):
             save_metadata(metadata, run_output_dir)
     return run_id

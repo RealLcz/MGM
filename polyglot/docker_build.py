@@ -11,10 +11,12 @@ import shutil
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from typing import Any
 
-import docker
-import docker.errors
 from tqdm import tqdm
+
+from utils import apptainer_errors as container_errors
+from utils.fs_copy import copytree_for_build
 
 from polyglot.constants import (BASE_IMAGE_BUILD_DIR, ENV_IMAGE_BUILD_DIR,
                                 INSTANCE_IMAGE_BUILD_DIR,
@@ -71,7 +73,7 @@ def build_image(
     setup_scripts: dict,
     dockerfile: str,
     platform: str,
-    client: docker.DockerClient,
+    client: Any,
     build_dir: Path,
     repo: str = None,
     nocache: bool = False,
@@ -101,10 +103,10 @@ def build_image(
     try:
         # Copy a local folder to build_dir so Docker can see it
         if repo:
-            local_folder = Path(repo)  # your source folder
+            local_folder = Path(repo)
             if local_folder.is_dir():
                 target_folder = build_dir / repo
-                shutil.copytree(local_folder, target_folder, dirs_exist_ok=True)
+                copytree_for_build(local_folder, target_folder)
                 logger.info(f"Copied folder {local_folder} to {target_folder}")
 
         # Write the setup scripts to the build directory
@@ -149,12 +151,12 @@ def build_image(
                 logger.error(
                     f"Error: {ansi_escape.sub('', chunk['errorDetail']['message'])}"
                 )
-                raise docker.errors.BuildError(
+                raise container_errors.BuildError(
                     chunk["errorDetail"]["message"], buildlog
                 )
         logger.info("Image built successfully!")
-    except docker.errors.BuildError as e:
-        logger.error(f"docker.errors.BuildError during {image_name}: {e}")
+    except container_errors.BuildError as e:
+        logger.error(f"container_errors.BuildError during {image_name}: {e}")
         raise BuildImageError(image_name, str(e), logger) from e
     except Exception as e:
         logger.error(f"Error building image {image_name}: {e}")
@@ -164,7 +166,7 @@ def build_image(
 
 
 def build_base_images(
-    client: docker.DockerClient, dataset: list, force_rebuild: bool = False
+    client: Any, dataset: list, force_rebuild: bool = False
 ):
     """
     Builds the base images required for the dataset if they do not already exist.
@@ -194,7 +196,7 @@ def build_base_images(
             else:
                 print(f"Base image {image_name} already exists, skipping build.")
                 continue
-        except docker.errors.ImageNotFound:
+        except container_errors.ImageNotFound:
             pass
         # Build the base image (if it does not exist or force rebuild is enabled)
         print(f"Building base image ({image_name})")
@@ -210,7 +212,7 @@ def build_base_images(
 
 
 def get_env_configs_to_build(
-    client: docker.DockerClient,
+    client: Any,
     dataset: list,
 ):
     """
@@ -233,7 +235,7 @@ def get_env_configs_to_build(
                     test_spec.base_image_key
                 )
             base_image = base_images[test_spec.base_image_key]
-        except docker.errors.ImageNotFound:
+        except container_errors.ImageNotFound:
             raise Exception(
                 f"Base image {test_spec.base_image_key} not found for {test_spec.env_image_key}\n."
                 "Please build the base images first."
@@ -252,7 +254,7 @@ def get_env_configs_to_build(
                     remove_image(client, dep, "quiet")
                 remove_image(client, test_spec.env_image_key, "quiet")
                 image_exists = False
-        except docker.errors.ImageNotFound:
+        except container_errors.ImageNotFound:
             pass
         if not image_exists:
             # Add the environment image to the list of images to build
@@ -265,7 +267,7 @@ def get_env_configs_to_build(
 
 
 def build_env_images(
-    client: docker.DockerClient,
+    client: Any,
     dataset: list,
     force_rebuild: bool = False,
     max_workers: int = 4,
@@ -340,7 +342,7 @@ def build_env_images(
 
 
 def build_instance_images(
-    client: docker.DockerClient,
+    client: Any,
     dataset: list,
     force_rebuild: bool = False,
     max_workers: int = 4,
@@ -422,7 +424,7 @@ def build_instance_images(
 
 def build_instance_image(
     test_spec: TestSpec,
-    client: docker.DockerClient,
+    client: Any,
     logger: logging.Logger | None,
     nocache: bool,
 ):
@@ -452,7 +454,7 @@ def build_instance_image(
     # Check that the env. image the instance image is based on exists
     try:
         env_image = client.images.get(env_image_name)
-    except docker.errors.ImageNotFound as e:
+    except container_errors.ImageNotFound as e:
         raise BuildImageError(
             test_spec.instance_id,
             f"Environment image {env_image_name} not found for {test_spec.instance_id}",
@@ -473,7 +475,7 @@ def build_instance_image(
             image_exists = False
         else:
             image_exists = True
-    except docker.errors.ImageNotFound:
+    except container_errors.ImageNotFound:
         pass
 
     # Build the instance image
@@ -499,7 +501,7 @@ def build_instance_image(
 
 def build_container(
     test_spec: TestSpec,
-    client: docker.DockerClient,
+    client: Any,
     run_id: str,
     logger: logging.Logger,
     nocache: bool,

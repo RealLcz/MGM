@@ -12,9 +12,9 @@ from typing import Optional, List, Dict, Any
 @dataclass
 class LLMConfig:
     """Configuration for Language Model settings."""
-    self_improve_llm: str = "Qwen/Qwen3-Coder-Next"
-    downstream_llm: str = "Qwen/Qwen3-Coder-Next"
-    diagnose_llm: str = "Qwen/Qwen3-Coder-Next"
+    self_improve_llm: str = "Qwen/Qwen3.6-35B-A3B"
+    downstream_llm: str = "Qwen/Qwen3.6-35B-A3B"
+    diagnose_llm: str = "Qwen/Qwen3.6-35B-A3B"
 
 
 @dataclass

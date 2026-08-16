@@ -8,28 +8,45 @@ __pycache__/
 .git
 .gitignore
 .gitattributes
-<!-- swe-bench -->
+# swe-bench
 logs/
 swe_bench/
 initial_swe/
+initial_swe*/
+initial_swe_coder_80B/
 
-<!-- polyglot -->
+# polyglot
 polyglot/
 initial_polyglot/
 initial_polyglot_evaluation/
 
-<!-- outputs -->
+# benchmark/output caches
+SWEbench_Pro/
 output_mgm/
+output_mgm*/
 output_mgm_bak*/
+output_hgm*/
+output_swe/
+output_swe*/
+output_swe_coder_80B/
 output_polyglot/
+output_polyglot*/
 results/
-<!-- misc -->
+
+# apptainer / slurm (not part of coding agent bundle)
+apptainer/
+apptainer_images/
+swe_scripts/
+polyglot_scripts/
+
+# misc
 misc/
-<!-- README.md -->
+
+# README.md
 Dockerfile
 .dockerignore
 
-<!-- code outside of coding agent -->
+# code outside of coding agent
 self_improve_step.py
 prompts/self_improvement_prompt.py
 prompts/diagnose_improvement_prompt.py

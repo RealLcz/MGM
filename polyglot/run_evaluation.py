@@ -9,7 +9,8 @@ from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import docker
+from typing import Any
+
 from tqdm import tqdm
 
 from polyglot.docker_build import (BuildImageError, build_container,
@@ -46,7 +47,7 @@ def run_instance(
     pred: dict,
     rm_image: bool,
     force_rebuild: bool,
-    client: docker.DockerClient,
+    client: Any,
     run_id: str,
     timeout: int | None = None,
 ):

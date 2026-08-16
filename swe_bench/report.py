@@ -15,7 +15,11 @@ def load_predictions(paths):
         if path.is_file():
             prediction_paths.append(path)
         elif path.is_dir():
-            prediction_paths += list(path.glob("*.json"))
+            prediction_paths += [
+                p
+                for p in path.rglob("*.json")
+                if p.is_file() and not p.name.endswith("_report.json")
+            ]
         else:
             assert False, path
 
@@ -88,25 +92,33 @@ def preds_to_jsonl(dname, predictions):
 def run_evals(
     predictions_jsonl, run_id, dataset_name, root_dir, output_dir, num_eval_procs=5
 ):
-    # os.chdir(output_dir)  # switch dir so that things will be saved in the specified output_dir
-    run_evals_cmd = f"""
-python -m swebench.harness.run_evaluation
-    --dataset_name {dataset_name}
-    --predictions_path {predictions_jsonl}
-    --max_workers {num_eval_procs}
-    --run_id {run_id}
-"""
-    run_evals_cmd = " ".join(
-        [line.strip() for line in run_evals_cmd.split() if line.strip()]
-    )
-    subprocess.run(run_evals_cmd.split(), check=True, cwd=output_dir)
-    # os.chdir(root_dir)  # switch back to the original directory
+    import sys
+
+    cmd = [
+        sys.executable,
+        "-m",
+        "swe_bench.run_evaluation_apptainer",
+        "--dataset_name",
+        dataset_name,
+        "--predictions_path",
+        predictions_jsonl,
+        "--max_workers",
+        str(num_eval_procs),
+        "--run_id",
+        run_id,
+        # Match MendelGM harness image tags (sweb.eval.x86_64.<instance_id>:latest).
+        # SWE-bench defaults namespace=swebench which rewrites image keys and breaks
+        # Apptainer resolve_sif for pre-pulled Epoch images.
+        "--namespace",
+        "",
+    ]
+    subprocess.run(cmd, check=True, cwd=root_dir)
 
 
 def make_report(
     dnames,
     run_ids=None,
-    dataset_name="princeton-nlp/SWE-bench",
+    dataset_name=None,
     output_dir="./swe_bench",
     dnames_workers=None,
     num_eval_procs=5,
@@ -119,6 +131,10 @@ def make_report(
         run_ids (list): Identifiers for the runs.
         dataset_name (str): Name of the dataset.
     """
+    if dataset_name is None:
+        dataset_name = os.environ.get(
+            "SWE_EVAL_DATASET", "princeton-nlp/SWE-bench"
+        )
     # Find the root directory by looking for characteristic files/directories
     current_dir = os.path.abspath(os.getcwd())
 
@@ -164,7 +180,8 @@ def make_report(
         dnames_workers = len(dnames)
         
     with ThreadPoolExecutor(max_workers=dnames_workers) as executor:
-        executor.map(process_single_dname, dnames, run_ids)
+        # list() forces iteration so exceptions in workers are re-raised
+        list(executor.map(process_single_dname, dnames, run_ids))
 
     print("All reports generated.")
 
@@ -187,8 +204,8 @@ def main():
     parser.add_argument(
         "--dataset_name",
         type=str,
-        default="princeton-nlp/SWE-bench_Verified",
-        help="Name of the dataset to evaluate on.",
+        default=None,
+        help="Name of the dataset to evaluate on (default: SWE_EVAL_DATASET or SWE-bench).",
     )
     parser.add_argument(
         "--dnames_workers",

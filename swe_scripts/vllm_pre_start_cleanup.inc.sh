@@ -23,7 +23,7 @@ vllm_pre_start_cleanup() {
     pkill -u "$(id -un)" -f "VLLM::" 2>/dev/null || true
     sleep 2
 
-    for p in "${VLLM_PORT:-8000}" 8001; do
+    for p in "${VLLM_PORT:-8000}" "$(( ${VLLM_PORT:-8000} + 1 ))"; do
         fuser -k -9 "${p}/tcp" 2>/dev/null || true
         if command -v ss >/dev/null 2>&1; then
             for pid in $(ss -tlnp "sport = :${p}" 2>/dev/null | grep -oP 'pid=\K[0-9]+' 2>/dev/null | sort -u); do
@@ -47,8 +47,8 @@ vllm_pre_start_cleanup() {
             puser=$(ps -o user= -p "${pid}" 2>/dev/null | tr -d ' ')
             [ "${puser}" = "${ME}" ] || continue
             _cmd=$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)
-            if echo "${_cmd}" | grep -qiE 'vllm|VLLM::|openai\.api_server'; then
-                echo "Killing own stale GPU process pid=${pid}"
+            if echo "${_cmd}" | grep -qiE 'vllm|VLLM::|openai\.api_server|EngineCore|Worker_TP|APIServer'; then
+                echo "Killing own stale GPU process pid=${pid} cmd=${_cmd:0:80}"
                 kill -9 "${pid}" 2>/dev/null || true
             fi
         done

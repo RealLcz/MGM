@@ -84,7 +84,7 @@ def initialize_run(
         if not os.path.exists(f"{initial_folder}/{initial_agent_name}"):
             copy_src_files(f"{initial_folder}/{initial_agent_name}/src", build_image=True)
             hgm_utils.output_dir = initial_folder
-            init_eval_tasks = load_json_file("./swe_bench/subsets/small.json") if not polyglot else hgm_utils.total_tasks
+            init_eval_tasks = load_json_file("./swe_bench/subsets/small.json") + load_json_file("./swe_bench/subsets/medium.json") if not polyglot else hgm_utils.total_tasks
             hgm_utils.eval_agent(
                 initial_agent_name,
                 tasks=init_eval_tasks,
@@ -630,6 +630,7 @@ def main():
         child_commit = hgm_utils.sample_child(
             parent_commit,
             image_name=path_cfg.initial_agent_name + ":latest",
+            max_try=2,
             self_improve_strategy=strategy,
             entries=entries,
             peer_commit=peer_commit,

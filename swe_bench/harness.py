@@ -8,9 +8,10 @@ import shlex
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import docker
 from datasets import load_dataset
-from swebench.harness.docker_build import (build_container, build_env_images,
+from swebench.harness.constants import DOCKER_USER
+from swebench.harness.docker_build import (BuildImageError, build_env_images,
+                                           build_instance_image,
                                            cleanup_container)
 from utils.swebench_compat import make_test_spec
 
@@ -19,10 +20,71 @@ from swe_bench.utils import (copy_from_container, copy_to_container,
                              log_container_output, remove_existing_container,
                              safe_log, setup_logger)
 from utils.common_utils import load_json_file
+from utils import apptainer_errors as container_errors
 from utils.docker_utils import docker_from_env
 
-llm = ""  # Global variable to hold the LLM model name or path
+from llm import DEFAULT_LLM_MODEL, llm_container_env, uses_vllm_model
+
+llm = DEFAULT_LLM_MODEL  # Global variable to hold the LLM model name or path
 timeout = 1800
+
+
+def build_container_with_network(
+    test_spec, client, run_id, logger, nocache, force_rebuild=False
+):
+    """Like swebench.build_container, but attaches the container to the host
+    network namespace.
+
+    The agent inside the container reaches the vLLM server through the SSH
+    reverse tunnel that binds VM:127.0.0.1:REMOTE_VLLM_PORT only. With the
+    default bridge network the container's own loopback is isolated, so the
+    agent gets "Connection error" and produces an empty patch. Sharing the
+    host network makes 127.0.0.1 inside the container resolve to the VM's
+    loopback. Override with SWE_CONTAINER_NETWORK if needed.
+    """
+    if force_rebuild:
+        from swebench.harness.docker_build import remove_image
+
+        remove_image(client, test_spec.instance_image_key, "quiet")
+
+    instance_image_exists = False
+    try:
+        client.images.get(test_spec.instance_image_key)
+        instance_image_exists = True
+    except container_errors.ImageNotFound:
+        pass
+
+    if not instance_image_exists:
+        if not test_spec.is_remote_image:
+            build_instance_image(test_spec, client, logger, nocache)
+        else:
+            try:
+                client.images.pull(test_spec.instance_image_key)
+            except container_errors.NotFound as e:
+                raise BuildImageError(test_spec.instance_id, str(e), logger) from e
+
+    container = None
+    try:
+        logger.info(f"Creating container for {test_spec.instance_id}...")
+        run_args = test_spec.docker_specs.get("run_args", {})
+        cap_add = run_args.get("cap_add", [])
+        network_mode = os.getenv("SWE_CONTAINER_NETWORK", "host")
+        container = client.containers.create(
+            image=test_spec.instance_image_key,
+            name=test_spec.get_instance_container_name(run_id),
+            user=DOCKER_USER,
+            detach=True,
+            command="tail -f /dev/null",
+            platform=test_spec.platform,
+            cap_add=cap_add,
+            network_mode=network_mode,
+        )
+        logger.info(f"Container for {test_spec.instance_id} created: {container.id}")
+        return container
+    except Exception as e:
+        logger.error(f"Error creating container for {test_spec.instance_id}: {e}")
+        cleanup_container(client, container, logger)
+        raise BuildImageError(test_spec.instance_id, str(e), logger) from e
 
 
 def get_apply_patch_cmd(patch_path):
@@ -74,7 +136,7 @@ def process_entry(
             try:
                 container_name = test_spec.get_instance_container_name(run_id)
                 remove_existing_container(client, container_name)
-                container = build_container(
+                container = build_container_with_network(
                     test_spec, client, run_id, logger, nocache, force_rebuild=False
                 )
                 container.start()
@@ -174,17 +236,33 @@ def process_entry(
         log_container_output(exec_result)
 
         # Run the agent
-        env_vars = {
-            "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
-            "AWS_REGION": os.getenv("AWS_REGION"),
-            "AWS_REGION_NAME": os.getenv("AWS_REGION_NAME"),
-            "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-            "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
-            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
-            "OpenRouter_API_KEY": os.getenv("OpenRouter_API_KEY"),
-            "VLLM_HOST": "127.0.0.1",
-            "VLLM_PORT": os.getenv("REMOTE_VLLM_PORT", os.getenv("VLLM_PORT", "8000")),
-        }
+        env_vars = llm_container_env()
+        if llm and uses_vllm_model(llm):
+            vllm_url = f"http://{env_vars['VLLM_HOST']}:{env_vars['VLLM_PORT']}/v1/models"
+            safe_log(f"Checking vLLM connectivity from task container: {vllm_url}")
+            check_cmd = [
+                "python",
+                "-c",
+                (
+                    "import os, urllib.request; "
+                    "url=f\"http://{os.environ['VLLM_HOST']}:{os.environ['VLLM_PORT']}/v1/models\"; "
+                    "print(f'Checking {url}', flush=True); "
+                    "urllib.request.urlopen(url, timeout=10).read(); "
+                    "print('vLLM connectivity OK', flush=True)"
+                ),
+            ]
+            exec_result = container.exec_run(
+                check_cmd, environment=env_vars, workdir="/testbed/"
+            )
+            log_container_output(exec_result, raise_error=False)
+            if exec_result.exit_code != 0:
+                output = exec_result.output.decode("utf-8", errors="replace")
+                raise RuntimeError(
+                    "vLLM is not reachable from the SWE-bench task container at "
+                    f"{vllm_url}. Set VLLM_CONTAINER_HOST to this node's IP "
+                    f"(hostname -I) when APPTAINER_USE_HOST_NETWORK=0. Output: {output}"
+                )
+
         safe_log("Running the agent")
         cmd = [
             "timeout",
@@ -339,22 +417,60 @@ def harness(
         img_key = test_spec.instance_image_key
         try:
             client.images.get(img_key)
-        except docker.errors.ImageNotFound:
+        except container_errors.ImageNotFound:
             all_instance_images_exist = False
             break
 
     if all_instance_images_exist:
         print("All instance images already exist, skipping base/env image builds.")
     else:
-        build_env_images(
-            client, dataset=entries, force_rebuild=False, max_workers=max_workers,
+        # conda's dependency solver is memory-hungry; building several env
+        # images at once can exhaust host RAM and get the build OOM-killed
+        # (docker exit code 137). Cap env-build concurrency (override with
+        # SWE_ENV_BUILD_WORKERS) and retry any failures sequentially, which
+        # gives OOM-killed builds a second chance under low memory pressure.
+        env_build_workers = int(
+            os.getenv("SWE_ENV_BUILD_WORKERS", str(min(max_workers, 2)))
+        )
+        _, env_failed = build_env_images(
+            client, dataset=entries, force_rebuild=False,
+            max_workers=max(1, env_build_workers),
             instance_image_tag="latest", env_image_tag="latest",
         )
+        if env_failed and env_build_workers > 1:
+            print(
+                f"{len(env_failed)} environment image(s) failed to build; "
+                "retrying sequentially to reduce memory pressure..."
+            )
+            _, env_failed = build_env_images(
+                client, dataset=entries, force_rebuild=False, max_workers=1,
+                instance_image_tag="latest", env_image_tag="latest",
+            )
+        if env_failed:
+            print(
+                f"WARNING: {len(env_failed)} environment image(s) still failed "
+                "to build after retry; affected instances will be skipped."
+            )
     # Get all subdirectories under pred_dname
     subdirs = [d for d in pred_dname.iterdir() if d.is_dir()]
-    # Define a function to handle a single evaluation for all specified issues
-    model_name_or_path_inst = f"{model_name_or_path}_{len([d for d in subdirs if d.name.startswith(model_name_or_path)])+1}"
-    out_dname = pred_dname / model_name_or_path_inst
+    matching = [d for d in subdirs if d.name.startswith(f"{model_name_or_path}_")]
+    resume_subdir = os.getenv("EVAL_RESUME_PRED_SUBDIR")
+    if resume_subdir:
+        out_dname = pred_dname / resume_subdir
+        if not out_dname.is_dir():
+            raise FileNotFoundError(
+                f"EVAL_RESUME_PRED_SUBDIR does not exist: {out_dname}"
+            )
+        model_name_or_path_inst = resume_subdir
+        existing = sum(1 for entry in entries if (out_dname / f"{entry['instance_id']}.json").exists())
+        print(
+            f"Resuming into {out_dname} ({existing}/{len(entries)} tasks already have predictions)"
+        )
+    else:
+        model_name_or_path_inst = (
+            f"{model_name_or_path}_{len(matching) + 1}"
+        )
+        out_dname = pred_dname / model_name_or_path_inst
     out_dname.mkdir(exist_ok=True)
 
     print(f"Starting evaluation {0} for model {model_name_or_path}")

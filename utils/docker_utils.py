@@ -11,22 +11,31 @@ import threading
 from pathlib import Path
 from typing import List, Optional, Set, Union
 
-import docker
 import pathspec
+
+from utils import apptainer_errors as container_errors
+
+
+def get_container_api_timeout() -> int:
+    """Subprocess timeout (seconds) for Apptainer pull/build/exec operations."""
+    return max(
+        60,
+        int(os.environ.get("APPTAINER_API_TIMEOUT", os.environ.get("CONTAINER_API_TIMEOUT", "600"))),
+    )
 
 
 def get_docker_api_timeout() -> int:
-    """
-    HTTP read timeout (seconds) for docker-py when talking to the daemon.
-    Increase when using DOCKER_HOST over SSH (large copy/archive operations
-    may exceed the default 60s).
-    """
-    return max(60, int(os.environ.get("DOCKER_API_TIMEOUT", "600")))
+    """Backward-compatible alias for get_container_api_timeout()."""
+    return get_container_api_timeout()
 
 
-def docker_from_env():
-    """Same as docker.from_env() but with a tunable API timeout (DOCKER_API_TIMEOUT)."""
-    return docker.from_env(timeout=get_docker_api_timeout())
+def docker_from_env(timeout: Optional[int] = None):
+    """Return the local Apptainer client (docker-py compatible API)."""
+    from utils.container_runtime import container_from_env
+
+    if timeout is None:
+        timeout = get_container_api_timeout()
+    return container_from_env(timeout=timeout)
 
 
 def read_dockerignore(dockerignore_path: str) -> List[str]:
@@ -155,7 +164,7 @@ def copy_src_files(dest_dir: str, source_dir: str = ".", build_image: bool = Fal
         shutil.copy2(os.path.join(source_dir, "Dockerfile"), dest_dir)
 
         image_name = os.path.basename(os.path.abspath(dest_dir + "/.."))
-        print(f"Building Docker image '{image_name}'...")
+        print(f"Building Apptainer image '{image_name}'...")
         client = docker_from_env()
         client.images.build(path=dest_dir, tag=image_name, nocache=True)
 
@@ -227,10 +236,10 @@ def remove_existing_container(client, container_name):
         safe_log(f"Removing existing container with name {container_name}")
         existing_container.stop()
         existing_container.remove()
-    except docker.errors.NotFound:
+    except container_errors.NotFound:
         # Container does not exist, no action needed
         safe_log(f"No existing container with name {container_name} found.")
-    except docker.errors.APIError as e:
+    except container_errors.APIError as e:
         safe_log(
             f"Error removing existing container {container_name}: {e}", logging.ERROR
         )
@@ -265,6 +274,48 @@ def create_archive(path: Union[str, Path], data: Optional[bytes] = None) -> byte
     return tar_stream.read()
 
 
+def _ensure_hgm_container_packages(container) -> None:
+    """Verify git is available (installed at image build time via apptainer/hgm.def)."""
+    check = container.exec_run("command -v git", workdir="/")
+    if check.exit_code != 0:
+        raise RuntimeError(
+            "git not found in HGM container image. "
+            "Rebuild with apptainer/hgm.def (see build_hgm_container)."
+        )
+
+
+def _build_hgm_image_sif(client, image_name: str) -> None:
+    """Build HGM base SIF from apptainer/hgm.def (includes git, build-essential)."""
+    from utils.apptainer_compat import _sif_path_for_tag
+
+    repo_root = Path(__file__).resolve().parents[1]
+    def_file = repo_root / "apptainer" / "hgm.def"
+    if not def_file.exists():
+        raise FileNotFoundError(f"HGM def file not found: {def_file}")
+
+    sif = _sif_path_for_tag(image_name)
+    if sif.exists():
+        client.images._write_meta(sif, [image_name])
+        return
+
+    safe_log(f"Building HGM Apptainer image from {def_file} (may take several minutes)...")
+    cmd = [os.environ.get("APPTAINER_BIN", "apptainer"), "build", "--force"]
+    if os.environ.get("APPTAINER_BUILD_FAKEROOT", "1") == "1":
+        cmd.append("--fakeroot")
+    cmd.extend([str(sif), str(def_file)])
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=client.timeout,
+    )
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"apptainer build hgm image failed: {err[:2000]}")
+    client.images._write_meta(sif, [image_name])
+    safe_log(f"HGM Apptainer image ready: {sif}")
+
+
 def build_hgm_container(
     client,
     repo_path="./",
@@ -273,34 +324,39 @@ def build_hgm_container(
     force_rebuild=False,
 ):
     """
-    Build the Docker image for the hgm app and start a container from it.
+    Build the Apptainer image for the hgm app and start a workspace with /hgm bind-mounted.
     """
+    from utils.apptainer_compat import ApptainerClient, _sif_path_for_tag
+
+    repo_path = os.path.abspath(repo_path)
+
     try:
-        # Build the Docker image if force_rebuild is set or the image doesn't exist
-        if force_rebuild or not any(
-            image.tags for image in client.images.list() if image_name in image.tags
-        ):
-            safe_log("Building the Docker image...")
-            image, logs = client.images.build(path=repo_path, tag=image_name, rm=True)
-            for log_entry in logs:
-                if "stream" in log_entry:
-                    safe_log(log_entry["stream"].strip())
-            safe_log("Image built successfully.")
-        else:
-            safe_log(f"Docker image '{image_name}' already exists. Skipping build.")
-            # Fetch the existing image
-            image = next(
-                (img for img in client.images.list() if image_name in img.tags), None
-            )
+        if force_rebuild:
+            try:
+                client.images.remove(image_name, force=True)
+            except Exception:
+                pass
+        try:
+            client.images.get(image_name)
+        except container_errors.ImageNotFound:
+            _build_hgm_image_sif(client, image_name)
     except Exception as e:
-        safe_log(f"Error while building the Docker image: {e}")
+        safe_log(f"Error while building the container image: {e}")
         return None
 
     try:
-        container = client.containers.run(
-            image=image_name, name=container_name, detach=True,
+        container = client.containers.create(
+            image=image_name,
+            name=container_name,
+            detach=True,
             network_mode="host",
+            command="tail -f /dev/null",
         )
+        from pathlib import Path as _Path
+
+        container._binds["/hgm"] = _Path(repo_path)
+        container.start()
+        _ensure_hgm_container_packages(container)
         safe_log(f"Container '{container_name}' started successfully.")
         return container
     except Exception as e:

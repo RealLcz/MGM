@@ -22,8 +22,20 @@ swe_bench/*.json
 
 initial_swe/
 initial_polyglot/
+best_agent/
 results/
 
 polyglot/polyglot_benchmark_metadata.json
 polyglot/polyglot-benchmark/
 polyglot/predictions/
+
+.secrets/
+
+# Local cache & eval outputs (never push upstream)
+/.cache/
+/polyglot_eval_outputs/
+/initial_polyglot_evaluation/
+/apptainer_images/
+/apptainer_images/*.sif
+/podman-service.log
+/SWEbench_Pro/upstream/

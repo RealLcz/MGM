@@ -19,7 +19,7 @@ MGM extends the [Hierarchical Gödel Machine (HGM)](https://github.com/jennyzzt/
 | **SWE-bench harness** | `swe_bench/harness.py` — Python repo bug-fixing tasks |
 | **Polyglot harness** | `polyglot/harness.py` — 6-language programming exercises |
 | **LLM backend** | vLLM OpenAI-compatible API server |
-| **Execution** | Docker containers (local or remote via SSH tunnel) |
+| **Execution** | Apptainer containers on the compute node (local `.sif` images) |
 
 ### Self-Improve Strategies
 
@@ -39,10 +39,9 @@ Default MGM weights: **A : B : C = 0.1 : 0.45 : 0.45**. The HGM baseline uses st
 
 ### Prerequisites
 
-- **Linux** with **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
+- **Apptainer** on HPC compute nodes (no Docker daemon required)
 - **Conda** (Python 3.11)
-- **Docker** on a reachable host (HPC nodes typically use a remote VM via SSH tunnel)
-- **SSH key access** to the remote Docker host
+- **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
 - **Hugging Face cache** for model weights (`HF_HOME`)
 
 ### 1. Clone and create the conda environment
@@ -62,40 +61,26 @@ Additional packages used by analysis scripts:
 pip install vllm matplotlib pillow scikit-learn
 ```
 
-### 2. Configure Docker
+### 2. Configure Apptainer
 
-Evaluation runs inside Docker containers. You must provide your own Docker host — do not rely on any hard-coded address in the Slurm scripts; override it when submitting jobs.
-
-**Local Docker** (GPU machine and Docker daemon on the same host):
+Task evaluation runs in **local Apptainer** containers on the same node as vLLM. Images are pulled as `.sif` files via `apptainer pull ... docker://...` (see `scripts/pull_epoch_images.py`).
 
 ```bash
-export ENABLE_REMOTE_DOCKER=0
+# Optional: customize image cache location
+export APPTAINER_IMAGE_DIR="${HF_HOME}/apptainer_images"
+export APPTAINER_WORKSPACE_ROOT="${TMPDIR:-/tmp}/apptainer-workspaces"
+
+# Verify Apptainer is available
+apptainer version
 ```
 
-**Remote Docker via SSH** (typical on HPC compute nodes without a local daemon). Slurm scripts forward the remote host's Docker socket and reverse-tunnel vLLM so containers can reach the LLM:
+Slurm scripts source `swe_scripts/apptainer_runtime.inc.sh` automatically. Submit from the repo root:
 
 ```bash
-export ENABLE_REMOTE_DOCKER=1
-export REMOTE_DOCKER_USER=<your-ssh-user>
-export REMOTE_DOCKER_HOST=<your-docker-host>
-export REMOTE_DOCKER_SOCKET=/tmp/docker-remote.sock
+sbatch swe_scripts/mgm.slurm
 ```
 
-| Variable | Purpose |
-|----------|---------|
-| `ENABLE_REMOTE_DOCKER` | `1` = SSH tunnel to remote Docker; `0` = local daemon |
-| `REMOTE_DOCKER_USER` | SSH user on **your** Docker host |
-| `REMOTE_DOCKER_HOST` | IP or hostname of **your** Docker host |
-| `REMOTE_DOCKER_SOCKET` | Local path for the forwarded Docker socket |
-| `REMOTE_DOCKER_PASSWORD` | Optional password auth via `sshpass` |
-
-Example Slurm submission with your own Docker host:
-
-```bash
-REMOTE_DOCKER_USER=ubuntu REMOTE_DOCKER_HOST=your.vm.example.com sbatch swe_scripts/mgm.slurm
-```
-
-SWE-bench and Polyglot images are pulled or built automatically during evaluation as needed.
+SWE-bench and Polyglot images are pulled or built with `apptainer pull` / `apptainer build` during evaluation as needed.
 
 ### 3. Edit configuration
 

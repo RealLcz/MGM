@@ -3,13 +3,13 @@
 # Language Model Configuration
 llm:
   # Model used for self-improvement tasks
-  self_improve_llm: "Qwen/Qwen3-Coder-Next"
+  self_improve_llm: "deepseek-v4-flash"
   
   # Model used for downstream evaluation tasks
-  downstream_llm: "Qwen/Qwen3-Coder-Next"
+  downstream_llm: "deepseek-v4-flash"
   
   # Model used for problem diagnosis
-  diagnose_llm: "Qwen/Qwen3-Coder-Next"
+  diagnose_llm: "deepseek-v4-flash"
 
 # Optimization Algorithm Parameters
 optimization:
@@ -56,9 +56,9 @@ evaluation:
 # Self-improve strategy A/B/C: relative weights (normalized among strategies that are
 # eligible when a node is expanded). B requires at least strategy_b_min_node_evals on the node.
 self_improve_strategy:
-  weight_a: 1.0
-  weight_b: 0.0
-  weight_c: 0.0
+  weight_a: 0.1
+  weight_b: 0.45
+  weight_c: 0.45
   strategy_b_min_node_evals: 2
 
 # Path Configuration
@@ -67,7 +67,7 @@ paths:
   output_dir: "output_mgm"
   
   # Directory to continue a previous run from (must be YAML null, not the string "null")
-  continue_from: "output_mgm"
+  continue_from: null
   
   # Name of the initial agent (required)
   initial_agent_name: "default_agent"

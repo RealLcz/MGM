@@ -35,6 +35,8 @@ make
 
 NPM_TEST_COMMANDS = [
     "set -e",
+    "[ -L node_modules ] && rm -f node_modules || true",
+    "[ -L package-lock.json ] && rm -f package-lock.json || true",
     "[ ! -e node_modules ] && ln -s /npm-install/node_modules .",
     "[ ! -e package-lock.json ] && ln -s /npm-install/package-lock.json .",
     "sed -i 's/\\bxtest(/test(/g' *.spec.js",
@@ -57,7 +59,10 @@ TEST_COMMANDS = {
     "go": ["go test ./..."],
     "javascript": NPM_TEST_COMMANDS,
     "cpp": CPP_TEST_COMMANDS,
-    "java": ["./gradlew test"],
+    "java": [
+        "rm -rf build .gradle",
+        './gradlew --no-daemon --project-cache-dir "${POLYGLOT_GRADLE_PROJECT_CACHE:-/tmp/polyglot-gradle-project-cache}" clean test --rerun-tasks',
+    ],
 }
 
 PYTHON_SPECS = {
