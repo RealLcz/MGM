@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mendel Gödel Machine</title>
+<meta name="description" content="Mendel Gödel Machine (MGM): self-improving coding agents that edit their own scaffolds using Mendelian comparative evolution — clonal mutation, reaction-norm mutation, and cross-lineage hybridization.">
+<meta property="og:title" content="Mendel Gödel Machine (MGM)">
+<meta property="og:description" content="Recursive self-improving coding agents via comparative evolution. 50.8% → 93.3% on Polyglot with a 35B open model — surpassing GPT-5.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reallcz.github.io/MGM/">
+<meta property="og:image" content="assets/images/fig1_mgm_overview.jpg">
+<link rel="canonical" href="https://reallcz.github.io/MGM/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Platypi:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#273330;
+  --leaf:#2E8B57;
+  --leaf-bright:#3DA66A;
+  --pollen:#D4A017;
+  --soil:#3A4A42;
+  --dim:#6B7A72;
+  --sage:#E7EFE9;
+  --paper:#F4F7F5;
+  --white:#FFFFFF;
+  --hair:rgba(39,51,48,.12);
+  --disp:'Platypi',Georgia,serif;
+  --body:'Overpass',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --text:100%;
+  --wrap:1180px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);color:var(--soil);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body.deck{overflow:hidden;}
+::selection{background:var(--leaf);color:var(--white);}
+a{color:var(--leaf);}
+
+#scrollbar{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:70;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transform-origin:left;transform:scaleX(0);
+}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 34px;
+  background:rgba(244,247,245,.88);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--hair);
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);}
+.brand b{font-family:var(--disp);font-weight:800;font-size:18px;color:var(--ink);}
+.navlinks{display:flex;gap:22px;align-items:center;}
+.navlinks a{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color .25s;
+}
+.navlinks a:hover{color:var(--ink);}
+.navlinks .pill{
+  padding:8px 16px;border-radius:2px;background:var(--ink);color:var(--white);
+  transition:background .25s;
+}
+.navlinks .pill:hover{background:var(--leaf);color:var(--white);}
+
+.masthead{
+  padding:132px 6vw 64px;position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(46,139,87,.12), transparent 58%),
+    var(--paper);
+}
+.masthead .portrait{
+  position:absolute;bottom:28px;z-index:0;
+  width:min(28vw,320px);margin:0;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  pointer-events:none;user-select:none;
+}
+.masthead .portrait img{
+  width:auto;height:min(38vh,340px);max-width:100%;
+  display:block;object-fit:contain;object-position:bottom center;
+  opacity:.25;
+}
+.masthead .portrait figcaption{
+  font-family:var(--body);font-weight:100;font-size:clamp(12px,1.25vw,15px);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);text-align:center;line-height:1.3;
+  opacity:.75;white-space:nowrap;
+}
+.masthead .portrait.mendel{left:0;transform:translateX(-4%);}
+.masthead .portrait.goedel{right:0;transform:translateX(4%);}
+.masthead .wrap-narrow{
+  position:relative;z-index:1;
+  max-width:90vw;margin:0 auto;text-align:center;
+}
+.brand-hero{
+  font-family:var(--disp);font-weight:800;font-style:normal;color:var(--ink);
+  font-size:clamp(44px,7.2vw,88px);line-height:1.02
+}
+h1.subhead{
+  font-family:var(--disp);font-weight:800;font-style:normal;color:var(--ink);
+  font-size:clamp(24px,2.8vw,34px);line-height:1.35;
+  max-width:90vw;width:100%;margin:10px auto 0;
+}
+.authors{margin-top:28px;font-size:15px;color:var(--soil);}
+.authors a{color:var(--soil);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.4);}
+.authors a:hover{color:var(--leaf);}
+.authors sup{color:var(--leaf);}
+.affil{margin-top:8px;font-size:13px;color:var(--dim);}
+.affil sup{color:var(--leaf);}
+.emails{
+  margin-top:8px;font-size:13px;color:var(--dim);
+  display:flex;flex-wrap:wrap;justify-content:center;gap:0 1.25em;
+}
+.emails a{
+  color:var(--dim);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.4);
+}
+.emails a:hover{color:var(--leaf);}
+.link-list{
+  margin-top:34px;
+  display:flex;flex-direction:column;align-items:center;gap:.7em;
+  font-family:var(--mono);font-size:clamp(12px,1.6vmin,15px);
+  line-height:1.5;color:var(--dim);
+}
+.link-list a{
+  display:inline-flex;align-items:center;gap:9px;
+  color:var(--soil);text-decoration:none;
+}
+.link-list a svg{width:14px;height:14px;flex:0 0 auto;display:block;}
+.link-list a span{border-bottom:1px solid rgba(46,139,87,.4);}
+.link-list a:hover{color:var(--leaf);}
+.link-list a:hover span{border-bottom-color:rgba(46,139,87,.7);}
+.btnrow{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--mono);font-size:12px;font-weight:500;
+  padding:12px 22px;border-radius:2px;text-decoration:none;
+  background:var(--ink);color:var(--white);border:1px solid var(--ink);
+  transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);
+}
+.btn svg{width:14px;height:14px;flex:0 0 auto;display:block;}
+.btn:hover{background:var(--leaf);border-color:var(--leaf);transform:translateY(-1px);}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid rgba(58,74,66,.35);}
+.btn.alt:hover{background:transparent;border-color:var(--leaf);color:var(--leaf);}
+
+section{position:relative;padding:52px 0;}
+section.band{background:var(--white);}
+section.ink{
+  background:var(--ink);color:rgba(232,238,234,.88);
+}
+section.ink h2{color:var(--white);}
+section.ink .lede{color:rgba(232,238,234,.78);}
+section.ink .hook-stats{border-top-color:rgba(232,238,234,.12);}
+section.ink .hook-stats .n{color:var(--white);}
+section.ink .hook-stats .n i,
+section.ink .hook-stats .n .sub{color:var(--leaf-bright);}
+section.ink .hook-stats .hs-tag{color:var(--leaf-bright);}
+section.ink .hook-stats .l{color:rgba(232,238,234,.55);}
+section.ink .bench{
+  border-color:rgba(232,238,234,.12);
+  background:rgba(232,238,234,.04);
+}
+section.ink table.results th,
+section.ink table.results td{
+  border-bottom-color:rgba(232,238,234,.1);
+}
+section.ink table.results th{
+  color:rgba(232,238,234,.55);
+  background:rgba(232,238,234,.08);
+}
+section.ink table.results thead tr:last-child th{
+  background:rgba(232,238,234,.05);
+}
+section.ink table.results th.stub,
+section.ink table.results td.stub{color:rgba(232,238,234,.88);}
+section.ink table.results.performance thead tr.groups th:not(:last-child),
+section.ink table.results.performance thead tr:last-child th:nth-child(1),
+section.ink table.results.performance thead tr:last-child th:nth-child(4),
+section.ink table.results.performance thead tr:last-child th:nth-child(7),
+section.ink table.results.performance tbody td:nth-child(1),
+section.ink table.results.performance tbody td:nth-child(4),
+section.ink table.results.performance tbody td:nth-child(7),
+section.ink table.results.performance.transfer thead tr:last-child th:nth-child(10),
+section.ink table.results.performance.transfer tbody td:nth-child(10){
+  border-right-color:rgba(232,238,234,.12);
+}
+section.ink table.results td{color:rgba(232,238,234,.78);}
+section.ink table.results td.dash{color:rgba(232,238,234,.4);}
+section.ink table.results .hi{color:var(--leaf-bright);}
+section.ink table.results .sup{color:var(--pollen);}
+.wrap{max-width:min(var(--wrap),96vw);margin:0 auto;padding:0 2.5vw;}
+h2{
+  font-family:var(--disp);font-weight:800;color:var(--ink);
+  font-size:clamp(28px,3.6vw,44px);line-height:1.1;
+  max-width:none;
+}
+h2 .leaf{color:var(--leaf);font-style:italic;}
+h2 .gold{color:var(--pollen);}
+.lede{margin-top:16px;max-width:var(--text);color:var(--soil);font-size:16.5px;line-height:1.75;}
+.lede b{color:var(--ink);font-weight:600;}
+.hairline{border:none;border-top:1px solid var(--hair);max-width:var(--wrap);margin:0 auto;}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease);}
+.rv.in{opacity:1;transform:none;}
+.rv-st>*{opacity:0;transform:translateY(16px);transition:opacity .65s var(--ease),transform .65s var(--ease);}
+.rv-st.in>*{opacity:1;transform:none;}
+.rv-st.in>*:nth-child(1){transition-delay:.05s;}
+.rv-st.in>*:nth-child(2){transition-delay:.12s;}
+.rv-st.in>*:nth-child(3){transition-delay:.19s;}
+.rv-st.in>*:nth-child(4){transition-delay:.26s;}
+
+.hook-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  margin-top:32px;border-top:1px solid var(--hair);
+}
+.hook-stats .hs-group{
+  padding:24px 0 8px;
+}
+.hook-stats .hs-group:first-child{padding-right:28px;}
+.hook-stats .hs-group:last-child{padding-left:28px;}
+.hook-stats .hs-tag{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--leaf);margin-bottom:16px;
+}
+.hook-stats .hs-cols{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.hook-stats .hs{min-width:0;}
+.hook-stats .n{
+  font-family:var(--disp);font-weight:700;font-size:clamp(32px,4vw,52px);
+  color:var(--ink);line-height:.95;font-variant-numeric:tabular-nums;
+}
+.hook-stats .n i{font-style:normal;font-size:.48em;color:var(--leaf);margin-left:2px;}
+.hook-stats .n .sub{
+  font-style:normal;font-size:.48em;vertical-align:baseline;
+  color:var(--leaf);margin-left:2px;
+}
+.hook-stats .l{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);max-width:none;}
+
+.ops{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;
+  margin-top:32px;border-top:1px solid var(--hair);
+}
+.op{padding:28px 0 8px;min-width:0;}
+.op h3{
+  font-family:var(--disp);font-size:20px;color:var(--ink);margin-bottom:10px;font-weight:800;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.2;text-align:left;
+}
+.op h3 i{
+  flex:0 0 auto;width:auto;min-width:26px;height:20px;padding:0 6px;margin-top:.15em;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-style:normal;font-weight:600;font-size:10px;
+  color:var(--white);
+}
+.op.cm h3 i{background:#A8B5AD;}
+.op.rm h3 i{background:#E0B84A;color:var(--ink);}
+.op.ch h3 i{background:#3DA66A;}
+.op p{font-size:14.5px;line-height:1.7;color:var(--soil);max-width:none;}
+
+.fig-block{margin-top:32px;}
+.fig-block img{
+  width:100%;height:auto;display:block;
+  border:1px solid var(--hair);background:var(--white);
+}
+.fig-block.fig1{max-width:none;}
+.fig-block.fig1 img{border:none;background:transparent;}
+
+.fig-block.trio{display:flex;flex-direction:column;gap:10px;}
+.trio-visuals{
+  display:grid;grid-template-columns:1fr 2fr;gap:18px;
+  align-items:stretch;
+}
+.trio-left{min-width:0;}
+.trio-left .trio-frame{
+  position:relative;width:100%;aspect-ratio:1 / 1;
+  background:transparent;border:none;overflow:hidden;
+}
+.trio-left .trio-frame img{
+  width:100%;height:100%;display:block;object-fit:contain;
+  border:none;background:transparent;
+}
+.trio-right{
+  min-width:0;
+  height:0;min-height:100%;
+  display:flex;flex-direction:column;gap:8px;
+}
+.sim-charts{
+  flex:1 1 auto;min-height:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.sim-charts .trio-frame{
+  position:relative;width:100%;height:100%;min-height:0;
+  background:transparent;border:none;overflow:hidden;
+}
+.sim-charts .trio-frame canvas{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+}
+.sim-shared{
+  flex:0 0 auto;
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+}
+.sim-controls{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
+  flex:0 1 auto;
+}
+.sim-ctrl{
+  display:flex;flex-direction:column;gap:4px;
+  width:clamp(166px,12vw,200px);max-width:100%;
+}
+.sim-ctrl label{
+  font-family:var(--mono);font-size:4px;color:var(--dim);
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  white-space:nowrap;
+}
+.sim-ctrl label b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.sim-ctrl input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:2px;
+  background:rgba(39,51,48,.16);border-radius:1px;outline:none;cursor:pointer;
+}
+.sim-ctrl input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-ctrl input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-legend{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  margin-left:auto;
+  font-family:var(--mono);font-size:11px;line-height:1.4;color:var(--dim);
+}
+.sim-legend span{display:inline-flex;align-items:center;gap:6px;}
+.sim-legend i{display:inline-block;width:14px;height:2.5px;border-radius:1px;}
+.sim-legend i.dgm{background:#E74C3C;}
+.sim-legend i.hgm{background:#2980B9;}
+.sim-legend i.mgm{background:#27AE60;}
+.sim-legend i.oracle{
+  height:0;border-top:1.5px dashed rgba(39,51,48,.45);background:transparent;width:14px;
+}
+.trio-captions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;
+}
+.trio-captions .fig-label{margin-top:0;}
+
+.polyglot-chart{
+  position:relative;width:100%;
+  border:none;background:transparent;
+  overflow:visible;
+}
+.polyglot-chart svg{display:block;width:100%;height:auto;margin:0;padding:0;}
+.polyglot-chart .tick{
+  font-family:var(--mono);font-size:10px;fill:var(--dim);
+}
+.polyglot-chart .pt-label{
+  font-family:var(--body);font-size:10.5px;fill:rgba(39,51,48,.58);
+  pointer-events:none;
+}
+.polyglot-chart .pt-label.ours{font-weight:600;fill:rgba(46,139,87,.72);}
+.polyglot-chart .guide-score{
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(46,139,87,.72);
+}
+.polyglot-chart .guide-sota{
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(39,51,48,.4);
+}
+.polyglot-chart .guide-score,
+.polyglot-chart .pt-label.ours{
+  opacity:0;
+}
+.polyglot-chart .dot{
+  stroke:#fff;stroke-width:1.4;cursor:pointer;
+  transition:opacity .25s;opacity:0;
+}
+.polyglot-chart.ready .dot{opacity:1;}
+.polyglot-chart .dot.open{fill:var(--pollen);}
+.polyglot-chart .dot.closed{fill:#B85450;}
+.polyglot-chart .dot.ours{fill:var(--leaf-bright);}
+.polyglot-chart .dot.dim{opacity:.22;}
+.polyglot-chart .dot.hi{opacity:1;}
+.polyglot-chart .frontier{
+  fill:none;stroke:rgba(39,51,48,.22);stroke-width:1.2;
+}
+.polyglot-chart .frontier-shade{
+  fill:url(#polyHatch);stroke:none;opacity:0;
+}
+.polyglot-chart.ready .frontier-shade{
+  animation:polyShadeIn 1.8s cubic-bezier(.33,.1,.2,1) .35s both;
+}
+@keyframes polyShadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+.polyglot-chart .guide{
+  fill:none;stroke:var(--leaf);stroke-width:1.2;stroke-dasharray:5 4;
+  opacity:0;stroke-linecap:butt;
+}
+.polyglot-chart .grid-line{
+  stroke:rgba(39,51,48,.08);stroke-width:1;stroke-dasharray:3 4;
+}
+.polyglot-legend{
+  display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
+  margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--dim);
+}
+.polyglot-legend span{display:inline-flex;align-items:center;gap:8px;}
+.polyglot-legend .swatch{
+  width:10px;height:10px;border-radius:50%;display:inline-block;
+  box-shadow:0 0 0 1.5px #fff;
+}
+.polyglot-legend .swatch.open{background:var(--pollen);}
+.polyglot-legend .swatch.closed{background:#B85450;}
+.polyglot-legend .swatch.ours{background:var(--leaf-bright);}
+.polyglot-tip{
+  position:absolute;pointer-events:none;z-index:2;
+  background:var(--ink);color:var(--sage);
+  font-family:var(--mono);font-size:11px;line-height:1.45;
+  padding:8px 12px;border-radius:2px;
+  opacity:0;transform:translate(-50%,-120%);
+  transition:opacity .18s;
+  white-space:nowrap;max-width:min(260px,80vw);
+}
+.polyglot-tip.on{opacity:1;}
+.polyglot-tip b{color:var(--white);font-weight:600;}
+.polyglot-chart.ready .anim-dot{
+  animation:polyFade 1.2s cubic-bezier(.22,1,.36,1) both;
+}
+.polyglot-chart.ready .anim-green{
+  animation:polyFade 1.1s cubic-bezier(.22,1,.36,1) both;
+}
+.polyglot-chart.ready .anim-line{
+  stroke-dasharray:1;stroke-dashoffset:1;
+  animation:polyDraw 2s cubic-bezier(.33,.1,.2,1) .2s both;
+}
+.polyglot-chart.ready .anim-guide{
+  animation:polyGuideIn 1.5s cubic-bezier(.33,.1,.2,1) both;
+}
+@keyframes polyFade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+@keyframes polyGuideIn{
+  from{opacity:0;}
+  to{opacity:.55;}
+}
+@keyframes polyDraw{
+  to{stroke-dashoffset:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .polyglot-chart .dot,
+  .polyglot-chart .guide,
+  .polyglot-chart .guide-score,
+  .polyglot-chart .pt-label.ours{opacity:1;}
+  .polyglot-chart .guide{opacity:.55;}
+  .polyglot-chart.ready .anim-dot,
+  .polyglot-chart.ready .anim-green,
+  .polyglot-chart.ready .anim-line,
+  .polyglot-chart.ready .anim-guide,
+  .polyglot-chart.ready .frontier-shade{animation:none;}
+  .polyglot-chart .frontier-shade{opacity:1;}
+}
+.fig-label,.mgm-cap{
+  max-width:none;margin:14px 0 0;
+  font-family:var(--body);font-size:13.5px;line-height:2;color:var(--dim);
+}
+.fig-label b,.mgm-cap b{color:var(--ink);font-weight:600;}
+.fig-label a,.mgm-cap a{color:var(--leaf);}
+.fig-label a:hover,.mgm-cap a:hover{color:var(--leaf-bright);}
+.fig-label sub,.mgm-cap sub,.lede sub{
+  font-size:.72em;line-height:0;vertical-align:baseline;position:relative;bottom:-.18em;
+}
+section.ink .fig-label,section.ink .mgm-cap{color:rgba(232,238,234,.55);}
+section.ink .fig-label b,section.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+section.ink .fig-label a,section.ink .mgm-cap a{color:var(--leaf-bright);}
+section.ink .fig-label a:hover,section.ink .mgm-cap a:hover{color:#E8EEEA;}
+
+.mgm-figure{margin-top:0;}
+#archive{padding:36px 0 40px;}
+.mgm-stage{
+  position:relative;width:100%;
+  aspect-ratio:2 / 1;
+  border:none;
+  background:
+    radial-gradient(rgba(232,238,234,.12) .2vh, transparent .2vh);
+  background-size: 4vh 4vh;
+  overflow:hidden;
+  cursor:crosshair;
+  touch-action:none;
+}
+#mgmCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.mgm-legend{
+  display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
+  margin-top:6px;font-family:var(--mono);font-size:11px;line-height:1.5;color:rgba(232,238,234,.55);
+}
+.mgm-legend span{display:inline-flex;align-items:center;gap:8px;}
+.mgm-line{
+  display:inline-block;width:18px;height:0;vertical-align:middle;
+  border-top:2.5px solid #A8B5AD;
+}
+.mgm-line.cm{border-top-color:#A8B5AD;}
+.mgm-line.rm{border-top-color:#E0B84A;}
+.mgm-line.ch{border-top-color:#3DA66A;}
+.mgm-line.ref{border-top:2px dashed #7A8A82;}
+.mgm-dot.util{
+  width:18px;height:8px;display:inline-block;
+  background:linear-gradient(90deg,#E07A76,#F0B878,#F0D56A,#8FCF7A);
+}
+
+.bench{
+  margin-top:28px;overflow-x:auto;border:1px solid var(--hair);
+  background:var(--white);
+}
+table.results{
+  width:100%;border-collapse:collapse;font-size:14px;min-width:720px;
+}
+table.results th,table.results td{
+  padding:12px 10px;text-align:left;border-bottom:1px solid var(--hair);
+}
+table.results th{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--dim);background:var(--sage);font-weight:500;
+}
+table.results thead th.group{
+  text-align:center
+}
+table.results thead tr:last-child th{
+  text-align:center;font-size:10px;background:rgba(231,239,233,.65);
+}
+table.results th.stub,table.results td.stub{
+  text-align:left;font-family:var(--mono);font-size:12px;
+  color:var(--ink);white-space:nowrap;
+}
+table.results.performance td.stub{text-align:right;}
+table.results.performance th.stub{text-align:left;}
+table.results.performance thead tr.groups th:not(:last-child),
+table.results.performance thead tr:last-child th:nth-child(1),
+table.results.performance thead tr:last-child th:nth-child(4),
+table.results.performance thead tr:last-child th:nth-child(7),
+table.results.performance tbody td:nth-child(1),
+table.results.performance tbody td:nth-child(4),
+table.results.performance tbody td:nth-child(7){
+  border-right:1px solid var(--hair);
+}
+table.results.performance.transfer{min-width:960px;}
+table.results.performance.transfer thead tr:last-child th:nth-child(10),
+table.results.performance.transfer tbody td:nth-child(10){
+  border-right:1px solid var(--hair);
+}
+table.results td{color:var(--soil);}
+table.results td.num{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap;
+}
+table.results td.dash{text-align:center;color:var(--dim);}
+table.results tr:last-child td{border-bottom:none;}
+table.results .hi{color:var(--leaf);font-weight:600;}
+table.results .sup{
+  font-size:1em !important;vertical-align:super;line-height:0;color:var(--pollen);font-weight:600;
+}
+
+.cite-box{
+  margin-top:28px;background:var(--ink);color:var(--sage);
+  padding:28px;position:relative;max-width:none;
+}
+.cite-box pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap;
+  overflow-x:auto;color:#C8D9CF;
+}
+.cite-box .copy{
+  position:absolute;top:16px;right:16px;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  background:rgba(255,255,255,.08);color:var(--sage);border:1px solid rgba(255,255,255,.12);
+  padding:8px 14px;cursor:pointer;transition:background .2s;
+}
+.cite-box .copy:hover{background:var(--leaf);color:var(--white);border-color:var(--leaf);}
+.cite-box .copy.ok{background:var(--pollen);color:var(--ink);border-color:var(--pollen);}
+
+footer{
+  background:var(--ink);color:#9BB0A4;padding:64px 5vw 40px;
+}
+.foot-inner{max-width:var(--wrap);margin:0 auto;}
+.foot-brand{
+  font-family:var(--disp);font-size:28px;font-weight:700;color:var(--white);margin-bottom:12px;
+}
+.foot-links{display:flex;gap:22px;flex-wrap:wrap;margin:24px 0 40px;}
+.foot-links a{
+  font-family:var(--mono);font-size:12px;text-transform:uppercase;
+  color:#9BB0A4;text-decoration:none;
+}
+.foot-links a:hover{color:var(--white);}
+.foot-notes{
+  border-top:1px solid rgba(255,255,255,.08);padding-top:24px;
+  display:flex;flex-direction:column;gap:1.1em;
+}
+.foot-note{
+  display:grid;grid-template-columns:2.4em 1fr;column-gap:.35em;
+  font-size:13px;line-height:1.6;margin:0;
+}
+.foot-note .fn-mark{text-align:right;user-select:none;}
+
+@media (max-width:900px){
+  .hook-stats,.ops{grid-template-columns:1fr;}
+  .trio-visuals{grid-template-columns:1fr;}
+  .trio-right{height:auto;min-height:min(72vw,420px);}
+  .trio-captions{grid-template-columns:1fr;}
+  .sim-legend{margin-left:0;}
+  .sim-ctrl{width:100%;max-width:220px;}
+  .hook-stats .hs-group:first-child{
+    padding-right:0;border-bottom:1px solid var(--hair);padding-bottom:20px;
+  }
+  section.ink .hook-stats .hs-group:first-child{border-bottom-color:rgba(232,238,234,.12);}
+  .hook-stats .hs-group:last-child{padding-left:0;padding-top:20px;}
+  .op{border-right:none;padding-right:0;border-bottom:1px solid var(--hair);}
+  .op:last-child{border-bottom:none;}
+  nav{padding:12px 18px;}
+  .navlinks a:not(.pill){display:none;}
+  .masthead{padding-top:120px;}
+  .masthead .portrait{width:min(32vw,180px);bottom:20px;}
+  .masthead .portrait img{height:min(28vh,200px);opacity:.25;}
+  .masthead .portrait figcaption{opacity:.5;letter-spacing:.14em;}
+  h2{max-width:none;}
+}
+@media (max-width:560px){
+  .masthead .portrait{display:none;}
+}
+
+/* —— Video deck (1:1, fade between pages) —— */
+html,body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body.deck{touch-action:none;}
+#scrollbar{display:none;}
+.deck{
+  position:relative;
+  width:100%;height:100%;
+  background:var(--paper);
+  transition:background .7s var(--ease);
+}
+.deck:has(.slide.ink.is-active){background:var(--ink);}
+.slide.ink.blank{padding:0;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(110vh);
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:0;
+  padding:clamp(16px,3vmin,36px);
+}
+.slide.is-active{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transform:none;
+  transition:opacity .7s var(--ease),visibility 0s linear 0s;
+  z-index:1;
+}
+.slide.is-leaving{
+  opacity:0;visibility:visible;pointer-events:none;
+  transform:none;
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:2;
+}
+.slide-frame{
+  width:min(calc(100vw - 2 * clamp(16px,3vmin,36px)),
+            calc(100vh - 2 * clamp(16px,3vmin,36px)));
+  height:min(calc(100vw - 2 * clamp(16px,3vmin,36px)),
+             calc(100vh - 2 * clamp(16px,3vmin,36px)));
+  max-width:100%;max-height:100%;
+  aspect-ratio:1 / 1;
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.slide.band .slide-frame,
+.slide.ink .slide-frame{background:transparent;}
+.slide.ink{background:var(--ink);color:rgba(232,238,234,.88);}
+.slide.ink h2{color:var(--white);}
+.slide.ink .lede{color:rgba(232,238,234,.78);}
+.slide.ink .hook-stats{border-top-color:rgba(232,238,234,.12);}
+.slide.ink .hook-stats .n{color:var(--white);}
+.slide.ink .hook-stats .n i,
+.slide.ink .hook-stats .n .sub{color:var(--leaf-bright);}
+.slide.ink .hook-stats .hs-tag{color:var(--leaf-bright);}
+.slide.ink .hook-stats .l{color:rgba(232,238,234,.55);}
+.slide.ink .bench{
+  border-color:rgba(232,238,234,.12);
+  background:rgba(232,238,234,.04);
+}
+.slide.ink table.results th,
+.slide.ink table.results td{border-bottom-color:rgba(232,238,234,.1);}
+.slide.ink table.results th{
+  color:rgba(232,238,234,.55);
+  background:rgba(232,238,234,.08);
+}
+.slide.ink table.results thead tr:last-child th{background:rgba(232,238,234,.05);}
+.slide.ink table.results th.stub,
+.slide.ink table.results td.stub{color:rgba(232,238,234,.88);}
+.slide.ink table.results.performance thead tr.groups th:not(:last-child),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(1),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(4),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(7),
+.slide.ink table.results.performance tbody td:nth-child(1),
+.slide.ink table.results.performance tbody td:nth-child(4),
+.slide.ink table.results.performance tbody td:nth-child(7),
+.slide.ink table.results.performance.transfer thead tr:last-child th:nth-child(10),
+.slide.ink table.results.performance.transfer tbody td:nth-child(10){
+  border-right-color:rgba(232,238,234,.12);
+}
+.slide.ink table.results td{color:rgba(232,238,234,.78);}
+.slide.ink table.results td.dash{color:rgba(232,238,234,.4);}
+.slide.ink table.results .hi{color:var(--leaf-bright);}
+.slide.ink table.results .sup{color:var(--pollen);}
+.slide.ink .fig-label,.slide.ink .mgm-cap{color:rgba(232,238,234,.55);}
+.slide.ink .fig-label b,.slide.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+.slide.ink .fig-label a,.slide.ink .mgm-cap a{color:var(--leaf-bright);}
+.slide.band{background:var(--white);}
+.slide .wrap{
+  max-width:100%;width:100%;height:100%;
+  margin:0;padding:clamp(18px,3.2%,28px);
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;
+}
+.slide.masthead{
+  padding:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(46,139,87,.12), transparent 58%),
+    var(--paper);
+}
+.slide.masthead .slide-frame{
+  justify-content:center;
+}
+.slide.masthead .wrap-narrow{
+  max-width:100%;padding:0 clamp(12px,3%,24px);
+  transform:translateY(-20%);
+}
+.slide.masthead .portrait{
+  bottom:clamp(8%,9%,12%);
+  width:min(22%,170px);
+  left:50%;
+  right:auto;
+  gap:6px;
+}
+.slide.masthead .portrait img{
+  height:min(23%,185px);
+  opacity:.55;
+}
+.slide.masthead .portrait.mendel{
+  transform:translateX(calc(-100% - clamp(20px,4%,36px)));
+}
+.slide.masthead .portrait.goedel{
+  transform:translateX(clamp(20px,4%,36px));
+}
+.slide.masthead .logo-row{
+  position:absolute;
+  top:clamp(8%,9%,12%);
+  left:50%;
+  transform:translateX(-50%);
+  z-index:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:min(72%,420px);
+  margin:0;
+  pointer-events:none;
+  user-select:none;
+}
+.slide.masthead .logo-row img{
+  width:100%;
+  height:auto;
+  max-height:clamp(28px,7%,56px);
+  object-fit:contain;
+  display:block;
+  opacity:.92;
+}
+.slide.masthead .portrait figcaption{
+  font-size:clamp(9px,1.1vmin,12px);
+  letter-spacing:.14em;
+  font-weight:400;
+}
+.slide.masthead .brand-hero{font-size:clamp(36px,6vmin,72px);}
+.slide.masthead h1.subhead{font-size:clamp(18px,2.4vmin,30px);margin-top:8px;}
+.slide.masthead .authors{margin-top:18px;font-size:clamp(11px,1.45vmin,13px);}
+.slide.masthead .affil{font-size:clamp(10px,1.25vmin,11.5px);}
+.slide.masthead .emails{font-size:clamp(10px,1.25vmin,11.5px);}
+.slide.masthead .link-list{
+  margin-top:22px;
+  font-size:clamp(11px,1.35vmin,13px);
+  gap:.55em;
+}
+.slide.masthead .link-list a svg{width:12px;height:12px;}
+.slide h2{font-size:clamp(26px,4.4vmin,46px);}
+.slide .brand-hero{font-size:clamp(32px,6.5vmin,72px);}
+.slide h1.subhead{font-size:clamp(16px,2.4vmin,28px);}
+.slide .fig-block{margin-top:clamp(24px,4vmin,40px);flex:0 1 auto;min-height:0;}
+.slide .fig-block img{max-height:100%;object-fit:contain;}
+.slide .fig-label,.slide .mgm-cap{
+  font-size:clamp(11px,1.45vmin,13.5px);line-height:1.65;margin-top:10px;
+}
+.slide .hook-stats{margin-top:clamp(14px,2.2vmin,28px);border-top:none;}
+.slide .hook-stats .n{font-size:clamp(26px,4.2vmin,48px);}
+.slide .hook-stats .n i,
+.slide .hook-stats .n .sub{font-size:.34em;}
+.slide.ink .hook-stats{border-top:none;}
+.slide .bench{margin-top:clamp(14px,2vmin,24px);}
+.slide table.results{font-size:clamp(9px,1.15vmin,11.5px);min-width:0;}
+.slide table.results.performance.transfer{min-width:0;}
+.slide table.results th,
+.slide table.results td{padding:5px 2px;}
+.slide table.results th{
+  font-size:clamp(8px,1vmin,10px);
+}
+.slide table.results thead tr:last-child th{font-size:clamp(7.5px,.95vmin,9px);}
+.slide table.results th.stub,
+.slide table.results td.stub{font-size:clamp(8.5px,1.05vmin,10.5px);}
+.slide table.results .sup{
+  /* Keep font-size at cell size so Chromium min-font floor cannot clamp it,
+     then force visual size with zoom (shrinks glyphs and layout box). */
+  font-size:1em !important;
+  font-weight:600;
+  line-height:0;
+  vertical-align:super;
+  display:inline;
+  transform:none;
+  zoom:.8;
+}
+.slide#theory .sim-ctrl input[type=range]{display:none;}
+.slide#theory .sim-ctrl{
+  width:auto;max-width:none;
+}
+.slide#theory .sim-ctrl label{
+  font-size:clamp(9px,1.15vmin,11px);
+  white-space:nowrap;
+}
+.slide#theory .sim-controls{gap:10px 18px;}
+.slide .mgm-figure{display:flex;flex-direction:column;height:100%;min-height:0;}
+.slide .mgm-stage{
+  flex:1 1 auto;min-height:0;
+  aspect-ratio:auto;height:auto;
+}
+.slide .mgm-legend{font-size:clamp(9px,1.2vmin,11px);margin-top:8px;}
+.slide .polyglot-chart{flex:1 1 auto;min-height:0;}
+.slide .polyglot-chart svg{max-height:min(50vmin,432px);}
+.slide#generalization .slide-frame,
+.slide#theory .slide-frame{overflow-y:auto;overflow-x:hidden;}
+.slide#theory .wrap{justify-content:center;}
+.slide#theory .fig-block.trio{
+  margin-top:clamp(14px,2.2vmin,24px);
+  flex:0 1 auto;
+  min-height:0;
+  gap:12px;
+  justify-content:flex-start;
+}
+.slide#theory .trio-visuals{
+  gap:12px;
+  flex:0 1 auto;
+  min-height:0;
+  align-items:start;
+}
+.slide#theory .trio-left .trio-frame{aspect-ratio:1/1;max-height:min(36vmin,260px);}
+.slide#theory .trio-right{
+  height:auto;
+  min-height:0;
+  max-height:min(36vmin,260px);
+}
+.slide#theory .sim-charts{min-height:min(28vmin,200px);}
+.slide#theory .trio-captions{
+  gap:10px;
+  flex:0 0 auto;
+  margin-top:0;
+}
+.slide#theory .trio-captions .fig-label{font-size:clamp(10px,1.25vmin,12.5px);line-height:1.55;}
+.slide#generalization .hook-stats .hs-tag{font-size:clamp(9px,1.15vmin,11px);}
+.slide#generalization .bench{margin-top:clamp(10px,1.5vmin,18px);}
+.deck-progress{
+  position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;
+  background:rgba(39,51,48,.08);
+}
+.deck-progress > i{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transition:width .45s var(--ease);
+}
+.deck-hint{
+  position:fixed;right:clamp(12px,2vw,24px);bottom:clamp(14px,2.5vh,28px);
+  z-index:80;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);opacity:.55;pointer-events:none;
+  transition:opacity .4s;
+}
+.deck:has(.slide.ink.is-active) .deck-hint{color:rgba(232,238,234,.45);}
+</style>
+</head>
+<body class="deck">
+<div class="deck" id="deck">
+
+  <!-- 0 · Blank intro -->
+  <section class="slide ink blank is-active" data-slide="0" id="intro" aria-label="Intro"></section>
+
+  <!-- 1 · Header -->
+  <section class="slide masthead" data-slide="1" id="top">
+    <div class="slide-frame">
+      <div class="logo-row" aria-label="Affiliations">
+        <img src="assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
+      </div>
+      <figure class="portrait mendel">
+        <img src="assets/images/Mendel.svg" alt="" width="411" height="469" decoding="async">
+        <figcaption>Gregor J. Mendel</figcaption>
+      </figure>
+      <figure class="portrait goedel">
+        <img src="assets/images/Goedel.svg" alt="" width="418" height="463" decoding="async">
+        <figcaption>Kurt F. Gödel</figcaption>
+      </figure>
+      <div class="wrap-narrow">
+        <p class="brand-hero rv">Mendel Gödel Machine</p>
+        <h1 class="subhead rv"><i>Recursive Self-Improving Coding Agents via Comparative Evolution</i></h1>
+        <p class="authors rv">
+          <a href="https://github.com/RealLcz" target="_blank" rel="noopener noreferrer">Changzhi Liu</a><sup>∗,§</sup>&nbsp;&nbsp;
+          <a href="https://liuyilun2000.github.io/" target="_blank" rel="noopener noreferrer">Yilun Liu</a><sup>†,‡,§</sup>&nbsp;&nbsp;
+          <a href="https://yansikuan.github.io/" target="_blank" rel="noopener noreferrer">Sikuan Yan</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://www.dbs.ifi.lmu.de/~tresp/" target="_blank" rel="noopener noreferrer">Volker Tresp</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://yunpuma.github.io/" target="_blank" rel="noopener noreferrer">Yunpu Ma</a><sup>†,‡</sup>
+        </p>
+        <p class="affil rv">
+          <sup>∗</sup>UESTC&nbsp;&nbsp;&nbsp;<sup>†</sup>LMU Munich&nbsp;&nbsp;&nbsp;<sup>‡</sup>MCML&nbsp;&nbsp;&nbsp;<sup>§</sup>Equal contribution
+        </p>
+        <p class="emails rv">
+          <a href="mailto:changzhiliu1@gmail.com">changzhiliu1@gmail.com</a>
+          <a href="mailto:yilun.liu@tum.de">yilun.liu@tum.de</a>
+          <a href="mailto:cognitive.yunpu@gmail.com">cognitive.yunpu@gmail.com</a>
+        </p>
+        <div class="link-list rv">
+          <a href="https://arxiv.org/abs/2608.07645" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            <span>arxiv.org/abs/2608.07645</span>
+          </a>
+          <a href="https://reallcz.github.io/MGM/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>reallcz.github.io/MGM</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Evolution tree -->
+  <section class="slide ink" data-slide="2" id="archive">
+    <div class="slide-frame">
+      <div class="wrap">
+        <div class="mgm-figure rv">
+          <div class="mgm-stage" id="mgmStage">
+            <canvas id="mgmCanvas" aria-label="Interactive MGM evolution tree"></canvas>
+          </div>
+          <div class="mgm-legend">
+            <span><i class="mgm-line cm"></i>Clonal Mutation</span>
+            <span><i class="mgm-line rm"></i>Reaction-norm Mutation</span>
+            <span><i class="mgm-line ch"></i>Cross-lineage Hybridization</span>
+            <span><i class="mgm-line ref"></i>Hybridization reference</span>
+            <span><i class="mgm-dot util"></i>Utility</span>
+          </div>
+          <p class="mgm-cap">
+            <b>Evolution tree of MGM.</b> Results show the archive evolved with 200 φ-evaluations and 24 Φ-expansions on Polyglot, with nodes colored by utility estimates aggregated over accumulated φ-evaluation results, and edges corresponding with different Φ-expansion operators.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Method: title + fig + caption -->
+  <section class="slide band" data-slide="3" id="method">
+    <div class="slide-frame">
+      <div class="wrap">
+        <h2 class="rv">Evolution with <br><span class="leaf">Controlled Inheritance.</span></h2>
+        <div class="fig-block fig1 rv">
+          <img src="assets/images/fig1_mgm_overview.jpg" alt="Mendel Gödel Machine overview: archive lineage tree, sampling–evaluation–expansion loop, and three self-modification operators" width="9920" height="3588" loading="eager">
+          <p class="fig-label">
+            <b>Mendel Gödel Machine.</b> MGM organizes self-modification via controlled inheritance based on evidence across tasks and lineages.
+            The archive maintains a lineage tree of agent variants; each stores its source code as genotype and evaluation outcomes as phenotype.
+            Each iteration applies π-sampling that selects an operation to perform with the necessary resources from the archive.
+            φ-evaluation executes the agent on untested tasks and records its trajectory and results.
+            Clonal mutation Φ<sub>CM</sub> edits the agent based on a single failure trajectory on target task τ<sub>t</sub>.
+            Reaction-norm mutation Φ<sub>RM</sub> uses the agent's trajectories across reference tasks τ<sub>r</sub>.
+            Cross-lineage hybridization Φ<sub>CH</sub> uses a reference agent a<sub>r</sub> from a different lineage that attempted the same task.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4a · Results: title + chart + caption -->
+  <section class="slide" data-slide="4" id="results">
+    <div class="slide-frame">
+      <div class="wrap">
+        <h2 class="rv">Bringing Open Models<br>
+          <span class="gold leaf">Beyond Frontier</span> Performance.</h2>
+        <div class="fig-block rv">
+          <div class="polyglot-chart" id="polyglotChart" role="img" aria-label="Polyglot performance versus model size. Qwen3.6-35B-A3B plus MGM reaches 93.3 percent; DeepSeek-V4-Pro plus MGM reaches 96.9 percent.">
+            <div class="polyglot-tip" id="polyTip" aria-hidden="true"></div>
+            <svg id="polySvg" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+          <div class="polyglot-legend">
+            <span><i class="swatch open"></i>Open-source</span>
+            <span><i class="swatch closed"></i>Closed-source</span>
+            <span><i class="swatch ours"></i>Self-improving</span>
+          </div>
+          <p class="fig-label">
+            <b>Performance of coding agents on Polyglot and model sizes.</b> Result marked with asterisk is from Polyglot-60; all other scores are from the complete Polyglot‑225. Performance of Deepseek-V4-Pro is the transfered result with the scaffold evolved on Qwen3.6-35B-A3B. Performance for models outside our experiments are sourced directly from the official <a href="https://llm-stats.com/benchmarks/aider-polyglot" target="_blank" rel="noopener noreferrer">Aider-Polyglot Leaderboard</a>.
+            Closed-source model sizes follows estimates reported by <a href="https://arxiv.org/abs/2604.24827" target="_blank" rel="noopener noreferrer">Li et al. (2026)</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4b · Results: title + numbers + table -->
+  <section class="slide" data-slide="5" id="results-stats">
+    <div class="slide-frame">
+      <div class="wrap">
+        <h2 class="rv">Bringing Open Models<br>
+          <span class="gold leaf">Beyond Frontier</span> Performance.</h2>
+        <div class="hook-stats rv-st rv">
+          <div class="hs-group">
+            <p class="hs-tag">SWE-bench Verified-60</p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="68.3" data-to="78.3" data-dec="1">68.3</span><span class="sub">+<span class="cnt" data-to="10.0" data-dec="1">0</span> pp</span></div>
+                <p class="l">Performance</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="14.6" data-dec="1">0</span><i>%</i></div>
+                <p class="l">Relative improvement</p>
+              </div>
+            </div>
+          </div>
+          <div class="hs-group">
+            <p class="hs-tag">Polyglot-60</p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="50.8" data-to="93.2" data-dec="1">50.8</span><span class="sub">+<span class="cnt" data-to="42.4" data-dec="1">0</span> pp</span></div>
+                <p class="l">Performance</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="83.5" data-dec="1">0</span><i>%</i></div>
+                <p class="l">Relative improvement</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench rv">
+          <table class="results performance">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">SWE-bench Verified-60</th>
+                <th class="group" colspan="3">Polyglot-60</th>
+                <th class="group" colspan="3">Average</th>
+              </tr>
+              <tr>
+                <th>Agent</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">Accuracy</td>
+                <td class="num">68.3</td>
+                <td class="num">73.3<span class="sup">+5.0</span></td>
+                <td class="num hi">78.3<span class="sup">+10.0</span></td>
+                <td class="num">50.8</td>
+                <td class="num">77.9<span class="sup">+27.1</span></td>
+                <td class="num hi">93.2<span class="sup">+42.4</span></td>
+                <td class="num">59.6</td>
+                <td class="num">75.6<span class="sup">+16.0</span></td>
+                <td class="num hi">85.8<span class="sup">+26.2</span></td>
+              </tr>
+              <tr>
+                <td class="num">% Impr.</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 7.3%</td>
+                <td class="num hi">↑ 14.6%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 53.3%</td>
+                <td class="num hi">↑ 83.5%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 26.8%</td>
+                <td class="num hi">↑ 44.0%</td>
+              </tr>
+              <tr>
+                <td class="num">Time</td>
+                <td class="dash">—</td>
+                <td class="num">93.02 h</td>
+                <td class="num">96.11 h</td>
+                <td class="dash">—</td>
+                <td class="num">44.20 h</td>
+                <td class="num hi">40.14 h</td>
+                <td class="dash">—</td>
+                <td class="num">68.61 h</td>
+                <td class="num hi">68.12 h</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>Performance of coding agents evolved on SWE-bench Verified and Polyglot.</b>
+          Results evolved using Qwen3.6-35B-A3B after 200 φ-evaluations and 24 Φ-expansions.
+          For each benchmark, HGM and MGM start from the same initial scaffold.
+          Superscripts in accuracy denote absolute percentage-point improvements over corresponding initial agents.
+          Time reported as CPU wall-clock time with 8×NVIDIA H100 GPUs.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Generalization (no lede) -->
+  <section class="slide ink" data-slide="6" id="generalization">
+    <div class="slide-frame">
+      <div class="wrap">
+        <h2 class="rv"><span class="leaf">Genuinely Reusable</span> <br>Agent Scaffolds.</h2>
+        <div class="hook-stats rv-st rv">
+          <div class="hs-group">
+            <p class="hs-tag">Cross-benchmark<br><i>Polyglot → SWE-bench Pro &amp; Multilingual</i></p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="29.2" data-to="40.9" data-dec="1">29.2</span><span class="sub">+<span class="cnt" data-to="11.7" data-dec="1">0</span> pp</span></div>
+                <p class="l">Average Performance</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="40.1" data-dec="1">0</span><i>%</i></div>
+                <p class="l">Relative improvement</p>
+              </div>
+            </div>
+          </div>
+          <div class="hs-group">
+            <p class="hs-tag">Cross-model<br><i>Qwen3.6-35B-A3B → DeepSeek-V4-Flash &amp; Pro</i></p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="47.5" data-to="70.8" data-dec="1">47.5</span><span class="sub">+<span class="cnt" data-to="23.3" data-dec="1">0</span> pp</span></div>
+                <p class="l">Average Performance</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="49.1" data-dec="1">0</span><i>%</i></div>
+                <p class="l">Relative improvement</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench rv">
+          <table class="results performance">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">SWE-bench Pro</th>
+                <th class="group" colspan="3">SWE-bench Multilingual</th>
+                <th class="group" colspan="3">Avg.</th>
+              </tr>
+              <tr>
+                <th>Agent</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+                <th>Initial</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">Accuracy</td>
+                <td class="num">16.7</td>
+                <td class="num">13.3<span class="sup">−3.4</span></td>
+                <td class="num hi">26.7<span class="sup">+10.0</span></td>
+                <td class="num">41.7</td>
+                <td class="num">43.3<span class="sup">+1.6</span></td>
+                <td class="num hi">55.0<span class="sup">+13.3</span></td>
+                <td class="num">29.2</td>
+                <td class="num">28.3<span class="sup">−0.9</span></td>
+                <td class="num hi">40.9<span class="sup">+11.7</span></td>
+              </tr>
+              <tr>
+                <td class="num">% Impr.</td>
+                <td class="dash">—</td>
+                <td class="num">↓ 20.4%</td>
+                <td class="num hi">↑ 59.9%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 3.8%</td>
+                <td class="num hi">↑ 31.9%</td>
+                <td class="dash">—</td>
+                <td class="num">↓ 3.1%</td>
+                <td class="num hi">↑ 40.1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>Cross-benchmark generalization from Polyglot to SWE-bench Pro and SWE-bench Multilingual.</b>
+          All agents evolved on Polyglot are evaluated zero-shot on held-out SWE-bench variants, using Qwen3.6-35B-A3B.
+          Superscripts in accuracy denote absolute percentage-point improvements over corresponding initial agents.
+        </p>
+
+        <div class="bench rv">
+          <table class="results performance transfer">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3"><i>Evolved</i></th>
+                <th class="group" colspan="9"><i>Transferred</i></th>
+              </tr>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">Qwen3.6-35B-A3B</th>
+                <th class="group" colspan="3">DeepSeek-V4-Flash</th>
+                <th class="group" colspan="3">DeepSeek-V4-Pro</th>
+                <th class="group" colspan="3">Avg.</th>
+              </tr>
+              <tr>
+                <th>Agent</th>
+                <th>Init.</th><th>HGM</th><th>MGM</th>
+                <th>Init.</th><th>HGM</th><th>MGM</th>
+                <th>Init.</th><th>HGM</th><th>MGM</th>
+                <th>Init.</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">Acc.</td>
+                <td class="num">68.3</td>
+                <td class="num">73.3<span class="sup">+5.0</span></td>
+                <td class="num hi">78.3<span class="sup">+10.0</span></td>
+                <td class="num">50.0</td>
+                <td class="num">60.0<span class="sup">+10.0</span></td>
+                <td class="num hi">66.7<span class="sup">+16.7</span></td>
+                <td class="num">45.0</td>
+                <td class="num">70.0<span class="sup">+25.0</span></td>
+                <td class="num hi">75.0<span class="sup">+30.0</span></td>
+                <td class="num">47.5</td>
+                <td class="num">65.0<span class="sup">+17.5</span></td>
+                <td class="num hi">70.8<span class="sup">+23.3</span></td>
+              </tr>
+              <tr>
+                <td class="num">% Impr.</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 7.3%</td>
+                <td class="num hi">↑ 14.6%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 20.0%</td>
+                <td class="num hi">↑ 33.3%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 55.6%</td>
+                <td class="num hi">↑ 66.7%</td>
+                <td class="dash">—</td>
+                <td class="num">↑ 36.8%</td>
+                <td class="num hi">↑ 49.1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>Cross-model transfer on SWE-bench Verified-60.</b>
+          The Qwen3.6-35B-A3B block reports the original evolved agents, while the DeepSeek blocks report transferred performance by using the scaffolds evolved on Qwen3.6-35B-A3B and evaluating with LLM backbone replaced.
+          Superscripts in accuracy denote absolute percentage-point improvements over corresponding initial agents.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Theory (no opening lede) -->
+  <section class="slide band" data-slide="7" id="theory">
+    <div class="slide-frame">
+      <div class="wrap">
+        <h2 class="rv">Reliably Better,<br><span class="leaf">Across All Conditions.</span></h2>
+        <div class="fig-block trio rv" id="simPanel">
+          <div class="trio-visuals">
+            <div class="trio-left">
+              <div class="trio-frame">
+                <img src="assets/images/fig3_fitness_landscape.png" alt="Additive fitness landscape model illustration" width="2260" height="2190" loading="lazy">
+              </div>
+            </div>
+            <div class="trio-right">
+              <div class="sim-charts">
+                <div class="trio-frame">
+                  <canvas id="simEvo" aria-label="Evolution dynamics: best edit distance versus cumulative cost"></canvas>
+                </div>
+                <div class="trio-frame">
+                  <canvas id="simHist" aria-label="Edit-distance distribution across Monte Carlo seeds"></canvas>
+                </div>
+              </div>
+              <div class="sim-shared">
+                <div class="sim-controls">
+                  <div class="sim-ctrl">
+                    <label for="simD0">Initial distance <b id="simD0Val">20</b></label>
+                    <input id="simD0" type="range" min="0" max="8" step="1" value="2" aria-label="Initial distance">
+                  </div>
+                  <div class="sim-ctrl">
+                    <label for="simRho">Diagnostic advantage <b id="simRhoVal">2.0</b></label>
+                    <input id="simRho" type="range" min="0" max="8" step="1" value="6" aria-label="Diagnostic advantage">
+                  </div>
+                </div>
+                <div class="sim-legend">
+                  <span><i class="dgm"></i>DGM</span>
+                  <span><i class="hgm"></i>HGM</span>
+                  <span><i class="mgm"></i>MGM</span>
+                  <span><i class="oracle"></i>oracle</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="trio-captions">
+            <p class="fig-label"><b>
+              Additive fitness landscape model.</b>
+            Each agent carries genotype with loci, which is only exposed through φ-evaluation, where each task τ<sub>i</sub> examines a subset of loci for a successful phenotype.
+            Φ-expansion modifies the examined loci under certain probabilities.
+            </p>
+            <p class="fig-label"><b>
+              Real-time simulation of performance evolution over cumulative budget spent.</b>
+              The panel shows the edit distance results (lower is better) averaged across random seeds with 95% CIs.
+              Dashed lines mark oracle optima.
+            </p>
+            <p class="fig-label"><b>Real-time simulation of final performance distribution.</b>
+              The panel shows the distribution of final edit distance results (lower is better) across all random seeds, with dashed lines marking per-method means.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · Closing (duplicate front page) -->
+  <section class="slide masthead" data-slide="8" id="closing">
+    <div class="slide-frame">
+      <div class="logo-row" aria-label="Affiliations">
+        <img src="assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
+      </div>
+      <figure class="portrait mendel">
+        <img src="assets/images/Mendel.svg" alt="" width="411" height="469" decoding="async">
+        <figcaption>Gregor J. Mendel</figcaption>
+      </figure>
+      <figure class="portrait goedel">
+        <img src="assets/images/Goedel.svg" alt="" width="418" height="463" decoding="async">
+        <figcaption>Kurt F. Gödel</figcaption>
+      </figure>
+      <div class="wrap-narrow">
+        <p class="brand-hero rv">Mendel Gödel Machine</p>
+        <h1 class="subhead rv"><i>Recursive Self-Improving Coding Agents via Comparative Evolution</i></h1>
+        <p class="authors rv">
+          <a href="https://github.com/RealLcz" target="_blank" rel="noopener noreferrer">Changzhi Liu</a><sup>∗,§</sup>&nbsp;&nbsp;
+          <a href="https://liuyilun2000.github.io/" target="_blank" rel="noopener noreferrer">Yilun Liu</a><sup>†,‡,§</sup>&nbsp;&nbsp;
+          <a href="https://yansikuan.github.io/" target="_blank" rel="noopener noreferrer">Sikuan Yan</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://www.dbs.ifi.lmu.de/~tresp/" target="_blank" rel="noopener noreferrer">Volker Tresp</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://yunpuma.github.io/" target="_blank" rel="noopener noreferrer">Yunpu Ma</a><sup>†,‡</sup>
+        </p>
+        <p class="affil rv">
+          <sup>∗</sup>UESTC&nbsp;&nbsp;&nbsp;<sup>†</sup>LMU Munich&nbsp;&nbsp;&nbsp;<sup>‡</sup>MCML&nbsp;&nbsp;&nbsp;<sup>§</sup>Equal contribution
+        </p>
+        <p class="emails rv">
+          <a href="mailto:changzhiliu1@gmail.com">changzhiliu1@gmail.com</a>
+          <a href="mailto:yilun.liu@tum.de">yilun.liu@tum.de</a>
+          <a href="mailto:cognitive.yunpu@gmail.com">cognitive.yunpu@gmail.com</a>
+        </p>
+        <div class="link-list rv">
+          <a href="https://arxiv.org/abs/2608.07645" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            <span>arxiv.org/abs/2608.07645</span>
+          </a>
+          <a href="https://reallcz.github.io/MGM/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>reallcz.github.io/MGM</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="deck-progress" aria-hidden="true"><i id="deckBar"></i></div>
+<div class="deck-hint" id="deckHint">↓ next</div>
+
+<script src="assets/evo-trees.js" defer></script>
+<script src="assets/polyglot-chart.js" defer></script>
+<script src="assets/sim-panel.js" defer></script>
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('deckBar');
+  const hint = document.getElementById('deckHint');
+  const FADE_MS = 700;
+  let index = Math.max(0, slides.findIndex(s => s.classList.contains('is-active')));
+  if (index < 0) index = 0;
+  let locked = false;
+  const counted = new WeakSet();
+
+  const animateCount = (el) => {
+    const to = parseFloat(el.dataset.to);
+    const from = el.dataset.from != null ? parseFloat(el.dataset.from) : 0;
+    const dec = parseInt(el.dataset.dec || '0', 10);
+    const dur = 1100;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (from + (to - from) * eased).toFixed(dec);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const enterSlide = (slide) => {
+    if (slide.classList.contains('masthead')) {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.remove('in'));
+    }
+    requestAnimationFrame(() => {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.add('in'));
+    });
+    slide.querySelectorAll('.hook-stats').forEach(hs => {
+      if (counted.has(hs)) return;
+      counted.add(hs);
+      hs.querySelectorAll('.cnt').forEach(animateCount);
+    });
+    window.dispatchEvent(new CustomEvent('deck:slide', {
+      detail: { index, id: slide.id || null, slide }
+    }));
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  };
+
+  const updateChrome = () => {
+    const n = slides.length;
+    bar.style.width = `${((index + 1) / n) * 100}%`;
+    hint.style.opacity = index >= n - 1 ? '0' : '.55';
+    hint.textContent = index >= n - 1 ? '' : '↓ next';
+  };
+
+  const go = (next) => {
+    if (locked) return;
+    const n = slides.length;
+    const target = Math.max(0, Math.min(n - 1, next));
+    if (target === index) return;
+    locked = true;
+    const prev = slides[index];
+    const curr = slides[target];
+    prev.classList.remove('is-active');
+    prev.classList.add('is-leaving');
+    curr.classList.add('is-active');
+    index = target;
+    updateChrome();
+    enterSlide(curr);
+    setTimeout(() => {
+      prev.classList.remove('is-leaving');
+      locked = false;
+    }, FADE_MS);
+  };
+
+  const next = () => go(index + 1);
+  const prev = () => go(index - 1);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+    if (['ArrowDown', 'PageDown', ' ', 'ArrowRight', 'j'].includes(e.key)) {
+      e.preventDefault();
+      next();
+    } else if (['ArrowUp', 'PageUp', 'ArrowLeft', 'k'].includes(e.key)) {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      go(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      go(slides.length - 1);
+    }
+  });
+
+  let wheelAcc = 0;
+  let wheelReset = 0;
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (locked) return;
+    wheelAcc += e.deltaY;
+    clearTimeout(wheelReset);
+    wheelReset = setTimeout(() => { wheelAcc = 0; }, 180);
+    if (Math.abs(wheelAcc) < 40) return;
+    const dir = wheelAcc > 0 ? 1 : -1;
+    wheelAcc = 0;
+    go(index + dir);
+  }, { passive: false });
+
+  let touchY = null;
+  window.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) touchY = e.touches[0].clientY;
+  }, { passive: true });
+  window.addEventListener('touchend', (e) => {
+    if (touchY == null) return;
+    const y = e.changedTouches[0].clientY;
+    const dy = touchY - y;
+    touchY = null;
+    if (Math.abs(dy) < 48) return;
+    go(index + (dy > 0 ? 1 : -1));
+  }, { passive: true });
+
+  updateChrome();
+  enterSlide(slides[index]);
+})();
+</script>
+</body>
+</html>

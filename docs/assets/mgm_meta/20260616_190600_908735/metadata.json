@@ -1,0 +1,42 @@
+{
+    "run_id": "20260616_190600_908735",
+    "parent_commit": "20260615_143741_077792",
+    "self_improve_strategy": "B",
+    "entries": [
+        "sphinx-doc__sphinx-7748",
+        "django__django-12325"
+    ],
+    "entry": null,
+    "problem_statement": "# Coding Agent Summary\n\n- **Main File**: `coding_agent.py`\n  - Primary Class: `AgenticSystem`\n  - The `forward()` function is the central entry point.\n  - Prompts are located either within the `forward()` function or in the `prompts/` directory.\n- **Tools**: `tools/`\n  - The `tools/` directory contains various tools that LLMs can use to perform specific tasks.\n  - Each tool must have a `tool_info()` function that returns a JSON object containing 'name', 'description', and 'input_schema'. The 'input_schema' should be a JSON object containing 'type', 'properties', and 'required'.\n  - Each tool must have a `tool_function()` function that takes the arguments defined in input_schema, performs the tool's task, and returns a string.\n  - See other tools for reference.\n- **Utilities**: `utils/`\n  - The `utils/` directory contains utility functions used across the codebase.\n\n- **Additional Details**:\n  - The agent is very good at automatically utilizing the right available tools at the right time. So do not have an agentic flow that explicitly forces a tool's usage.\n  - Common tools, such as file editing and bash commands, are easy for the agent to recognize and use appropriately. However, more complex and niche tools may require explicit instructions in the prompt.\n  - Tools should be designed to be as general as possible, ensuring they work across any GitHub repository. Avoid hardcoding repository-specific details or behaviors (e.g., paths).\n  - Do not use 'while True' loops in the agent's code. This can cause the agent to get stuck and not respond.\n  - Verify the implementation details of helper functions prior to usage to ensure proper integration and expected behavior.\n  - Do not install additional packages or dependencies directly. Update `requirements.txt` if new dependencies are required and install them using `pip install -r requirements.txt`.\n\n\n# To Implement\n\nCreate a new tool `test_analysis.py` in the tools/ directory with functions to: (1) parse test files and extract test function names, assertions, and expected outcomes; (2) identify error messages and exception types in test code; (3) find test cases related to specific features or error conditions. The tool should use regex and AST parsing to extract this information without hard-coding repo-specific patterns. Wire this into the agent's forward() function: before the agent starts implementing, call the test analysis tool on the test files identified from the problem statement. Include the test expectations summary in the prompt as context for the agent's implementation. This ensures the agent's solution is validated against actual test expectations, not just its own understanding.\n\n## Pre-Implementation Test Analysis Tool\n\n### Problem\nThe coding agent implements fixes based on its own understanding of the problem, runs visible tests, and considers the job done when those tests pass \u2014 without verifying that its implementation matches the actual expected behavior encoded in the test suite. This leads to solutions that pass visible tests but may not satisfy the full test suite expectations.\n\n### Proposed Solution\nAdd a pre-implementation test analysis phase that examines test files to extract expected behavior, error messages, and edge cases before the agent starts implementing fixes.\n\n### Implementation Details\n\n1. **Create `tools/test_analysis.py`** with functions to:\n   - Parse test files and extract test function names, assertions, and expected outcomes\n   - Identify error messages and exception types in test code (e.g., `assertRaises`, `assertMessage`)\n   - Find test cases related to specific features or error conditions\n   - Generate a summary of test expectations\n\n2. **Wire into `forward()`**: Before the agent starts implementing, call the test analysis tool on test files identified from the problem statement. Include the test expectations summary in the prompt as context.\n\n3. **General mechanism**: The tool should use regex and AST parsing to extract information without hard-coding repo-specific patterns. It should work for any test framework (pytest, unittest) and any type of test.\n\n### Example (non-binding)\nFor a task about `autodoc_docstring_signature`, the tool would extract:\n- Test function names like `test_autodoc_docstring_signature`\n- Assertions about expected docstring content\n- Error messages like `ImproperlyConfigured: Add parent_link=True`\n\nFor a task about Django model inheritance, the tool would extract:\n- Test cases for `OneToOneField` with `parent_link`\n- Expected error messages and their conditions\n- Edge cases for multiple parent references\n\nThis ensures the agent's solution is validated against actual test expectations, not just its own understanding.\n\n---\n\n**REMINDER \u2014 implement the full diagnosis:**\n- Do not leave helper functions or modules dead/unused. Wire changes into `forward()` and the tool path the agent actually uses.\n- Do not add generic verification loops unless the diagnosis explicitly calls for them.\n- Focus on making the agent **solve problems correctly**, not only on checking its own work.\n\n**GENERALIZATION GUARDRAILS (the fix must target a *class* of failures, not this instance):**\n- Fix the underlying *mechanism* of the failure, not its surface tokens. The change must help on a DIFFERENT repository/domain you have never seen.\n- FORBIDDEN: hard-coding task-specific identifiers \u2014 repo names, file paths, module names, library names, instance ids, or static keyword / \"bug-category\" lookup tables (e.g. mapping \"docstring\"/\"linkcheck\" to directories). Any concrete names in the issue above are ILLUSTRATIVE EXAMPLES ONLY; never copy them into code as constants.\n- Derive any relevance / category / decision from *runtime signals available in every repo* (files named in the failing test or traceback, files the agent actually opened or read, symbols quoted in the issue, the diff itself), NOT from a fixed dictionary keyed on this task's vocabulary.\n- Prefer a mechanism whose behavior is *data-driven* (computed per task from the problem statement + repo state) over one that *enumerates known cases*.\n- Sanity check before finishing: \"If the next task were in an unrelated repo, would this code path still do something useful and not block correct edits?\" If not, redesign it.\n",
+    "overall_performance": {
+        "accuracy_score": 0.2,
+        "total_resolved_instances": 1,
+        "total_submitted_instances": 5,
+        "files": [
+            "20260616_190600_908735_1.20260616_190600_908735_0.json",
+            "20260616_190600_908735_2.20260616_190600_908735_0.json",
+            "20260616_190600_908735_3.20260616_190600_908735_0.json",
+            "20260616_190600_908735_4.20260616_190600_908735_0.json",
+            "20260616_190600_908735_5.20260616_190600_908735_0.json"
+        ],
+        "total_unresolved_ids": [
+            "django__django-12325",
+            "sphinx-doc__sphinx-9229",
+            "django__django-12308"
+        ],
+        "total_emptypatch_ids": [],
+        "total_resolved_ids": [
+            "django__django-12050"
+        ],
+        "total_submitted_ids": [
+            "django__django-12325",
+            "sphinx-doc__sphinx-9229",
+            "django__django-12308",
+            "django__django-12050",
+            "sphinx-doc__sphinx-9320"
+        ]
+    },
+    "swe_dnames": [
+        "/mnt/vast/home/ym56kacy/MendelGM/output_mgm/20260616_190600_908735/predictions/20260616_190600_908735_5"
+    ]
+}

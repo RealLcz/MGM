@@ -1,0 +1,5 @@
+# Constraints for installing copied HGM/agent dependencies inside SWE-bench Pro
+# task images. Several images use old Python/pip stacks, so keep heavy packages
+# on broadly available wheels instead of falling back to source builds.
+pandas<2.3
+numpy<2.1
