@@ -1,27 +1,25 @@
 <p align="center">
-<img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
+  <a href="https://reallcz.github.io/MGM/">
+    <img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2608.07645"><img src="https://img.shields.io/badge/arXiv-2608.07645-b31b1b.svg" alt="arXiv"></a>
+  <a href="https://huggingface.co/papers/2608.07645"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-FFD21E.svg" alt="Hugging Face"></a>
+  <a href="https://reallcz.github.io/MGM/"><img src="https://img.shields.io/badge/Project-Page-2E8B57.svg" alt="Project Page"></a>
+  <a href="https://github.com/RealLcz/MGM"><img src="https://img.shields.io/badge/GitHub-Code-181717.svg?logo=github&logoColor=white" alt="Code"></a>
 </p>
 
 # Mendel Gödel Machine (MGM)
 
-**Comparative Evolution Self-Improving Coding Agent**
+**Mendelian Evolution Self-Improving Coding Agent**
 
-MGM extends the [Hierarchical Gödel Machine (HGM)](https://github.com/jennyzzt/dgm) framework with **comparative evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
+MGM extends the [Huxley Gödel Machine (HGM)](https://github.com/metauto-ai/HGM) framework with **mendelian evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
 
 ---
 
-## Overview
-
-| Component | Description |
-|-----------|-------------|
-| **Search engine** | `hgm.py` — optimistic tree search over agent variants |
-| **Self-improvement** | `self_improve_step.py` — LLM-driven diagnosis and code patching |
-| **SWE-bench harness** | `swe_bench/harness.py` — Python repo bug-fixing tasks |
-| **Polyglot harness** | `polyglot/harness.py` — 6-language programming exercises |
-| **LLM backend** | vLLM OpenAI-compatible API server |
-| **Execution** | Apptainer containers on the compute node (local `.sif` images) |
-
-### Self-Improve Strategies
+## Self-Improve Strategies
 
 MGM samples among three strategies when expanding a tree node:
 
@@ -39,9 +37,10 @@ Default MGM weights: **A : B : C = 0.1 : 0.45 : 0.45**. The HGM baseline uses st
 
 ### Prerequisites
 
-- **Apptainer** on HPC compute nodes (no Docker daemon required)
+- **Linux** with **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
 - **Conda** (Python 3.11)
-- **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
+- **Docker** on a reachable host
+- **SSH key access** to the remote Docker host
 - **Hugging Face cache** for model weights (`HF_HOME`)
 
 ### 1. Clone and create the conda environment
@@ -61,26 +60,40 @@ Additional packages used by analysis scripts:
 pip install vllm matplotlib pillow scikit-learn
 ```
 
-### 2. Configure Apptainer
+### 2. Configure Docker
 
-Task evaluation runs in **local Apptainer** containers on the same node as vLLM. Images are pulled as `.sif` files via `apptainer pull ... docker://...` (see `scripts/pull_epoch_images.py`).
+Evaluation runs inside Docker containers. You must provide your own Docker host — do not rely on any hard-coded address in the Slurm scripts; override it when submitting jobs.
 
-```bash
-# Optional: customize image cache location
-export APPTAINER_IMAGE_DIR="${HF_HOME}/apptainer_images"
-export APPTAINER_WORKSPACE_ROOT="${TMPDIR:-/tmp}/apptainer-workspaces"
-
-# Verify Apptainer is available
-apptainer version
-```
-
-Slurm scripts source `swe_scripts/apptainer_runtime.inc.sh` automatically. Submit from the repo root:
+**Local Docker** (GPU machine and Docker daemon on the same host):
 
 ```bash
-sbatch swe_scripts/mgm.slurm
+export ENABLE_REMOTE_DOCKER=0
 ```
 
-SWE-bench and Polyglot images are pulled or built with `apptainer pull` / `apptainer build` during evaluation as needed.
+**Remote Docker via SSH** (typical on HPC compute nodes without a local daemon). Slurm scripts forward the remote host's Docker socket and reverse-tunnel vLLM so containers can reach the LLM:
+
+```bash
+export ENABLE_REMOTE_DOCKER=1
+export REMOTE_DOCKER_USER=<your-ssh-user>
+export REMOTE_DOCKER_HOST=<your-docker-host>
+export REMOTE_DOCKER_SOCKET=/tmp/docker-remote.sock
+```
+
+| Variable | Purpose |
+|----------|---------|
+| `ENABLE_REMOTE_DOCKER` | `1` = SSH tunnel to remote Docker; `0` = local daemon |
+| `REMOTE_DOCKER_USER` | SSH user on **your** Docker host |
+| `REMOTE_DOCKER_HOST` | IP or hostname of **your** Docker host |
+| `REMOTE_DOCKER_SOCKET` | Local path for the forwarded Docker socket |
+| `REMOTE_DOCKER_PASSWORD` | Optional password auth via `sshpass` |
+
+Example Slurm submission with your own Docker host:
+
+```bash
+REMOTE_DOCKER_USER=ubuntu REMOTE_DOCKER_HOST=your.vm.example.com sbatch swe_scripts/mgm.slurm
+```
+
+SWE-bench and Polyglot images are pulled or built automatically during evaluation as needed.
 
 ### 3. Edit configuration
 
@@ -271,7 +284,7 @@ python scripts/draw_hgm_tree.py \
 
 ## Experimental Results
 
-Example figures from completed MGM/HGM runs are in [`docs/images/`](docs/images/). Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
+Example figures from completed MGM/HGM runs are in [`docs/assets/images/`](docs/assets/images/). Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
 
 ### Polyglot: accuracy by language (full 225-task eval)
 
@@ -287,20 +300,7 @@ After running `eval_full_polyglot.slurm` on your chosen node, aggregate accuracy
 | Python | 33 / 34 |
 | Rust | 27 / 30 |
 
-![Polyglot accuracy by language](docs/images/polyglot_accuracy_by_language.png)
-
-### Evolution trees: HGM vs MGM
-
-**HGM baseline** (strategy A only):
-
-![HGM evolution tree](docs/images/hgm_tree_hgm_polyglot.png)
-
-**MGM** (A:B:C = 0.1:0.45:0.45). Edge colors encode strategy: red = Clonal (A), orange = Reaction-norm (B), purple = Cross-lineage (C). Node color = accuracy; ★ marks full-eval nodes.
-
-![MGM evolution tree](docs/images/hgm_tree_mgm_polyglot.png)
-
-Generate your own tree plot with `scripts/draw_hgm_tree.py --run-dir <your_run_dir>`.
-
+![Polyglot accuracy by language](docs/assets/images/polyglot_accuracy_by_language.png)
 
 ### SWE-bench (60-task subset)
 
@@ -325,7 +325,7 @@ MendelGM/
 ├── prompts/                # Self-improvement prompt templates
 ├── utils/                  # Docker, git, eval helpers
 ├── SWEbench_Pro/           # SWE-bench Pro evaluation tools (separate benchmark)
-├── docs/images/            # Result figures for this README
+├── docs/assets/images/     # Result figures for this README / project page
 ├── output_mgm/             # SWE-bench run artifacts (gitignored)
 └── output_polyglot/        # Polyglot run artifacts (gitignored)
 ```
@@ -384,3 +384,21 @@ Open a GitHub issue or pull request with your findings, or contact the maintaine
 ## Acknowledgements
 
 This codebase is adapted from the [DGM](https://github.com/jennyzzt/dgm) and [HGM](https://github.com/metauto-ai/HGM) self-improving agent framework. Polyglot benchmark harness follows the [polyglot-benchmark](https://github.com/Aider-AI/polyglot-benchmark) format.
+
+---
+
+## Citation
+
+If you find MGM useful in your research, please cite:
+
+```bibtex
+@misc{liu2026mendelgodelmachinerecursive,
+      title={Mendel G\"odel Machine: Recursive Self-Improving Coding Agents via Comparative Evolution}, 
+      author={Changzhi Liu and Yilun Liu and Sikuan Yan and Volker Tresp and Yunpu Ma},
+      year={2026},
+      eprint={2608.07645},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.07645}, 
+}
+```
