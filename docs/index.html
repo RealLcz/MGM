@@ -602,6 +602,8 @@ footer{
   font-size:13px;line-height:1.6;margin:0;
 }
 .foot-note .fn-mark{text-align:right;user-select:none;}
+.foot-note a{color:var(--leaf-bright);text-decoration:none;border-bottom:1px solid rgba(61,166,106,.4);}
+.foot-note a:hover{color:var(--white);border-bottom-color:var(--white);}
 
 @media (max-width:900px){
   .hook-stats,.ops{grid-template-columns:1fr;}
@@ -1134,6 +1136,7 @@ footer{
       <p class="foot-note"><span class="fn-mark">*</span><span>This work is distributed under the standard arXiv.org perpetual, non-exclusive license; this grants the public the right to access and download the manuscript, but strictly forbids unauthorized third-party redistribution, modification, or commercial reuse without explicit author permission.</span></p>
       <p class="foot-note"><span class="fn-mark">**</span><span>As other RSI studies, this work inherits foundational risks from latent biases and insecure coding patterns in the underlying LLMs, which are compounded by the persistent safety and dual-use threats of self-modifying agents. To mitigate these vulnerabilities, all execution and self-modification processes are strictly confined to isolated, network-restricted, read-only containers. Any deployment beyond these sandboxed environments mandates rigorous, task-specific safety audits.</span></p>
       <p class="foot-note"><span class="fn-mark">***</span><span>The authors gratefully acknowledge the scientific support and HPC resources provided by the hessian.AI Service Center (funded by the Federal Ministry of Research, Technology and Space, BMFTR, grant no.~16IS22091), the hessian.AI Innovation Lab (funded by the Hessian Ministry for Digital Strategy and Innovation, grant no.~S-DIW04/0013/003), and the Karlsruhe Institute of Technology National High Performance Computing Center (NHR@KIT) under the NHR projects 22560, and 24767. The HoreKa supercomputer at NHR@KIT is funded by the Ministry of Science, Research and the Arts Baden-W\"urttemberg and by the Federal Ministry of Education and Research of Germany. This work also receives support from the Munich Center for Machine Learning (MCML) and the Program of China Scholarship Council (Grant No.202508080292). The funding bodies had no role in the design of methodology and experiments, the analysis and interpretation of results, the writing of manuscript, or the development of this website.</span></p>
+      <p class="foot-note"><span class="fn-mark">†</span><span>Presentation slides for this work are available as an <a href="slides/index.zh.html">interactive deck</a>, which opens in Chinese and links to an English version.</span></p>
     </div>
   </div>
 </footer>

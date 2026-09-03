@@ -388,7 +388,7 @@
 
   function ensureWorker() {
     if (worker) return worker;
-    worker = new Worker('assets/sim-panel-worker.js');
+    worker = new Worker('../assets/sim-panel-worker.js');
     worker.onmessage = (ev) => {
       const msg = ev.data || {};
       if (msg.id !== runToken) return;

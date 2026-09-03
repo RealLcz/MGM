@@ -168,7 +168,7 @@
 
     let data;
     try {
-      const res = await fetch("assets/tree_mgm_web.json");
+      const res = await fetch("../assets/tree_mgm_web.json");
       if (!res.ok) throw new Error("load failed");
       data = await res.json();
     } catch (err) {
