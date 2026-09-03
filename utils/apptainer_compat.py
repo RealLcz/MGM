@@ -1,9 +1,8 @@
-"""
-docker-py compatible Apptainer client.
+"""Docker-py compatible client implemented with Apptainer.
 
-Keeps the docker-py call shape (images.pull / containers.create / exec_run /
-put_archive / …) while backing operations with Apptainer SIF images and
-writable sandboxes instead of a Docker daemon.
+Maps docker-py container workflows to apptainer exec/run with bind mounts.
+Persistent containers are simulated via workspace directories and optional
+apptainer instances.
 """
 
 from __future__ import annotations
@@ -16,447 +15,635 @@ import shlex
 import shutil
 import subprocess
 import tarfile
+import tempfile
 import threading
 import time
 import uuid
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
-from utils import apptainer_errors as errors
+from utils import apptainer_errors as container_errors
+from utils.fs_copy import copytree_for_build
+
 
 APPTAINER_BIN = os.environ.get("APPTAINER_BIN", "apptainer")
+WORKSPACE_ROOT = Path(
+    os.environ.get(
+        "APPTAINER_WORKSPACE_ROOT",
+        str(Path(os.environ.get("TMPDIR", "/tmp")) / "apptainer-workspaces"),
+    )
+)
 GHCR_EPOCH_PREFIX = os.environ.get(
-    "GHCR_EPOCH_PREFIX", "ghcr.io/epoch-research"
+    "SWE_GHCR_EPOCH_PREFIX", "ghcr.io/epoch-research"
 )
-USE_HOST_NETWORK = os.environ.get("APPTAINER_USE_HOST_NETWORK", "1") not in (
-    "0",
-    "false",
-    "False",
-)
-
-_path_locks: Dict[str, threading.Lock] = {}
-_path_locks_guard = threading.Lock()
+USE_FAKEROOT_BUILD = os.environ.get("APPTAINER_BUILD_FAKEROOT", "1") == "1"
+USE_NV = os.environ.get("APPTAINER_NV", "0") == "1"
+USE_HOST_NETWORK = os.environ.get("APPTAINER_USE_HOST_NETWORK", "0") == "1"
 
 
-def get_container_api_timeout() -> int:
-    """Timeout (seconds) for Apptainer subprocesses."""
-    return max(
-        60,
-        int(
-            os.environ.get(
-                "APPTAINER_API_TIMEOUT",
-                os.environ.get("DOCKER_API_TIMEOUT", "600"),
-            )
-        ),
+def get_image_dir() -> Path:
+    """Resolve Apptainer SIF storage (matches swe_scripts/apptainer_runtime.inc.sh)."""
+    if os.environ.get("APPTAINER_IMAGE_DIR"):
+        return Path(os.environ["APPTAINER_IMAGE_DIR"])
+    hf_home = Path(os.environ.get("HF_HOME", Path.home()))
+    candidates = [
+        hf_home / "apptainer_images",
+        hf_home / ".cache" / "huggingface" / "apptainer_images",
+        Path.home() / ".cache" / "huggingface" / "apptainer_images",
+        Path.home() / ".apptainer" / "images",
+    ]
+    for candidate in candidates:
+        if candidate.is_dir() and any(candidate.glob("*.sif")):
+            return candidate
+    return hf_home / "apptainer_images"
+
+
+def _candidate_image_dirs() -> List[Path]:
+    dirs: List[Path] = []
+    seen: set[str] = set()
+    for candidate in [
+        get_image_dir(),
+        Path(os.environ.get("APPTAINER_IMAGE_DIR", "")),
+        Path.home() / ".cache" / "huggingface" / "apptainer_images",
+        Path.home() / ".apptainer" / "images",
+    ]:
+        if not str(candidate) or str(candidate) in seen:
+            continue
+        seen.add(str(candidate))
+        if candidate.is_dir():
+            dirs.append(candidate)
+    return dirs
+
+_PULL_LOCKS: Dict[str, threading.Lock] = {}
+_PULL_LOCKS_GUARD = threading.Lock()
+
+
+def _lock_for_path(path: Path) -> threading.Lock:
+    key = str(path)
+    with _PULL_LOCKS_GUARD:
+        if key not in _PULL_LOCKS:
+            _PULL_LOCKS[key] = threading.Lock()
+        return _PULL_LOCKS[key]
+
+
+def _run_apptainer(
+    args: List[str],
+    timeout: Optional[int] = None,
+    check: bool = True,
+) -> subprocess.CompletedProcess:
+    cmd = [APPTAINER_BIN] + args
+    return subprocess.run(
+        cmd,
+        capture_output=True,
+        text=False,
+        timeout=timeout,
+        check=check,
     )
 
 
-def get_image_dir(*, ensure: bool = False) -> Path:
-    path = Path(
-        os.environ.get(
-            "APPTAINER_IMAGE_DIR",
-            os.path.expanduser("~/.mendelgm/images"),
-        )
-    )
-    if ensure:
-        path.mkdir(parents=True, exist_ok=True)
-    return path
+def _sanitize_tag(image_ref: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", image_ref)
 
 
-def get_workspace_root(*, ensure: bool = False) -> Path:
-    path = Path(
-        os.environ.get(
-            "APPTAINER_WORKSPACE_ROOT",
-            "/tmp/mendelgm-workspaces",
-        )
-    )
-    if ensure:
-        path.mkdir(parents=True, exist_ok=True)
-    return path
+def _split_image_ref(image_ref: str) -> Tuple[str, str]:
+    if ":" in image_ref:
+        repo, tag = image_ref.rsplit(":", 1)
+        return repo, tag
+    return image_ref, "latest"
 
 
-def split_image_ref(image_ref: str) -> tuple[str, str]:
-    ref = image_ref.strip()
-    if ref.startswith("docker://"):
-        ref = ref[len("docker://") :]
-    # tag is after the last ':' that follows the last '/'
-    if ":" in ref:
-        slash = ref.rfind("/")
-        colon = ref.rfind(":")
-        if colon > slash:
-            return ref[:colon], ref[colon + 1 :]
-    return ref, "latest"
-
-
-def sanitize_tag(value: str) -> str:
-    return re.sub(r"[^A-Za-z0-9._-]+", "_", value)
-
-
-def _sif_path_for_tag(
-    image_ref: str, image_dir: Optional[Path] = None
-) -> Path:
-    repo, tag = split_image_ref(image_ref)
-    safe = sanitize_tag(f"{repo}_{tag}")
+def _sif_path_for_tag(image_ref: str, image_dir: Optional[Path] = None) -> Path:
+    repo, tag = _split_image_ref(image_ref)
+    safe = _sanitize_tag(f"{repo}_{tag}")
     return (image_dir or get_image_dir()) / f"{safe}.sif"
 
 
-def _meta_path_for_sif(sif: Path) -> Path:
-    return sif.with_suffix(".sif.meta.json")
+def _qualify_docker_image(image_ref: str) -> str:
+    image_ref = image_ref.strip()
+    if image_ref.startswith("docker://"):
+        return image_ref.split("://", 1)[1]
+    if "/" not in image_ref:
+        return f"docker.io/library/{image_ref}"
+    registry = image_ref.split("/", 1)[0]
+    if "." not in registry and ":" not in registry:
+        return f"docker.io/{image_ref}"
+    return image_ref
+
+
+def _parse_dockerfile_instructions(
+    dockerfile_text: str,
+) -> Tuple[Optional[str], List[tuple[str, str]], List[str], List[str]]:
+    """Parse Dockerfile into FROM ref, COPY steps, ENV lines, and RUN shell commands."""
+    from_ref: Optional[str] = None
+    copy_steps: List[tuple[str, str]] = []
+    env_lines: List[str] = []
+    run_lines: List[str] = []
+
+    physical_lines = dockerfile_text.splitlines()
+    idx = 0
+    while idx < len(physical_lines):
+        raw = physical_lines[idx]
+        idx += 1
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        parts = stripped.split(None, 1)
+        instr = parts[0].upper()
+        payload = parts[1] if len(parts) > 1 else ""
+        while payload.endswith("\\") and idx < len(physical_lines):
+            next_line = physical_lines[idx].strip()
+            idx += 1
+            if next_line.startswith("#"):
+                continue
+            payload = payload[:-1].rstrip() + " " + next_line
+
+        if instr == "FROM" and from_ref is None:
+            from_ref = payload.strip()
+            if "--platform=" in from_ref:
+                from_ref = from_ref.split(None, 1)[1]
+            continue
+        if instr == "COPY":
+            copy_parts = shlex.split(payload)
+            if len(copy_parts) >= 2:
+                copy_steps.append((copy_parts[0], copy_parts[1]))
+            continue
+        if instr == "ENV":
+            env_lines.append(payload.strip())
+            continue
+        if instr == "ADD":
+            add_parts = payload.split(None, 1)
+            if len(add_parts) == 2 and add_parts[0].startswith("http"):
+                run_lines.append(f'curl -fsSL "{add_parts[0]}" -o {add_parts[1]}')
+            continue
+        if instr == "RUN":
+            run_lines.append(payload.strip())
+            continue
+        if instr == "WORKDIR":
+            workdir = payload.strip()
+            run_lines.append(f"mkdir -p {workdir} && cd {workdir}")
+
+    return from_ref, copy_steps, env_lines, run_lines
+
+
+def _resolve_copy_dest(sandbox: Path, build_context: Path, src: str, dest: str) -> Path:
+    src_path = build_context / src
+    dest = dest.strip()
+    if dest.endswith("/") or dest.endswith("/."):
+        return sandbox / dest.lstrip("/").rstrip("/") / src_path.name
+    dest_path = sandbox / dest.lstrip("/")
+    if dest_path.exists() and dest_path.is_dir():
+        return dest_path / src_path.name
+    return dest_path
+
+
+def _dockerfile_post_script(dockerfile_text: str) -> str:
+    """Convert a simple Dockerfile (FROM/RUN/ENV/ADD http) into a bash post script."""
+    _, _, env_lines, run_lines = _parse_dockerfile_instructions(dockerfile_text)
+    lines = ["#!/bin/bash", "set -euxo pipefail"]
+    for env in env_lines:
+        if "=" in env:
+            key, val = env.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            lines.append(f'export {key}="{val}"')
+    lines.extend(run_lines)
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _dockerfile_env_script(env_lines: List[str]) -> str:
+    """Persist Dockerfile ENV lines into the Apptainer runtime environment."""
+    lines = ["#!/bin/sh"]
+    for env in env_lines:
+        if "=" not in env:
+            continue
+        key, val = env.split("=", 1)
+        key = key.strip()
+        val = val.strip().strip('"').strip("'")
+        escaped = val.replace("\\", "\\\\").replace('"', '\\"').replace("`", "\\`")
+        lines.append(f'export {key}="{escaped}"')
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _build_sif_from_dockerfile(
+    path: Path,
+    tag: str,
+    sif: Path,
+    timeout: Optional[int] = None,
+) -> List[dict]:
+    dockerfile_text = (path / "Dockerfile").read_text(encoding="utf-8")
+    from_ref, copy_steps, env_lines, run_lines = _parse_dockerfile_instructions(
+        dockerfile_text
+    )
+
+    if not from_ref:
+        raise container_errors.BuildError(
+            f"No FROM line in Dockerfile under {path}", "missing FROM"
+        )
+
+    logs: List[dict] = []
+    sandbox = Path(
+        tempfile.mkdtemp(
+            prefix="apptainer-dockerfile-",
+            dir=os.environ.get("TMPDIR", "/tmp"),
+        )
+    )
+    try:
+        local_parent = _sif_path_for_tag(from_ref)
+        if local_parent.exists():
+            logs.append({"stream": f"Building sandbox from local image {from_ref}\n"})
+            proc = _run_apptainer(
+                ["build", "--force", "--sandbox", str(sandbox), str(local_parent)],
+                timeout=timeout,
+                check=False,
+            )
+        else:
+            base_uri = f"docker://{_qualify_docker_image(from_ref)}"
+            logs.append({"stream": f"Building sandbox from {base_uri}\n"})
+            proc = _run_apptainer(
+                ["build", "--force", "--sandbox", str(sandbox), base_uri],
+                timeout=timeout,
+                check=False,
+            )
+        logs.append(
+            {
+                "stream": (proc.stdout or proc.stderr or b"").decode(
+                    "utf-8", errors="replace"
+                )
+            }
+        )
+        if proc.returncode != 0:
+            raise container_errors.BuildError(
+                f"apptainer sandbox build failed for {tag}",
+                logs[-1]["stream"],
+            )
+
+        for src, dest in copy_steps:
+            src_path = path / src
+            dest_path = _resolve_copy_dest(sandbox, path, src, dest)
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            if src_path.is_dir():
+                copytree_for_build(src_path, dest_path)
+            else:
+                shutil.copy2(src_path, dest_path)
+            logs.append({"stream": f"Copied {src_path} -> {dest_path}\n"})
+
+        post_lines = [
+            "#!/bin/bash",
+            "set -euxo pipefail",
+            "export HOME=/root",
+            "export CONDA_ENVS_PATH=/opt/miniconda3/envs",
+            "export CONDA_PKGS_DIRS=/opt/miniconda3/pkgs",
+        ]
+        for env in env_lines:
+            if "=" in env:
+                key, val = env.split("=", 1)
+                post_lines.append(
+                    f'export {key.strip()}="{val.strip().strip(chr(34)).strip(chr(39))}"'
+                )
+        post_lines.extend(run_lines)
+        post_lines.append("")
+        post_path = sandbox / "dockerfile-post.sh"
+        post_path.write_text("\n".join(post_lines), encoding="utf-8")
+        if run_lines or env_lines:
+            logs.append({"stream": "Running Dockerfile post script in sandbox\n"})
+            exec_args = [
+                "exec",
+                "--writable",
+                str(sandbox),
+                "bash",
+                "/dockerfile-post.sh",
+            ]
+            proc = _run_apptainer(exec_args, timeout=timeout, check=False)
+            logs.append(
+                {
+                    "stream": (proc.stdout or proc.stderr or b"").decode(
+                        "utf-8", errors="replace"
+                    )
+                }
+            )
+            if proc.returncode != 0:
+                raise container_errors.BuildError(
+                    f"apptainer Dockerfile post script failed for {tag}",
+                    logs[-1]["stream"],
+                )
+
+        if env_lines:
+            env_dir = sandbox / ".singularity.d" / "env"
+            env_dir.mkdir(parents=True, exist_ok=True)
+            env_path = env_dir / "91-dockerfile-env.sh"
+            env_path.write_text(_dockerfile_env_script(env_lines), encoding="utf-8")
+            logs.append({"stream": f"Persisted Dockerfile ENV to {env_path}\n"})
+
+        build_args = ["build", "--force"]
+        if USE_FAKEROOT_BUILD:
+            build_args.append("--fakeroot")
+        build_args.extend([str(sif), str(sandbox)])
+        proc = subprocess.Popen(
+            [APPTAINER_BIN] + build_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            text = line.decode("utf-8", errors="replace")
+            logs.append({"stream": text})
+        if proc.wait() != 0:
+            raise container_errors.BuildError(
+                f"apptainer build failed for {tag}",
+                "".join(x["stream"] for x in logs),
+            )
+        return logs
+    finally:
+        shutil.rmtree(sandbox, ignore_errors=True)
 
 
 def _docker_uri_for_local_tag(image_ref: str) -> str:
-    repo, tag = split_image_ref(image_ref)
-    if (
-        repo.startswith("sweb.eval.")
-        or repo.startswith("sweb.base.")
-        or repo.startswith("sweb.env.")
-    ):
+    """Map local SWE-bench tags to registry URIs for apptainer pull."""
+    repo, tag = _split_image_ref(image_ref)
+    if repo.startswith("ghcr.io/") or repo.startswith("docker.io/"):
+        return f"docker://{repo}:{tag}"
+    if "/" in repo and not repo.startswith("sweb.") and not repo.startswith("swebench"):
+        return f"docker://{repo}:{tag}"
+    # sweb.eval.x86_64.instance_id -> ghcr.io/epoch-research/swe-bench.eval...
+    if repo.startswith("sweb.eval.") or repo.startswith("sweb.base.") or repo.startswith("sweb.env."):
         suffix = repo[len("sweb.") :]
         remote = f"{GHCR_EPOCH_PREFIX}/swe-bench.{suffix}:{tag}"
         return f"docker://{remote}"
     return f"docker://{repo}:{tag}"
 
 
-def _lock_for_path(path: Path) -> threading.Lock:
-    key = str(path.resolve()) if path.exists() else str(path)
-    with _path_locks_guard:
-        lock = _path_locks.setdefault(key, threading.Lock())
-    return lock
-
-
-def _run_apptainer(
-    args: List[str],
-    *,
-    timeout: Optional[int] = None,
-    check: bool = True,
-    cwd: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
-) -> subprocess.CompletedProcess:
-    cmd = [APPTAINER_BIN] + args
-    proc = subprocess.run(
-        cmd,
-        capture_output=True,
-        timeout=timeout,
-        cwd=cwd,
-        env=env,
-        check=False,
-    )
-    if check and proc.returncode != 0:
-        detail = (proc.stderr or proc.stdout or b"").decode(
-            "utf-8", errors="replace"
-        )
-        raise errors.APIError(
-            f"apptainer {' '.join(args)} failed (rc={proc.returncode}): {detail}"
-        )
-    return proc
-
-
-def _normalize_cmd(cmd: Union[str, List[str]]) -> List[str]:
-    if isinstance(cmd, str):
-        return ["/bin/sh", "-c", cmd]
-    return [str(c) for c in cmd]
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-# ---------------------------------------------------------------------------
-# Image model
-# ---------------------------------------------------------------------------
-
-
-class ApptainerImage:
-    def __init__(
-        self,
-        client: "ApptainerClient",
-        sif: Path,
-        tags: Optional[List[str]] = None,
-        image_id: Optional[str] = None,
-        attrs: Optional[Dict[str, Any]] = None,
-        parent_id: Optional[str] = None,
-    ) -> None:
-        self.client = client
-        self.sif = Path(sif)
-        self.tags = list(tags or [])
-        self.id = image_id or f"sha256:{self.sif.stem}"
-        self.attrs = attrs or {
-            "Created": _utc_now_iso(),
-            "Id": self.id,
-        }
-        self._parent_id = parent_id
-
-    def tag(self, repository: str, tag: str = "latest", force: bool = True) -> bool:
-        target_ref = f"{repository}:{tag}"
-        target = _sif_path_for_tag(target_ref, self.client.image_dir)
-        with _lock_for_path(target):
-            if target.exists() or target.is_symlink():
-                if not force:
-                    return False
-                target.unlink()
-            try:
-                os.link(self.sif, target)
-            except OSError:
-                shutil.copy2(self.sif, target)
-            tags = list({*self.tags, target_ref})
-            self.client._write_meta(
-                target,
-                tags=tags,
-                image_id=self.id,
-                created=self.attrs.get("Created"),
-                parent_id=self._parent_id,
-            )
-            self.tags = tags
-        return True
-
-    def history(self) -> List[Dict[str, Any]]:
-        layers = [{"Id": self.id, "Tags": self.tags}]
-        parent = self._parent_id or self.attrs.get("Parent")
-        if parent:
-            layers.append({"Id": parent})
-        return layers
-
-    def reload(self) -> None:
-        meta = self.client._read_meta(self.sif)
-        if meta:
-            self.tags = list(meta.get("tags") or self.tags)
-            self.id = meta.get("id") or self.id
-            self.attrs = {
-                "Created": meta.get("created", self.attrs.get("Created")),
-                "Id": self.id,
-                "Parent": meta.get("parent_id"),
-            }
-            self._parent_id = meta.get("parent_id")
-
-
-# ---------------------------------------------------------------------------
-# Exec result + low-level API shim
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class ExecResult:
-    exit_code: Optional[int]
-    output: bytes
+    exit_code: int = 0
+    output: Union[bytes, Iterator[bytes]] = b""
+
+    def decode(self, encoding: str = "utf-8", errors: str = "replace") -> str:
+        if isinstance(self.output, bytes):
+            return self.output.decode(encoding, errors)
+        return b"".join(self.output).decode(encoding, errors)
 
 
 @dataclass
-class _PendingExec:
-    container_id: str
-    cmd: Union[str, List[str]]
-    workdir: Optional[str] = None
-    environment: Optional[Dict[str, str]] = None
-    user: Optional[str] = None
-    process: Optional[subprocess.Popen] = None
-    output: bytes = b""
-    exit_code: Optional[int] = None
-    timed_out: bool = False
+class ApptainerImage:
+    tags: List[str] = field(default_factory=list)
+    id: str = ""
+    attrs: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def short_id(self) -> str:
+        return self.id[:12] if self.id else ""
 
 
-class ApptainerAPI:
-    """Minimal docker.APIClient-compatible surface used by MendelGM."""
-
+class ApptainerImagesAPI:
     def __init__(self, client: "ApptainerClient") -> None:
         self._client = client
-        self._execs: Dict[str, _PendingExec] = {}
-        self._execs_lock = threading.Lock()
+
+    def get(self, name: str) -> ApptainerImage:
+        try:
+            sif = self._client.images.resolve_sif(name)
+            return ApptainerImage(tags=[name], id=sif.stem, attrs={"Created": ""})
+        except container_errors.ImageNotFound:
+            if name.startswith("sweb.env."):
+                return ApptainerImage(
+                    tags=[name], id=name.replace(":", "__"), attrs={"Created": ""}
+                )
+            raise
+
+    def pull(self, repository: str, platform: Optional[str] = None) -> ApptainerImage:
+        sif = self._client.images._pull_to_sif(repository, platform=platform)
+        return ApptainerImage(tags=[repository], id=sif.stem)
+
+    def remove(self, image_id: str, force: bool = False) -> None:
+        if "sweb.eval." in image_id:
+            return
+        sif = _sif_path_for_tag(image_id)
+        if sif.exists():
+            sif.unlink()
+        meta = sif.with_suffix(".json")
+        if meta.exists():
+            meta.unlink()
+
+    def list(self, all: bool = True) -> List[ApptainerImage]:
+        images: List[ApptainerImage] = []
+        for image_dir in _candidate_image_dirs():
+            for sif in image_dir.glob("*.sif"):
+                meta_path = sif.with_suffix(".json")
+                tags: List[str] = []
+                if meta_path.exists():
+                    try:
+                        meta = json.loads(meta_path.read_text())
+                        tags = meta.get("tags", [])
+                    except Exception:
+                        pass
+                images.append(ApptainerImage(tags=tags, id=sif.stem))
+        return images
+
+
+class ApptainerImages:
+    def __init__(self, client: "ApptainerClient") -> None:
+        self._client = client
+
+    def get(self, name: str) -> ApptainerImage:
+        return ApptainerImagesAPI(self._client).get(name)
+
+    def pull(self, repository: str, platform: Optional[str] = None) -> ApptainerImage:
+        return ApptainerImagesAPI(self._client).pull(repository, platform=platform)
+
+    def remove(self, image_id: str, force: bool = False) -> None:
+        ApptainerImagesAPI(self._client).remove(image_id, force=force)
+
+    def list(self, all: bool = True) -> List[ApptainerImage]:
+        return ApptainerImagesAPI(self._client).list(all=all)
+
+    def resolve_sif(self, image_ref: str) -> Path:
+        for image_dir in _candidate_image_dirs():
+            sif = _sif_path_for_tag(image_ref, image_dir)
+            if sif.exists():
+                return sif
+        alias = self._resolve_multilingual_sif(image_ref)
+        if alias is not None:
+            return alias
+        alias = self._resolve_sif_by_instance_suffix(image_ref)
+        if alias is not None:
+            return alias
+        raise container_errors.ImageNotFound(f"Apptainer image not found: {image_ref}")
+
+    def _resolve_multilingual_sif(self, image_ref: str) -> Optional[Path]:
+        """Map SWE-bench Multilingual instance keys to pulled SIF filenames.
+
+        make_test_spec() yields tags like ``sweb.eval.x86_64.apache__druid-14092:latest``
+        while local Apptainer images use ``apache_1776_druid-14092`` in the filename/tag.
+        """
+        if not image_ref.startswith("sweb.eval.x86_64."):
+            return None
+        instance_part = image_ref.split("sweb.eval.x86_64.", 1)[-1].split(":", 1)[0]
+        if "__" not in instance_part:
+            return None
+        org, rest = instance_part.split("__", 1)
+        ml_suffix = f"{org}_1776_{rest}"
+        filename_patterns = [
+            f"swebench_sweb.eval.x86_64.{ml_suffix}_latest.sif",
+            f"sweb.eval.x86_64.{ml_suffix}_latest.sif",
+        ]
+        for image_dir in _candidate_image_dirs():
+            for pattern in filename_patterns:
+                candidate = image_dir / pattern
+                if candidate.exists():
+                    return candidate
+            for meta_path in image_dir.glob("*.json"):
+                try:
+                    tags = json.loads(meta_path.read_text()).get("tags", [])
+                except Exception:
+                    continue
+                if not any(ml_suffix in tag for tag in tags):
+                    continue
+                candidate = meta_path.with_suffix(".sif")
+                if candidate.exists():
+                    return candidate
+        return None
+
+    def _resolve_sif_by_instance_suffix(self, image_ref: str) -> Optional[Path]:
+        """Find a pulled SIF when SWE-bench namespace aliases rename the image tag."""
+        match = re.search(r"([\w]+-\d+)(?::latest)?$", image_ref.split("/")[-1])
+        if not match:
+            return None
+        suffix = match.group(1)
+        for image_dir in _candidate_image_dirs():
+            for meta_path in image_dir.glob("*.json"):
+                try:
+                    tags = json.loads(meta_path.read_text()).get("tags", [])
+                except Exception:
+                    continue
+                if not any(suffix in tag for tag in tags):
+                    continue
+                candidate = meta_path.with_suffix(".sif")
+                if candidate.exists():
+                    return candidate
+        return None
+
+    def ensure(
+        self,
+        name: str,
+        pull: bool = True,
+        platform: Optional[str] = None,
+    ) -> Path:
+        try:
+            return self.resolve_sif(name)
+        except container_errors.ImageNotFound:
+            if not pull:
+                raise
+        self.pull(name, platform=platform)
+        return self.resolve_sif(name)
+
+    def _pull_to_sif(self, image_ref: str, platform: Optional[str] = None) -> Path:
+        image_dir = get_image_dir()
+        image_dir.mkdir(parents=True, exist_ok=True)
+        sif = _sif_path_for_tag(image_ref, image_dir)
+        if sif.exists():
+            return sif
+        with _lock_for_path(sif):
+            if sif.exists():
+                return sif
+            tmp = sif.with_suffix(".sif.tmp")
+            if tmp.exists():
+                tmp.unlink()
+            uri = _docker_uri_for_local_tag(image_ref)
+            pull_args = ["pull", str(tmp), uri]
+            if platform:
+                pull_args = ["pull", "--platform", platform, str(tmp), uri]
+            proc = _run_apptainer(pull_args, timeout=self._client.timeout, check=False)
+            if proc.returncode != 0:
+                err = (proc.stderr or proc.stdout or b"").decode("utf-8", errors="replace")
+                if tmp.exists():
+                    tmp.unlink()
+                raise container_errors.APIError(f"apptainer pull failed: {err}")
+            tmp.rename(sif)
+            tags = [image_ref]
+            if image_ref.startswith("sweb.eval.x86_64.") and "__" in image_ref:
+                try:
+                    from utils.swebench_compat import make_test_spec
+                    from datasets import load_dataset
+
+                    instance_part = image_ref.split("sweb.eval.x86_64.", 1)[-1].split(
+                        ":", 1
+                    )[0]
+                    rows = load_dataset("princeton-nlp/SWE-bench_Verified")["test"]
+                    instance = next(
+                        (row for row in rows if row["instance_id"] == instance_part),
+                        None,
+                    )
+                    if instance is not None:
+                        ns_key = make_test_spec(
+                            instance, namespace="swebench"
+                        ).instance_image_key
+                        tags.append(ns_key)
+                except Exception:
+                    pass
+            self._write_meta(sif, tags)
+        return sif
 
     def build(
         self,
-        path: Optional[str] = None,
+        path: Union[str, Path] = ".",
         tag: Optional[str] = None,
-        dockerfile: str = "Dockerfile",
         rm: bool = True,
-        forcerm: bool = True,
-        decode: bool = True,
-        platform: Optional[str] = None,
         nocache: bool = False,
         **kwargs: Any,
-    ) -> Iterator[Dict[str, Any]]:
-        build_path = Path(path or ".")
-        df_name = dockerfile
-        df_path = build_path / df_name if not Path(df_name).is_absolute() else Path(df_name)
-        if not df_path.exists():
-            yield {
-                "errorDetail": {"message": f"Dockerfile not found: {df_path}"},
-                "error": f"Dockerfile not found: {df_path}",
-            }
-            return
+    ) -> Tuple[ApptainerImage, List[dict]]:
+        path = Path(path).resolve()
+        if not tag:
+            tag = path.name
+        image_dir = get_image_dir()
+        image_dir.mkdir(parents=True, exist_ok=True)
+        sif = _sif_path_for_tag(tag, image_dir)
+        if sif.exists() and not nocache:
+            return ApptainerImage(tags=[tag], id=sif.stem), []
+        if sif.exists() and nocache:
+            sif.unlink()
 
-        image_ref = tag or build_path.name
-        sif = _sif_path_for_tag(image_ref, self._client.image_dir)
-        tmp = sif.with_suffix(".sif.tmp")
-        parent_id = self._infer_parent_from_dockerfile(df_path)
-
-        build_args = ["build"]
-        if nocache:
-            build_args.append("--force")
-        # Prefer fakeroot when available; fall back without it.
-        build_args.extend([str(tmp), str(df_path)])
-
-        yield {"stream": f"Building {image_ref} via apptainer build...\n"}
-        try:
-            with _lock_for_path(sif):
-                if tmp.exists():
-                    tmp.unlink()
-                proc = subprocess.Popen(
-                    [APPTAINER_BIN] + build_args,
-                    cwd=str(build_path),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                )
-                assert proc.stdout is not None
-                buildlog = ""
-                for line in proc.stdout:
-                    buildlog += line
-                    yield {"stream": line}
-                rc = proc.wait(timeout=self._client.timeout)
-                if rc != 0:
-                    yield {
-                        "errorDetail": {
-                            "message": f"apptainer build failed (rc={rc})"
-                        },
-                        "error": f"apptainer build failed (rc={rc})",
-                    }
-                    raise errors.BuildError(
-                        f"apptainer build failed (rc={rc})", buildlog
-                    )
-                if sif.exists() or sif.is_symlink():
-                    sif.unlink()
-                tmp.rename(sif)
-                self._client._write_meta(
-                    sif,
-                    tags=[image_ref if ":" in image_ref else f"{image_ref}:latest"],
-                    parent_id=parent_id,
-                )
-            yield {"stream": "Image built successfully\n"}
-            yield {"aux": {"ID": f"sha256:{sif.stem}"}}
-        except errors.BuildError:
-            raise
-        except Exception as e:
-            yield {"errorDetail": {"message": str(e)}, "error": str(e)}
-            raise errors.BuildError(str(e), "") from e
-
-    def _infer_parent_from_dockerfile(self, df_path: Path) -> Optional[str]:
-        try:
-            for line in df_path.read_text(errors="replace").splitlines():
-                stripped = line.strip()
-                if stripped.upper().startswith("FROM "):
-                    base = stripped.split(None, 1)[1].split()[0]
-                    if base.upper() == "scratch":
-                        return None
-                    try:
-                        img = self._client.images.get(base)
-                        return img.id
-                    except errors.ImageNotFound:
-                        return None
-        except OSError:
-            return None
-        return None
-
-    def exec_create(
-        self,
-        container: str,
-        cmd: Union[str, List[str]],
-        workdir: Optional[str] = None,
-        environment: Optional[Dict[str, str]] = None,
-        user: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Dict[str, str]:
-        exec_id = uuid.uuid4().hex
-        pending = _PendingExec(
-            container_id=container,
-            cmd=cmd,
-            workdir=workdir,
-            environment=environment,
-            user=user,
-        )
-        with self._execs_lock:
-            self._execs[exec_id] = pending
-        return {"Id": exec_id}
-
-    def exec_start(
-        self, exec_id: str, stream: bool = False, **kwargs: Any
-    ) -> Union[bytes, Iterator[bytes]]:
-        with self._execs_lock:
-            pending = self._execs.get(exec_id)
-        if pending is None:
-            raise errors.NotFound(f"Exec {exec_id} not found")
-
-        container = self._client.containers.get(pending.container_id)
-        run_cmd = _normalize_cmd(pending.cmd)
-        if pending.user:
-            run_cmd = container._wrap_user_cmd(run_cmd, user=pending.user)
-
-        sandbox = container._writable_rootfs()
-        base = container._exec_base_args(
-            workdir=pending.workdir,
-            environment=pending.environment,
-            sandbox=sandbox,
-        )
-        full_cmd = [APPTAINER_BIN] + base + run_cmd
-
-        if not stream:
-            proc = subprocess.run(
-                full_cmd,
-                capture_output=True,
-                timeout=self._client.timeout,
+        dockerfile = path / "Dockerfile"
+        if not dockerfile.exists():
+            raise container_errors.BuildError(
+                f"No Dockerfile in {path}", "missing Dockerfile"
             )
-            pending.output = (proc.stdout or b"") + (proc.stderr or b"")
-            pending.exit_code = proc.returncode
-            return pending.output
 
-        def _gen() -> Iterator[bytes]:
+        dockerfile_text = dockerfile.read_text(encoding="utf-8")
+        if dockerfile_text.lstrip().upper().startswith("FROM"):
+            logs = _build_sif_from_dockerfile(
+                path, tag, sif, timeout=self._client.timeout
+            )
+        else:
+            build_args = ["build", "--force"]
+            if USE_FAKEROOT_BUILD:
+                build_args.append("--fakeroot")
+            build_args.extend([str(sif), str(dockerfile)])
+            logs = []
             proc = subprocess.Popen(
-                full_cmd,
+                [APPTAINER_BIN] + build_args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                cwd=str(path),
             )
-            pending.process = proc
             assert proc.stdout is not None
-            chunks: List[bytes] = []
-            for chunk in iter(lambda: proc.stdout.read(4096), b""):
-                chunks.append(chunk)
-                yield chunk
-            pending.exit_code = proc.wait()
-            pending.output = b"".join(chunks)
+            for line in proc.stdout:
+                text = line.decode("utf-8", errors="replace")
+                logs.append({"stream": text})
+            rc = proc.wait()
+            if rc != 0:
+                raise container_errors.BuildError(
+                    f"apptainer build failed for {tag}",
+                    "\n".join(x["stream"] for x in logs),
+                )
+        self._write_meta(sif, [tag])
+        return ApptainerImage(tags=[tag], id=sif.stem), logs
 
-        return _gen()
-
-    def exec_inspect(self, exec_id: str) -> Dict[str, Any]:
-        with self._execs_lock:
-            pending = self._execs.get(exec_id)
-        if pending is None:
-            raise errors.NotFound(f"Exec {exec_id} not found")
-        pid = 0
-        if pending.process is not None and pending.process.poll() is None:
-            pid = pending.process.pid or 0
-        return {
-            "Id": exec_id,
-            "Pid": pid,
-            "ExitCode": pending.exit_code,
-            "Running": pending.process is not None
-            and pending.process.poll() is None,
-        }
-
-    def inspect_container(self, container_id: str) -> Dict[str, Any]:
-        container = self._client.containers.get(container_id)
-        return {
-            "Id": container.id,
-            "Name": container.name,
-            "State": {
-                "Running": container._started and not container._removed,
-                "Pid": 0,
-            },
-        }
-
-
-# ---------------------------------------------------------------------------
-# Container
-# ---------------------------------------------------------------------------
+    def _write_meta(self, sif: Path, tags: List[str]) -> None:
+        meta = {"tags": tags, "sif": str(sif), "created": time.time()}
+        sif.with_suffix(".json").write_text(json.dumps(meta))
 
 
 class ApptainerContainer:
@@ -464,146 +651,147 @@ class ApptainerContainer:
         self,
         client: "ApptainerClient",
         image_ref: str,
-        name: Optional[str] = None,
+        name: str,
         user: Optional[str] = None,
         network_mode: Optional[str] = None,
-        command: Optional[Union[str, List[str]]] = None,
-        volumes: Optional[Dict[str, Any]] = None,
-        environment: Optional[Dict[str, str]] = None,
-        working_dir: Optional[str] = None,
-        **kwargs: Any,
+        platform: Optional[str] = None,
+        nano_cpus: Optional[int] = None,
+        cap_add: Optional[List[str]] = None,
+        entrypoint: Optional[str] = None,
+        command: Optional[List[str]] = None,
     ) -> None:
         self.client = client
         self.image_ref = image_ref
-        self.name = name or f"apptainer-{uuid.uuid4().hex[:12]}"
+        self.name = name
         self.id = f"apptainer-{uuid.uuid4().hex[:12]}"
         self._user = user
         self._network_mode = network_mode
-        self._command = command
-        self._environment = dict(environment or {})
-        self._working_dir = working_dir
-        self._workspace = get_workspace_root(ensure=True) / sanitize_tag(self.name)
+        self._platform = platform
+        self._workspace = WORKSPACE_ROOT / _sanitize_tag(name)
         self._workspace.mkdir(parents=True, exist_ok=True)
         self._binds: Dict[str, Path] = {}
         self._started = False
-        self._removed = False
-        self._sandbox: Optional[Path] = None
-        self._lock = threading.RLock()
-        self._parse_volumes(volumes)
-        # Ignore docker-only kwargs (nano_cpus, platform, detach, …)
-        _ = kwargs
+        self._instance_name: Optional[str] = None
+        self._lock = threading.Lock()
 
-    def _parse_volumes(self, volumes: Optional[Dict[str, Any]]) -> None:
-        if not volumes:
-            return
-        # docker-py style: {"/host": {"bind": "/container", "mode": "rw"}}
-        for host, spec in volumes.items():
-            if isinstance(spec, dict):
-                container_path = spec.get("bind") or spec.get("Bind")
-                if container_path:
-                    self._binds[str(container_path)] = Path(host)
-            elif isinstance(spec, str):
-                self._binds[spec] = Path(host)
+    def _host_path_for(self, container_path: str) -> Path:
+        container_path = container_path.rstrip("/") or "/"
+        if container_path in self._binds:
+            return self._binds[container_path]
+        host = self._workspace / container_path.lstrip("/")
+        host.mkdir(parents=True, exist_ok=True)
+        self._binds[container_path] = host
+        return host
+
+    def _host_path_for_file(self, container_path: str) -> Path:
+        """Bind a single file path (Apptainer cannot overlay bind /)."""
+        container_path = "/" + container_path.lstrip("/")
+        if container_path in self._binds:
+            return self._binds[container_path]
+        rel = container_path.lstrip("/").replace("/", "_")
+        host = self._workspace / "files" / rel
+        host.parent.mkdir(parents=True, exist_ok=True)
+        self._binds[container_path] = host
+        return host
 
     def _sif(self) -> Path:
-        sif = _sif_path_for_tag(self.image_ref, self.client.image_dir)
-        if not sif.exists():
-            # Also accept image_ref that already points at a .sif path
-            as_path = Path(self.image_ref)
-            if as_path.suffix == ".sif" and as_path.exists():
-                return as_path
-            raise errors.ImageNotFound(
-                f"Image not found: {self.image_ref} (expected {sif})"
-            )
-        return sif
+        return self.client.images.ensure(self.image_ref, pull=True)
 
-    def start(self) -> None:
-        self._started = True
-
-    def stop(self, timeout: int = 10) -> None:
-        self._started = False
-
-    def remove(self, force: bool = False) -> None:
-        with self._lock:
-            self._started = False
-            self._removed = True
-            # Drop from client registry
-            self.client.containers._forget(self)
-            sandbox = self._workspace / "rootfs"
-            if sandbox.exists():
-                shutil.rmtree(sandbox, ignore_errors=True)
-            # Keep workspace metadata lightly; remove whole workspace
-            shutil.rmtree(self._workspace, ignore_errors=True)
-            self._sandbox = None
+    def _sandbox_dir(self) -> Optional[Path]:
+        sandbox = self._workspace / "rootfs"
+        if sandbox.is_dir() and (sandbox / "bin").exists():
+            return sandbox
+        return None
 
     def _writable_rootfs(self) -> Path:
         """Extract image to a per-container writable sandbox (SIF rootfs is read-only)."""
-        with self._lock:
-            sandbox = self._workspace / "rootfs"
-            if self._sandbox and self._sandbox.exists():
-                return self._sandbox
-            if sandbox.exists() and any(sandbox.iterdir()):
-                self._sandbox = sandbox
-                return sandbox
-
-            sif = self._sif()
-            if sandbox.exists():
-                shutil.rmtree(sandbox, ignore_errors=True)
-            proc = _run_apptainer(
-                ["build", "--sandbox", str(sandbox), str(sif)],
-                timeout=self.client.timeout,
-                check=False,
-            )
-            if proc.returncode != 0 or not sandbox.exists():
-                detail = (proc.stderr or proc.stdout or b"").decode(
-                    "utf-8", errors="replace"
-                )
-                raise errors.APIError(
-                    f"Failed to create writable sandbox from {sif}: {detail}"
-                )
-            self._sandbox = sandbox
+        sandbox = self._sandbox_dir()
+        if sandbox is not None:
             return sandbox
+        sandbox = self._workspace / "rootfs"
+        sif = self._sif()
+        if sandbox.exists():
+            shutil.rmtree(sandbox, ignore_errors=True)
+        proc = _run_apptainer(
+            ["build", "--sandbox", str(sandbox), str(sif)],
+            timeout=self.client.timeout,
+            check=False,
+        )
+        if proc.returncode != 0:
+            err = (proc.stderr or proc.stdout or b"").decode("utf-8", errors="replace")
+            raise container_errors.APIError(f"apptainer sandbox build failed: {err}")
+        self._prepare_sandbox_bind_targets(sandbox)
+        return sandbox
+
+    def _prepare_sandbox_bind_targets(self, sandbox: Path) -> None:
+        """Writable sandboxes require bind destinations to exist in the rootfs."""
+        for cpath, host in self._binds.items():
+            rel = cpath.lstrip("/")
+            if not rel:
+                continue
+            target = sandbox / rel
+            if host.is_file():
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if not target.exists():
+                    target.touch()
+            else:
+                target.mkdir(parents=True, exist_ok=True)
 
     def _bind_args(self) -> List[str]:
         args: List[str] = []
-        for container_path, host_path in self._binds.items():
-            host_path.mkdir(parents=True, exist_ok=True)
-            args.extend(["--bind", f"{host_path}:{container_path}"])
+        for cpath, hpath in sorted(self._binds.items()):
+            args.extend(["--bind", f"{hpath}:{cpath}"])
+        extra = os.environ.get("APPTAINER_BINDPATH", "")
+        if extra:
+            for part in extra.split(","):
+                part = part.strip()
+                if part:
+                    args.extend(["--bind", part])
         return args
 
     def _exec_base_args(
         self,
         workdir: Optional[str] = None,
         environment: Optional[Dict[str, str]] = None,
-        sandbox: Optional[Path] = None,
     ) -> List[str]:
         args = ["exec", "--writable"]
-        if self._network_mode == "host" and USE_HOST_NETWORK:
+        if USE_NV:
+            args.append("--nv")
+        if self._network_mode == "none":
+            args.append("--network", "none")
+        elif self._network_mode == "host" and USE_HOST_NETWORK:
             args.extend(["--net", "--network", "host"])
         args.extend(self._bind_args())
-        pwd = workdir or self._working_dir
-        if pwd:
-            args.extend(["--pwd", pwd])
-        env = dict(self._environment)
-        if environment:
-            env.update(environment)
-        for key, val in env.items():
-            args.extend(["--env", f"{key}={val}"])
-        args.append(str(sandbox or self._writable_rootfs()))
+        if workdir:
+            args.extend(["--pwd", workdir])
+        for key, val in (environment or {}).items():
+            if val is not None:
+                args.extend(["--env", f"{key}={val}"])
+        args.append(str(self._writable_rootfs()))
         return args
 
-    def _wrap_user_cmd(
-        self, run_cmd: List[str], user: Optional[str] = None
-    ) -> List[str]:
-        effective = user if user is not None else self._user
-        if not effective or effective in ("root", "0"):
+    def _wrap_user_cmd(self, run_cmd: List[str]) -> List[str]:
+        """Apptainer exec has no --user; run non-root payloads via su inside the image."""
+        if not self._user or self._user in ("root", "0"):
             return run_cmd
         inner = " ".join(shlex.quote(str(c)) for c in run_cmd)
-        return [
-            "/bin/sh",
-            "-c",
-            f"exec su -s /bin/sh {shlex.quote(str(effective))} -c {shlex.quote(inner)}",
-        ]
+        return ["/bin/sh", "-c", f"exec su -s /bin/sh {shlex.quote(self._user)} -c {shlex.quote(inner)}"]
+
+    def start(self) -> None:
+        self._started = True
+
+    def stop(self, timeout: int = 15) -> None:
+        if self._instance_name:
+            try:
+                _run_apptainer(["instance stop", self._instance_name], check=False)
+            except Exception:
+                pass
+            self._instance_name = None
+
+    def remove(self, force: bool = False) -> None:
+        self.stop()
+        if force and self._workspace.exists():
+            shutil.rmtree(self._workspace, ignore_errors=True)
 
     def exec_run(
         self,
@@ -611,475 +799,194 @@ class ApptainerContainer:
         workdir: Optional[str] = None,
         environment: Optional[Dict[str, str]] = None,
         detach: bool = False,
-        user: Optional[str] = None,
         **kwargs: Any,
     ) -> ExecResult:
-        if self._removed:
-            raise errors.APIError(f"Container {self.name} has been removed")
-        if not self._started:
-            # Match docker-py: allow exec only after start; auto-start for convenience
-            self.start()
+        if isinstance(cmd, list):
+            run_cmd = [str(c) for c in cmd]
+        else:
+            run_cmd = ["/bin/sh", "-c", cmd]
 
-        run_cmd = _normalize_cmd(cmd)
-        run_cmd = self._wrap_user_cmd(run_cmd, user=user)
+        run_cmd = self._wrap_user_cmd(run_cmd)
 
         with self._lock:
             sandbox = self._writable_rootfs()
-            base = self._exec_base_args(
-                workdir=workdir, environment=environment, sandbox=sandbox
-            )
+            self._prepare_sandbox_bind_targets(sandbox)
+
+            base = self._exec_base_args(workdir=workdir, environment=environment)
+
             full_cmd = [APPTAINER_BIN] + base + run_cmd
-
-            if detach:
-                subprocess.Popen(
-                    full_cmd,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    start_new_session=True,
-                )
-                return ExecResult(exit_code=None, output=b"")
-
-            try:
-                proc = subprocess.run(
-                    full_cmd,
-                    capture_output=True,
-                    timeout=self.client.timeout,
-                )
-            except subprocess.TimeoutExpired as e:
-                out = (e.stdout or b"") + (e.stderr or b"")
-                raise errors.APIError(
-                    f"exec_run timed out after {self.client.timeout}s"
-                ) from e
-
-            return ExecResult(
-                exit_code=proc.returncode,
-                output=(proc.stdout or b"") + (proc.stderr or b""),
+            proc = subprocess.run(
+                full_cmd,
+                capture_output=True,
+                timeout=self.client.timeout,
             )
+        return ExecResult(exit_code=proc.returncode, output=proc.stdout + proc.stderr)
 
     def put_archive(self, path: str, data: bytes) -> bool:
-        """
-        Extract a tar archive into the container filesystem.
-
-        Never bind-mount an entire sandbox path (e.g. /testbed, /tmp):
-        that replaces the writable rootfs dir with an empty host folder.
-        """
-        container_path = Path(path)
-        dest_dir = str(container_path)
-
+        dest_dir = path.rstrip("/") or "/"
         with self._lock:
             sandbox = self._writable_rootfs()
-            use_sandbox = dest_dir not in self._binds and not any(
-                dest_dir.startswith(b.rstrip("/") + "/") or dest_dir == b
-                for b in self._binds
-            )
-
-            if use_sandbox:
-                target_dir = sandbox / dest_dir.lstrip("/")
-            else:
-                host_bind = self._binds.get(dest_dir)
-                if host_bind is None:
-                    # Find longest matching bind prefix
-                    host_bind = None
-                    prefix = None
-                    for cpath, hpath in self._binds.items():
-                        if dest_dir == cpath or dest_dir.startswith(
-                            cpath.rstrip("/") + "/"
-                        ):
-                            if prefix is None or len(cpath) > len(prefix):
-                                prefix = cpath
-                                rel = dest_dir[len(cpath) :].lstrip("/")
-                                host_bind = hpath / rel if rel else hpath
-                    if host_bind is None:
-                        target_dir = sandbox / dest_dir.lstrip("/")
-                    else:
-                        target_dir = host_bind
+            self._prepare_sandbox_bind_targets(sandbox)
+        stream = io.BytesIO(data)
+        with tarfile.open(fileobj=stream, mode="r") as tar:
+            for member in tar.getmembers():
+                if dest_dir == "/":
+                    container_path = "/" + member.name.lstrip("/")
                 else:
-                    target_dir = host_bind
+                    container_path = f"{dest_dir}/{member.name}".replace("//", "/")
 
-            target_dir.mkdir(parents=True, exist_ok=True)
+                # Never bind-mount an entire sandbox path (e.g. /testbed, /tmp):
+                # that replaces the writable rootfs dir with an empty host folder.
+                use_sandbox = dest_dir not in self._binds
 
-            stream = io.BytesIO(data if isinstance(data, bytes) else b"".join(data))
-            with tarfile.open(fileobj=stream, mode="r:*") as tar:
-                tar.extractall(path=str(target_dir))
-            return True
+                if member.isdir():
+                    if use_sandbox:
+                        target = sandbox / container_path.lstrip("/")
+                        target.mkdir(parents=True, exist_ok=True)
+                        continue
+                    host_root = self._host_path_for(dest_dir)
+                    (host_root / member.name).mkdir(parents=True, exist_ok=True)
+                elif member.isfile():
+                    src = tar.extractfile(member)
+                    if src is None:
+                        continue
+                    payload = src.read()
+                    if use_sandbox:
+                        target = sandbox / container_path.lstrip("/")
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        target.write_bytes(payload)
+                        continue
+                    if dest_dir == "/":
+                        target = sandbox / member.name.lstrip("/")
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        target.write_bytes(payload)
+                        continue
+                    host_root = self._host_path_for(dest_dir)
+                    target = host_root / member.name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with open(target, "wb") as out:
+                        out.write(payload)
+        return True
 
-    def get_archive(self, path: str):
-        """Return (bits_iterable, stat_dict) like docker-py get_archive."""
+    def get_archive(self, path: str) -> Tuple[List[bytes], dict]:
         container_path = Path(path)
-        with self._lock:
-            sandbox = self._writable_rootfs()
-            src = sandbox / str(container_path).lstrip("/")
-            # Prefer bind mount if path is under a bind
-            for cpath, hpath in self._binds.items():
-                if str(container_path) == cpath or str(container_path).startswith(
-                    cpath.rstrip("/") + "/"
-                ):
-                    rel = str(container_path)[len(cpath) :].lstrip("/")
-                    candidate = hpath / rel if rel else hpath
-                    if candidate.exists():
-                        src = candidate
-                        break
+        host_path: Optional[Path] = None
+        for cpath, hpath in self._binds.items():
+            if path == cpath or path.startswith(cpath + "/"):
+                rel = path[len(cpath) :].lstrip("/")
+                host_path = hpath / rel if rel else hpath
+                break
+        if host_path is None or not host_path.exists():
+            tmp = self._workspace / "archive_extract"
+            tmp.mkdir(parents=True, exist_ok=True)
+            result = self.exec_run(f"test -e {path}")
+            if result.exit_code != 0:
+                raise FileNotFoundError(f"Path not found in container: {path}")
+            is_file = self.exec_run(f"test -f {path}").exit_code == 0
+            if is_file:
+                host_path = tmp / "file"
+                cp = self.exec_run(f"cat {path}", workdir="/")
+                host_path.write_bytes(cp.output if isinstance(cp.output, bytes) else b"")
+            else:
+                host_path = tmp / container_path.name
+                self.exec_run(f"cp -a {path} {host_path}", workdir="/")
 
-            if not src.exists():
-                raise errors.NotFound(f"Path not found in container: {path}")
-
-            tar_stream = io.BytesIO()
-            with tarfile.open(fileobj=tar_stream, mode="w") as tar:
-                tar.add(str(src), arcname=src.name)
-            tar_stream.seek(0)
-            data = tar_stream.read()
-            stat = {
-                "name": src.name,
-                "size": len(data),
-                "mode": src.stat().st_mode if src.exists() else 0,
-                "mtime": src.stat().st_mtime if src.exists() else time.time(),
-            }
-
-            def _chunks() -> Iterator[bytes]:
-                yield data
-
-            return _chunks(), stat
+        buf = io.BytesIO()
+        with tarfile.open(fileobj=buf, mode="w") as tar:
+            if host_path.is_file():
+                tar.add(host_path, arcname=host_path.name)
+            else:
+                tar.add(host_path, arcname=host_path.name)
+        data = buf.getvalue()
+        return [data], {"name": host_path.name}
 
 
-# ---------------------------------------------------------------------------
-# Collections: images / containers
-# ---------------------------------------------------------------------------
-
-
-class ImageCollection:
+class ApptainerContainers:
     def __init__(self, client: "ApptainerClient") -> None:
         self._client = client
+        self._registry: Dict[str, ApptainerContainer] = {}
 
-    def _image_from_sif(self, sif: Path) -> ApptainerImage:
-        meta = self._client._read_meta(sif)
-        tags = list(meta.get("tags") or [])
-        if not tags:
-            # Recover a tag guess from filename stem
-            tags = [sif.stem.replace("_latest", ":latest")]
-        return ApptainerImage(
-            self._client,
-            sif,
-            tags=tags,
-            image_id=meta.get("id"),
-            attrs={
-                "Created": meta.get("created", _utc_now_iso()),
-                "Id": meta.get("id", f"sha256:{sif.stem}"),
-                "Parent": meta.get("parent_id"),
-            },
-            parent_id=meta.get("parent_id"),
-        )
-
-    def get(self, name: str) -> ApptainerImage:
-        # Exact SIF path
-        as_path = Path(name)
-        if as_path.suffix == ".sif" and as_path.exists():
-            return self._image_from_sif(as_path)
-
-        sif = _sif_path_for_tag(name, self._client.image_dir)
-        if sif.exists():
-            return self._image_from_sif(sif)
-
-        # Search by tag in metadata / filename
-        repo, tag = split_image_ref(name)
-        wanted = f"{repo}:{tag}"
-        for img in self.list(all=True):
-            if wanted in img.tags or name in img.tags or img.id == name:
-                return img
-            if any(t.split(":")[0] == name for t in img.tags):
-                return img
-        raise errors.ImageNotFound(f"Image not found: {name}")
-
-    def list(self, all: bool = False, **kwargs: Any) -> List[ApptainerImage]:
-        images: List[ApptainerImage] = []
-        seen: set[str] = set()
-        for sif in sorted(self._client.image_dir.glob("*.sif")):
-            if sif.suffixes[-2:] == [".sif", ".tmp"] or str(sif).endswith(".sif.tmp"):
-                continue
-            if not sif.is_file() and not sif.is_symlink():
-                continue
-            key = str(sif.resolve()) if sif.exists() else str(sif)
-            if key in seen:
-                continue
-            seen.add(key)
-            images.append(self._image_from_sif(sif))
-        return images
-
-    def pull(
-        self,
-        repository: str,
-        tag: Optional[str] = None,
-        platform: Optional[str] = None,
-        **kwargs: Any,
-    ) -> ApptainerImage:
-        if tag:
-            image_ref = f"{repository}:{tag}"
-        else:
-            image_ref = repository
-        sif = self._client._pull_to_sif(image_ref, platform=platform)
-        return self._image_from_sif(sif)
-
-    def build(
-        self,
-        path: Optional[str] = None,
-        tag: Optional[str] = None,
-        rm: bool = True,
-        nocache: bool = False,
-        dockerfile: str = "Dockerfile",
-        platform: Optional[str] = None,
-        **kwargs: Any,
-    ):
-        logs: List[Dict[str, Any]] = []
-        image_id = None
-        for chunk in self._client.api.build(
-            path=path,
-            tag=tag,
-            dockerfile=dockerfile,
-            rm=rm,
-            nocache=nocache,
-            platform=platform,
-            decode=True,
-            **kwargs,
-        ):
-            logs.append(chunk)
-            if "aux" in chunk and isinstance(chunk["aux"], dict):
-                image_id = chunk["aux"].get("ID")
-            if "error" in chunk:
-                raise errors.BuildError(
-                    chunk.get("error") or "build failed",
-                    "".join(
-                        c.get("stream", "") for c in logs if isinstance(c, dict)
-                    ),
-                )
-        image_ref = tag or (Path(path or ".").name)
-        if ":" not in image_ref:
-            image_ref = f"{image_ref}:latest"
-        img = self.get(image_ref)
-        if image_id:
-            img.id = image_id
-        return img, iter(logs)
-
-    def remove(self, image: str, force: bool = False, **kwargs: Any) -> None:
-        try:
-            img = self.get(image)
-        except errors.ImageNotFound:
-            if force:
-                return
-            raise
-        sif = img.sif
-        with _lock_for_path(sif):
-            meta = _meta_path_for_sif(sif)
-            if sif.exists() or sif.is_symlink():
-                sif.unlink()
-            if meta.exists():
-                meta.unlink()
-
-
-class ContainerCollection:
-    def __init__(self, client: "ApptainerClient") -> None:
-        self._client = client
-        self._by_name: Dict[str, ApptainerContainer] = {}
-        self._by_id: Dict[str, ApptainerContainer] = {}
-        self._lock = threading.Lock()
-
-    def _register(self, container: ApptainerContainer) -> ApptainerContainer:
-        with self._lock:
-            self._by_name[container.name] = container
-            self._by_id[container.id] = container
-        return container
-
-    def _forget(self, container: ApptainerContainer) -> None:
-        with self._lock:
-            self._by_name.pop(container.name, None)
-            self._by_id.pop(container.id, None)
-
-    def get(self, name_or_id: str) -> ApptainerContainer:
-        with self._lock:
-            if name_or_id in self._by_id:
-                return self._by_id[name_or_id]
-            if name_or_id in self._by_name:
-                return self._by_name[name_or_id]
-        raise errors.NotFound(f"Container '{name_or_id}' not found")
-
-    def create(
-        self,
-        image: str,
-        name: Optional[str] = None,
-        user: Optional[str] = None,
-        network_mode: Optional[str] = None,
-        command: Optional[Union[str, List[str]]] = None,
-        detach: bool = True,
-        volumes: Optional[Dict[str, Any]] = None,
-        environment: Optional[Dict[str, str]] = None,
-        working_dir: Optional[str] = None,
-        **kwargs: Any,
-    ) -> ApptainerContainer:
-        # Ensure image exists locally
-        try:
-            self._client.images.get(image)
-        except errors.ImageNotFound:
-            # Leave create failing clearly; callers may pull first
-            raise errors.ImageNotFound(f"Image not found for create: {image}")
-
-        if name:
-            try:
-                existing = self.get(name)
-                raise errors.APIError(
-                    f"Conflict: container name {name} already in use "
-                    f"({existing.id})"
-                )
-            except errors.NotFound:
-                pass
-
+    def create(self, image: str, name: str, **kwargs: Any) -> ApptainerContainer:
         container = ApptainerContainer(
             self._client,
             image_ref=image,
             name=name,
-            user=user,
-            network_mode=network_mode,
-            command=command,
-            volumes=volumes,
-            environment=environment,
-            working_dir=working_dir,
-            detach=detach,
-            **kwargs,
+            user=kwargs.get("user"),
+            network_mode=kwargs.get("network_mode"),
+            platform=kwargs.get("platform"),
+            nano_cpus=kwargs.get("nano_cpus"),
+            cap_add=kwargs.get("cap_add"),
+            entrypoint=kwargs.get("entrypoint"),
+            command=kwargs.get("command"),
         )
-        return self._register(container)
-
-    def run(
-        self,
-        image: str,
-        command: Optional[Union[str, List[str]]] = None,
-        name: Optional[str] = None,
-        detach: bool = False,
-        network_mode: Optional[str] = None,
-        user: Optional[str] = None,
-        volumes: Optional[Dict[str, Any]] = None,
-        environment: Optional[Dict[str, str]] = None,
-        working_dir: Optional[str] = None,
-        **kwargs: Any,
-    ):
-        container = self.create(
-            image=image,
-            name=name,
-            user=user,
-            network_mode=network_mode,
-            command=command,
-            detach=True,
-            volumes=volumes,
-            environment=environment,
-            working_dir=working_dir,
-            **kwargs,
-        )
-        container.start()
-        if detach:
-            return container
-        if command is not None:
-            result = container.exec_run(
-                command,
-                workdir=working_dir,
-                environment=environment,
-                user=user,
-            )
-            return result
+        self._registry[name] = container
         return container
 
+    def run(self, image: str, name: str, detach: bool = True, **kwargs: Any) -> ApptainerContainer:
+        container = self.create(image=image, name=name, **kwargs)
+        container.start()
+        return container
 
-# ---------------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------------
+    def get(self, name: str) -> ApptainerContainer:
+        if name in self._registry:
+            return self._registry[name]
+        raise container_errors.NotFound(f"Container {name} not found")
+
+    def list(self, all: bool = False, **kwargs: Any) -> List[ApptainerContainer]:
+        return list(self._registry.values())
+
+
+class ApptainerClientAPI:
+    def __init__(self, client: "ApptainerClient") -> None:
+        self._client = client
+
+    def build(
+        self,
+        path: str,
+        tag: str,
+        rm: bool = True,
+        forcerm: bool = True,
+        decode: bool = True,
+        platform: Optional[str] = None,
+        nocache: bool = False,
+    ) -> Iterator[dict]:
+        image, logs = self._client.images.build(
+            path=path, tag=tag, rm=rm, nocache=nocache
+        )
+        for entry in logs:
+            yield entry
+
+    def inspect_container(self, container_id: str) -> dict:
+        return {"State": {"Pid": 0}}
 
 
 class ApptainerClient:
+    """DockerClient-compatible facade using Apptainer."""
+
     def __init__(self, timeout: Optional[int] = None) -> None:
-        self.timeout = (
-            int(timeout) if timeout is not None else get_container_api_timeout()
+        self.timeout = timeout or int(
+            os.environ.get("APPTAINER_API_TIMEOUT", os.environ.get("CONTAINER_API_TIMEOUT", "600"))
         )
-        self.image_dir = get_image_dir(ensure=True)
-        self.images = ImageCollection(self)
-        self.containers = ContainerCollection(self)
-        self.api = ApptainerAPI(self)
+        img_dir = get_image_dir()
+        img_dir.mkdir(parents=True, exist_ok=True)
+        WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
+        self.images = ApptainerImages(self)
+        self.containers = ApptainerContainers(self)
+        self.api = ApptainerClientAPI(self)
 
     def ping(self) -> bool:
-        try:
-            proc = _run_apptainer(
-                ["version"], timeout=min(30, self.timeout), check=False
-            )
-            if proc.returncode != 0:
-                raise errors.APIError(
-                    (proc.stderr or proc.stdout or b"").decode(
-                        "utf-8", errors="replace"
-                    )
-                )
-            return True
-        except FileNotFoundError as e:
-            raise errors.APIError(
-                f"Apptainer binary not found: {APPTAINER_BIN}"
-            ) from e
+        proc = _run_apptainer(["version"], timeout=30, check=False)
+        return proc.returncode == 0
 
-    def info(self) -> Dict[str, Any]:
-        return {
-            "Name": "apptainer",
-            "ServerVersion": "apptainer-compat",
-            "Driver": "apptainer",
-            "Images": len(self.images.list(all=True)),
-            "Containers": len(self.containers._by_id),
-            "ApptainerImageDir": str(self.image_dir),
-            "ApptainerWorkspaceRoot": str(get_workspace_root()),
-        }
+    def info(self) -> dict:
+        proc = _run_apptainer(["version"], timeout=30, check=False)
+        version = (proc.stdout or b"").decode("utf-8", errors="replace").strip()
+        return {"Name": f"apptainer ({version.splitlines()[0] if version else 'unknown'})"}
 
-    def _write_meta(
-        self,
-        sif: Path,
-        tags: Optional[List[str]] = None,
-        image_id: Optional[str] = None,
-        created: Optional[str] = None,
-        parent_id: Optional[str] = None,
-    ) -> None:
-        meta = {
-            "tags": tags or [],
-            "id": image_id or f"sha256:{sif.stem}",
-            "created": created or _utc_now_iso(),
-            "parent_id": parent_id,
-            "sif": str(sif),
-        }
-        _meta_path_for_sif(sif).write_text(json.dumps(meta, indent=2))
-
-    def _read_meta(self, sif: Path) -> Dict[str, Any]:
-        meta_path = _meta_path_for_sif(sif)
-        if meta_path.exists():
-            try:
-                return json.loads(meta_path.read_text())
-            except json.JSONDecodeError:
-                return {}
-        return {}
-
-    def _pull_to_sif(
-        self, image_ref: str, platform: Optional[str] = None
-    ) -> Path:
-        image_dir = self.image_dir
-        sif = _sif_path_for_tag(image_ref, image_dir)
-        with _lock_for_path(sif):
-            if sif.exists() and sif.stat().st_size > 0:
-                return sif
-            tmp = sif.with_suffix(".sif.tmp")
-            if tmp.exists():
-                tmp.unlink()
-            uri = _docker_uri_for_local_tag(image_ref)
-            pull_args = ["pull", str(tmp), uri]
-            # platform is advisory; apptainer pull may ignore it
-            _ = platform
-            proc = _run_apptainer(
-                pull_args, timeout=self.timeout, check=False
-            )
-            if proc.returncode != 0 or not tmp.exists():
-                detail = (proc.stderr or proc.stdout or b"").decode(
-                    "utf-8", errors="replace"
-                )
-                raise errors.APIError(
-                    f"Failed to pull {image_ref} from {uri}: {detail}"
-                )
-            tmp.rename(sif)
-            repo, tag = split_image_ref(image_ref)
-            tags = [f"{repo}:{tag}"]
-            self._write_meta(sif, tags=tags)
-            return sif
+    def version(self) -> dict:
+        proc = _run_apptainer(["version"], timeout=30, check=False)
+        text = (proc.stdout or b"").decode("utf-8", errors="replace")
+        for line in text.splitlines():
+            if "apptainer version" in line.lower():
+                return {"Version": line.split()[-1]}
+        return {"Version": "unknown"}

@@ -1,16 +1,18 @@
-"""docker-py compatible exception types for the Apptainer runtime."""
+"""Exception types for the Apptainer container client (docker-py compatible names)."""
+
+from __future__ import annotations
 
 
 class APIError(Exception):
-    """Raised when an Apptainer / container API operation fails."""
+    pass
 
 
 class NotFound(Exception):
-    """Raised when a container or other named resource is not found."""
+    pass
 
 
 class ImageNotFound(NotFound):
-    """Raised when a requested image/SIF is not found."""
+    pass
 
 
 class BuildError(Exception):

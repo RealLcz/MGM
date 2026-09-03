@@ -1,15 +1,18 @@
-# remove all docker containers, including the running ones
-# docker rm -f $(docker ps -a -q)
+#!/usr/bin/env bash
+# Apptainer-based cleanup / prep before a local MGM run (replaces docker system prune).
+set -euo pipefail
 
-# remove all unused docker images and containers
-docker system prune -f
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
 
-# Remove stale instance images so they rebuild with any template changes
-echo "Removing old SWE-bench instance images..."
-docker images --format '{{.Repository}}:{{.Tag}}' | grep '^sweb\.eval\.' | xargs -r docker rmi -f 2>/dev/null || true
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
 
-# Initialize conda for the current shell and activate environment
+echo "Removing stale SWE-bench Apptainer instance images..."
+bash scripts/cleanup_old_images.sh
+
 eval "$(conda shell.bash hook)"
-conda activate agent
+conda activate HGM 2>/dev/null || conda activate agent 2>/dev/null || true
 
-python hgm.py
+export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
+PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py

@@ -7,10 +7,9 @@ boto3
 openai
 pathspec
 
-# SWE-Bench
+# SWE-Bench (Apptainer-backed harness; docker Python package not required)
 beautifulsoup4
 chardet
-docker
 ghapi
 GitPython
 pre-commit

@@ -3,13 +3,13 @@
 # Language Model Configuration
 llm:
   # Model used for self-improvement tasks
-  self_improve_llm: "Qwen/Qwen3.6-35B-A3B"
+  self_improve_llm: "deepseek-v4-flash"
   
   # Model used for downstream evaluation tasks
-  downstream_llm: "Qwen/Qwen3.6-35B-A3B"
+  downstream_llm: "deepseek-v4-flash"
   
   # Model used for problem diagnosis
-  diagnose_llm: "Qwen/Qwen3.6-35B-A3B"
+  diagnose_llm: "deepseek-v4-flash"
 
 # Optimization Algorithm Parameters
 optimization:

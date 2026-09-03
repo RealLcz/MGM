@@ -39,8 +39,7 @@ Default MGM weights: **A : B : C = 0.1 : 0.45 : 0.45**. The HGM baseline uses st
 
 - **Linux** with **Slurm** (recommended) or a standalone machine with NVIDIA GPUs
 - **Conda** (Python 3.11)
-- **Docker** on a reachable host
-- **SSH key access** to the remote Docker host
+- **Apptainer** on the compute node (no Docker daemon required)
 - **Hugging Face cache** for model weights (`HF_HOME`)
 
 ### 1. Clone and create the conda environment
@@ -60,38 +59,27 @@ Additional packages used by analysis scripts:
 pip install vllm matplotlib pillow scikit-learn
 ```
 
-### 2. Configure Docker
+### 2. Configure Apptainer
 
-Evaluation runs inside Docker containers. You must provide your own Docker host — do not rely on any hard-coded address in the Slurm scripts; override it when submitting jobs.
+Evaluation runs inside **local Apptainer** containers on the same node as vLLM (no Docker daemon required). Images are pulled or built as `.sif` files via `apptainer pull` / `apptainer build` during evaluation as needed.
 
-**Local Docker** (GPU machine and Docker daemon on the same host):
-
-```bash
-export ENABLE_REMOTE_DOCKER=0
-```
-
-**Remote Docker via SSH** (typical on HPC compute nodes without a local daemon). Slurm scripts forward the remote host's Docker socket and reverse-tunnel vLLM so containers can reach the LLM:
+The Slurm scripts source `swe_scripts/apptainer_runtime.inc.sh` automatically.
 
 ```bash
-export ENABLE_REMOTE_DOCKER=1
-export REMOTE_DOCKER_USER=<your-ssh-user>
-export REMOTE_DOCKER_HOST=<your-docker-host>
-export REMOTE_DOCKER_SOCKET=/tmp/docker-remote.sock
+# Optional: customize image cache location
+export APPTAINER_IMAGE_DIR="${HF_HOME}/apptainer_images"
+export APPTAINER_WORKSPACE_ROOT="${TMPDIR:-/tmp}/apptainer-workspaces"
+
+# Verify Apptainer is available
+apptainer version
 ```
 
 | Variable | Purpose |
 |----------|---------|
-| `ENABLE_REMOTE_DOCKER` | `1` = SSH tunnel to remote Docker; `0` = local daemon |
-| `REMOTE_DOCKER_USER` | SSH user on **your** Docker host |
-| `REMOTE_DOCKER_HOST` | IP or hostname of **your** Docker host |
-| `REMOTE_DOCKER_SOCKET` | Local path for the forwarded Docker socket |
-| `REMOTE_DOCKER_PASSWORD` | Optional password auth via `sshpass` |
-
-Example Slurm submission with your own Docker host:
-
-```bash
-REMOTE_DOCKER_USER=ubuntu REMOTE_DOCKER_HOST=your.vm.example.com sbatch swe_scripts/mgm.slurm
-```
+| `APPTAINER_IMAGE_DIR` | Directory for cached `.sif` images (default `$HOME/apptainer_images`) |
+| `APPTAINER_WORKSPACE_ROOT` | Root for per-run self-improve workspaces |
+| `APPTAINER_USE_HOST_NETWORK` | `1` = share host network namespace for vLLM access |
+| `VLLM_CONTAINER_HOST` | Host the task container should use to reach vLLM |
 
 SWE-bench and Polyglot images are pulled or built automatically during evaluation as needed.
 
@@ -103,8 +91,8 @@ Key fields:
 
 ```yaml
 llm:
-  self_improve_llm: "Qwen/Qwen3-Coder-Next"
-  downstream_llm: "Qwen/Qwen3-Coder-Next"
+  self_improve_llm: "Qwen/Qwen3.6-35B-A3B"
+  downstream_llm: "Qwen/Qwen3.6-35B-A3B"
 
 execution:
   max_workers: 2
@@ -151,7 +139,7 @@ Runs MGM with mixed strategies (A:B:C = 0.1:0.45:0.45). Set your output location
 HGM_OUTPUT_DIR=<your_output_dir> sbatch swe_scripts/mgm.slurm
 ```
 
-Default model: `Qwen/Qwen3-Coder-Next`. Adjust `VLLM_MODEL_NAME`, `TENSOR_PARALLEL_SIZE`, and Slurm `--gres=gpu:N` to match your hardware.
+Default model: `Qwen/Qwen3.6-35B-A3B`. Adjust `VLLM_MODEL_NAME`, `TENSOR_PARALLEL_SIZE`, and Slurm `--gres=gpu:N` to match your hardware.
 
 ### SWE-bench: HGM baseline (strategy A only)
 
@@ -213,7 +201,7 @@ HGM_OUTPUT_DIR=output_polyglot/my_run EVAL_NODE_IDS="16 20" sbatch polyglot_scri
 HGM_OUTPUT_DIR=output_polyglot/my_run EVAL_NODE_IDS="<commit_id>" sbatch polyglot_scripts/eval_full_polyglot.slurm
 ```
 
-Set `EVAL_FORCE=1` to rerun all 225 tasks. Use `EVAL_DRY_RUN=1` to list pending tasks without launching Docker.
+Set `EVAL_FORCE=1` to rerun all 225 tasks. Use `EVAL_DRY_RUN=1` to list pending tasks without launching evaluation.
 
 ### SWE-bench: evaluate remaining tasks
 
@@ -230,7 +218,7 @@ sbatch swe_scripts/eval_remaining.slurm
 
 ### Direct invocation (without Slurm)
 
-With vLLM already running and `DOCKER_HOST` configured:
+With vLLM already running and Apptainer configured:
 
 ```bash
 conda activate HGM
@@ -256,9 +244,6 @@ python hgm.py \
 
 | Variable | Description |
 |----------|-------------|
-| `REMOTE_DOCKER_USER` | SSH user on your Docker host |
-| `REMOTE_DOCKER_HOST` | IP/hostname of your Docker host |
-| `ENABLE_REMOTE_DOCKER` | `1` remote Docker via SSH; `0` local Docker |
 | `VLLM_MODEL_NAME` | Hugging Face model ID for vLLM |
 | `HGM_MAX_WORKERS` | Parallel self-improve / eval workers |
 | `MGM_CUDA_VISIBLE_DEVICES` | Override GPU indices (debug only) |
@@ -269,6 +254,9 @@ python hgm.py \
 | `EVAL_NODE_IDS` | Polyglot full eval: one or more node ids / commit folders |
 | `CONTINUE_FROM` | Prior run directory when resuming evolution |
 | `HGM_CONFIG` | Path to YAML config |
+| `APPTAINER_IMAGE_DIR` | `.sif` image cache directory |
+| `APPTAINER_WORKSPACE_ROOT` | Per-run self-improve workspace root |
+| `VLLM_CONTAINER_HOST` | Host the task container uses to reach vLLM |
 
 ---
 
@@ -323,7 +311,7 @@ MendelGM/
 ├── initial_swe/            # Seed agent for SWE-bench (generated at runtime)
 ├── initial_polyglot/       # Seed agent for Polyglot (generated at runtime)
 ├── prompts/                # Self-improvement prompt templates
-├── utils/                  # Docker, git, eval helpers
+├── utils/                  # Apptainer, git, eval helpers
 ├── SWEbench_Pro/           # SWE-bench Pro evaluation tools (separate benchmark)
 ├── docs/assets/images/     # Result figures for this README / project page
 ├── output_mgm/             # SWE-bench run artifacts (gitignored)
@@ -341,7 +329,7 @@ Each run directory contains:
 
 ## Using OpenAI and Other Models
 
-The default Slurm workflows start a local **vLLM** server for open-weight models (e.g. Qwen). You can also run experiments with **hosted APIs** — no GPU or vLLM required for the LLM itself (Docker is still needed for benchmark evaluation).
+The default Slurm workflows start a local **vLLM** server for open-weight models (e.g. Qwen). You can also run experiments with **hosted APIs** — no GPU or vLLM required for the LLM itself (Apptainer is still used for benchmark evaluation).
 
 Set your API key and point the config at the model you want:
 

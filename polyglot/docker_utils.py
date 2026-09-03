@@ -11,15 +11,15 @@ import threading
 import time
 import traceback
 from pathlib import Path
+from typing import Any
 
-import docker
-import docker.errors
-from docker.models.containers import Container
+from utils import apptainer_errors as container_errors
+from utils.apptainer_compat import ApptainerContainer
 
 HEREDOC_DELIMITER = "EOF_1399519320"  # different from dataset HEREDOC_DELIMITERs!
 
 
-def copy_to_container(container: Container, src: Path, dst: Path):
+def copy_to_container(container: ApptainerContainer, src: Path, dst: Path):
     """
     Copy a file from local to a docker container
 
@@ -55,7 +55,7 @@ def copy_to_container(container: Container, src: Path, dst: Path):
     container.exec_run(f"rm {dst}.tar")
 
 
-def write_to_container(container: Container, data: str, dst: Path):
+def write_to_container(container: ApptainerContainer, data: str, dst: Path):
     """
     Write a string to a file in a docker container
     """
@@ -93,7 +93,7 @@ def remove_image(client, image_id, logger=None):
         log_info(f"Attempting to remove image {image_id}...")
         client.images.remove(image_id, force=True)
         log_info(f"Image {image_id} removed.")
-    except docker.errors.ImageNotFound:
+    except container_errors.ImageNotFound:
         log_info(f"Image {image_id} not found, removing has no effect.")
     except Exception as e:
         if raise_error:
@@ -183,10 +183,39 @@ def exec_run_with_timeout(container, cmd, timeout: int | None = 60):
     Run a command in a container with a timeout.
 
     Args:
-        container (docker.Container): Container to run the command in.
+        container: Docker or Apptainer container object.
         cmd (str): Command to run.
         timeout (int): Timeout in seconds.
     """
+    from utils.apptainer_compat import ApptainerContainer
+
+    if isinstance(container, ApptainerContainer):
+        exec_result = b""
+        exception = None
+        timed_out = False
+        start_time = time.time()
+
+        def run_command():
+            nonlocal exec_result, exception
+            try:
+                result = container.exec_run(cmd)
+                exec_result = (
+                    result.output if isinstance(result.output, bytes) else b"".join(result.output)
+                )
+            except Exception as e:
+                exception = e
+
+        thread = threading.Thread(target=run_command)
+        thread.start()
+        thread.join(timeout)
+        if exception:
+            raise exception
+        if thread.is_alive():
+            timed_out = True
+        end_time = time.time()
+        return exec_result.decode(), timed_out, end_time - start_time
+
+    # Docker path (original)
     # Local variables to store the result of executing the command
     exec_result = b""
     exec_id = None
@@ -223,7 +252,7 @@ def exec_run_with_timeout(container, cmd, timeout: int | None = 60):
     return exec_result.decode(), timed_out, end_time - start_time
 
 
-def find_dependent_images(client: docker.DockerClient, image_name: str):
+def find_dependent_images(client: Any, image_name: str):
     """
     Find all images that are built upon `image_name` image
 
@@ -240,7 +269,7 @@ def find_dependent_images(client: docker.DockerClient, image_name: str):
     try:
         base_image = client.images.get(image_name)
         base_image_id = base_image.id
-    except docker.errors.ImageNotFound:
+    except container_errors.ImageNotFound:
         print(f"Base image {image_name} not found.")
         return []
 
@@ -261,7 +290,7 @@ def find_dependent_images(client: docker.DockerClient, image_name: str):
     return dependent_images
 
 
-def list_images(client: docker.DockerClient):
+def list_images(client: Any):
     """
     List all images from the Docker client.
     """
@@ -270,7 +299,7 @@ def list_images(client: docker.DockerClient):
 
 
 def clean_images(
-    client: docker.DockerClient, prior_images: set, cache_level: str, clean: bool
+    client: Any, prior_images: set, cache_level: str, clean: bool
 ):
     """
     Clean Docker images based on cache level and clean flag.

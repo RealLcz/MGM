@@ -1,0 +1,24 @@
+# MendelGM HGM self-improvement container (Apptainer definition).
+# Build:
+#   apptainer build --fakeroot images/hgm.sif apptainer/hgm.def
+# Or from Dockerfile:
+#   apptainer build --fakeroot images/hgm.sif Dockerfile
+
+Bootstrap: docker
+From: python:3.10-slim
+
+%post
+    sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources || true
+    apt-get update && apt-get install -y build-essential git \
+        && apt-get clean && rm -rf /var/lib/apt/lists/*
+    mkdir -p /hgm
+
+%environment
+    export LANG=C.UTF-8
+
+%runscript
+    exec "$@"
+
+%labels
+    Author MendelGM
+    Version hgm

@@ -42,6 +42,10 @@
 #   REMOTE_DOCKER_USER/HOST - remote Docker SSH target
 #   REMOTE_DOCKER_PASSWORD - optional SSH password for the remote Docker host
 #   PYTHON_BIN            - default: ${CONDA_PREFIX}/bin/python after conda activate HGM (vLLM from HGM)
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
@@ -61,6 +65,10 @@ trap cleanup EXIT INT TERM
 
 eval "$(conda shell.bash hook)"
 conda activate HGM
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
 # vLLM and embedded Python snippets use the activated conda env (HGM) unless PYTHON_BIN is preset.
 export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 "${PYTHON_BIN}" -V
@@ -74,10 +82,6 @@ export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-98304}"
 export EVAL_MAX_WORKERS="${EVAL_MAX_WORKERS:-2}"
 export EVAL_TIMEOUT="${EVAL_TIMEOUT:-3600}"
 export DOCKER_API_TIMEOUT="${DOCKER_API_TIMEOUT:-7200}"
-export ENABLE_REMOTE_DOCKER="${ENABLE_REMOTE_DOCKER:-1}"
-export REMOTE_DOCKER_USER="${REMOTE_DOCKER_USER:-ubuntu}"
-export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-43.131.5.182}"
-export REMOTE_DOCKER_SOCKET="${REMOTE_DOCKER_SOCKET:-/tmp/docker-polyglot-initial.sock}"
 
 if [ -n "${REMOTE_DOCKER_PASSWORD:-}" ]; then
     if command -v sshpass >/dev/null 2>&1; then
@@ -252,7 +256,7 @@ if ss -tln "sport = :${VLLM_PORT}" 2>/dev/null | grep -q ":${VLLM_PORT}"; then
 fi
 export REMOTE_VLLM_PORT="${REMOTE_VLLM_PORT:-${VLLM_PORT}}"
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Setting up SSH tunnel to remote Docker on ${REMOTE_DOCKER_HOST}..."
 
     pkill -f "ssh.*${REMOTE_DOCKER_HOST}.*docker-polyglot-initial" 2>/dev/null || true
@@ -275,15 +279,6 @@ if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
     export DOCKER_HOST="unix://${REMOTE_DOCKER_SOCKET}"
     echo "Remote Docker tunnel ready (pid=${SSH_TUNNEL_PID})."
     echo "vLLM reverse tunnel: VM:${REMOTE_VLLM_PORT} -> localhost:${VLLM_PORT}"
-
-    echo "Verifying remote Docker socket..."
-    "${PYTHON_BIN}" - <<'PY'
-import docker
-
-client = docker.from_env()
-print("Remote Docker ping:", client.ping())
-print("Remote Docker version:", client.version().get("Version"))
-PY
 fi
 
 # Slurm runs a copy under /var/spool/slurmd/.../ - use submit dir, not BASH_SOURCE.
@@ -327,7 +322,7 @@ done
 
 echo "vLLM server is ready (took ~${VLLM_WAIT}s)."
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Verifying vLLM reverse tunnel from VM..."
     TUNNEL_OK=0
     for attempt in $(seq 1 3); do

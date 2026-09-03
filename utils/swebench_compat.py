@@ -1,6 +1,8 @@
+import inspect
 import os
 import re
 from functools import cache
+from typing import Any
 
 import requests
 
@@ -85,8 +87,37 @@ except ImportError:
     INSTANCE_IMAGE_BUILD_DIR = Path("logs/build_images/instances")
     RUN_EVALUATION_LOG_DIR = Path("logs/run_evaluation")
 
-from swebench.harness.grading import get_eval_report
+from swebench.harness.grading import get_eval_report as _get_eval_report_impl
 from swebench.harness.utils import load_swebench_dataset, str2bool
+
+_EVAL_REPORT_PARAMS = set(inspect.signature(_get_eval_report_impl).parameters)
+
+
+def get_eval_report(
+    *,
+    test_spec: TestSpec,
+    prediction: dict[str, str],
+    log_path: str | os.PathLike[str] | None = None,
+    test_log_path: str | os.PathLike[str] | None = None,
+    include_tests_status: bool = True,
+) -> dict[str, Any]:
+    """Call swebench grading across API renames (log_path -> test_log_path in 4.x)."""
+    path = test_log_path if test_log_path is not None else log_path
+    if path is None:
+        raise TypeError("get_eval_report() requires test_log_path or log_path")
+    path_str = os.fspath(path)
+    kwargs: dict[str, Any] = {
+        "test_spec": test_spec,
+        "prediction": prediction,
+        "include_tests_status": include_tests_status,
+    }
+    if "test_log_path" in _EVAL_REPORT_PARAMS:
+        kwargs["test_log_path"] = path_str
+    elif "log_path" in _EVAL_REPORT_PARAMS:
+        kwargs["log_path"] = path_str
+    else:
+        raise RuntimeError("Unsupported swebench get_eval_report signature")
+    return _get_eval_report_impl(**kwargs)
 
 try:
     from swebench.harness.utils import get_environment_yml, get_requirements

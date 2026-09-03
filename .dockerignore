@@ -26,10 +26,18 @@ output_mgm/
 output_mgm*/
 output_mgm_bak*/
 output_hgm*/
+output_swe/
+output_swe*/
 output_swe_coder_80B/
 output_polyglot/
 output_polyglot*/
 results/
+
+# apptainer / slurm (not part of coding agent bundle)
+apptainer/
+apptainer_images/
+swe_scripts/
+polyglot_scripts/
 
 # misc
 misc/

@@ -7,7 +7,7 @@ import threading
 from pathlib import Path
 from typing import Optional, Union
 
-import docker
+from utils import apptainer_errors as container_errors
 
 # Thread-local storage for loggers
 _thread_local = threading.local()
@@ -82,10 +82,10 @@ def remove_existing_container(client, container_name):
         safe_log(f"Removing existing container with name {container_name}")
         existing_container.stop()
         existing_container.remove()
-    except docker.errors.NotFound:
+    except container_errors.NotFound:
         # Container does not exist, no action needed
         safe_log(f"No existing container with name {container_name} found.")
-    except docker.errors.APIError as e:
+    except container_errors.APIError as e:
         safe_log(
             f"Error removing existing container {container_name}: {e}", logging.ERROR
         )

@@ -47,6 +47,10 @@ trap cleanup EXIT INT TERM
 
 eval "$(conda shell.bash hook)"
 conda activate HGM
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
 export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 "${PYTHON_BIN}" -V
 
@@ -70,10 +74,6 @@ export VLLM_PORT="${VLLM_PORT:-8000}"
 export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-4}"
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.92}"
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-112000}"
-export ENABLE_REMOTE_DOCKER="${ENABLE_REMOTE_DOCKER:-1}"
-export REMOTE_DOCKER_USER="${REMOTE_DOCKER_USER:-ubuntu}"
-export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-43.131.5.182}"
-export REMOTE_DOCKER_SOCKET="${REMOTE_DOCKER_SOCKET:-/tmp/docker-remote.sock}"
 export HGM_LLM_MODEL_ID="${HGM_LLM_MODEL_ID:-${SERVED_MODEL_NAME}}"
 
 if [ -z "${TOOL_CALL_PARSER:-}" ]; then
@@ -457,7 +457,7 @@ if ss -tln "sport = :${VLLM_PORT}" 2>/dev/null | grep -q ":${VLLM_PORT}"; then
 fi
 export REMOTE_VLLM_PORT="${REMOTE_VLLM_PORT:-${VLLM_PORT}}"
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Setting up SSH tunnel to remote Docker on ${REMOTE_DOCKER_HOST}..."
     pkill -f "ssh.*${REMOTE_DOCKER_HOST}.*docker-remote" 2>/dev/null || true
     ssh_remote "fuser -k ${REMOTE_VLLM_PORT}/tcp 2>/dev/null || true" 2>/dev/null || true
@@ -517,7 +517,7 @@ done
 
 echo "vLLM server is ready (took ~${VLLM_WAIT}s)."
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Verifying vLLM reverse tunnel from VM..."
     TUNNEL_OK=0
     for attempt in $(seq 1 3); do

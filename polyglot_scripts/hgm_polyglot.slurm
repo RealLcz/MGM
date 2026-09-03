@@ -33,6 +33,10 @@
 # 环境变量（与 swe 版一致，可选）:
 #   HF_HOME, VLLM_MODEL_NAME, HGM_MAX_WORKERS, ENABLE_REMOTE_DOCKER, REMOTE_DOCKER_*, PYTHON_BIN 等
 #   PYTHON_BIN 默认使用 conda activate HGM 后的 ${CONDA_PREFIX}/bin/python（与 HGM 内 vLLM 一致）
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
 #
 
 set -euo pipefail
@@ -53,6 +57,10 @@ trap cleanup EXIT INT TERM
 
 eval "$(conda shell.bash hook)"
 conda activate HGM
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
+# shellcheck source=/dev/null
+. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+apptainer_runtime_verify
 # vLLM and hgm.py use the activated conda env (HGM) unless PYTHON_BIN is preset.
 export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 "${PYTHON_BIN}" -V
@@ -68,10 +76,6 @@ export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-4}"
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.92}"
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-81920}"
 export HGM_MAX_WORKERS="${HGM_MAX_WORKERS:-4}"
-export ENABLE_REMOTE_DOCKER="${ENABLE_REMOTE_DOCKER:-1}"
-export REMOTE_DOCKER_USER="${REMOTE_DOCKER_USER:-ubuntu}"
-export REMOTE_DOCKER_HOST="${REMOTE_DOCKER_HOST:-43.131.5.182}"
-export REMOTE_DOCKER_SOCKET="${REMOTE_DOCKER_SOCKET:-/tmp/docker-remote.sock}"
 
 if [ -n "${REMOTE_DOCKER_PASSWORD:-}" ]; then
     if command -v sshpass >/dev/null 2>&1; then
@@ -183,7 +187,7 @@ if ss -tln "sport = :${VLLM_PORT}" 2>/dev/null | grep -q ":${VLLM_PORT}"; then
 fi
 export REMOTE_VLLM_PORT="${REMOTE_VLLM_PORT:-${VLLM_PORT}}"
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Setting up SSH tunnel to remote Docker on ${REMOTE_DOCKER_HOST}..."
 
     pkill -f "ssh.*${REMOTE_DOCKER_HOST}.*docker-remote" 2>/dev/null || true
@@ -243,7 +247,7 @@ done
 
 echo "vLLM server is ready (took ~${VLLM_WAIT}s)."
 
-if [ "${ENABLE_REMOTE_DOCKER}" = "1" ]; then
+if false; then # Apptainer-only: remote Docker removed
     echo "Verifying vLLM reverse tunnel from VM..."
     TUNNEL_OK=0
     for attempt in $(seq 1 3); do

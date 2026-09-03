@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
 """
-Pull pre-built SWE-bench instance images from Epoch AI registry
-and retag them to match the local naming convention.
+Pull pre-built SWE-bench instance images from Epoch AI (ghcr.io) into local Apptainer .sif files.
 
-Uses the Docker Python SDK (works over remote socket, no docker CLI needed).
-
-Prerequisites: DOCKER_HOST must point to the remote Docker daemon, e.g.:
-    export DOCKER_HOST="unix:///tmp/docker-remote.sock"
+Uses apptainer pull with docker:// URIs (no Docker daemon required).
 
 Usage:
     python -u scripts/pull_epoch_images.py small      # 10 images
-    python -u scripts/pull_epoch_images.py medium      # 50 images
-    python -u scripts/pull_epoch_images.py all         # small+medium = 60
-    python -u scripts/pull_epoch_images.py verified    # all 500 SWE-bench Verified (~30 GB)
+    python -u scripts/pull_epoch_images.py medium     # 50 images
+    python -u scripts/pull_epoch_images.py all        # small+medium = 60
+    python -u scripts/pull_epoch_images.py verified   # all 500 SWE-bench Verified
 """
 
+import json
+import os
 import sys
 import time
 from pathlib import Path
 
-import docker
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from utils.container_runtime import container_from_env
 
 REGISTRY = "ghcr.io/epoch-research"
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -73,19 +75,25 @@ def main():
     ids = get_ids(subset)
     total = len(ids)
 
-    print("Connecting to Docker daemon...")
-    client = docker.from_env(timeout=120)
+    print("Connecting to local Apptainer...")
+    client = container_from_env(timeout=120)
     print(f"Connected to: {client.info().get('Name', 'unknown')}")
 
-    # Pre-fetch all existing image tags in one call to avoid N individual API calls
-    print("Loading existing images (this may take a minute over SSH tunnel)...")
-    existing_tags = set()
-    for img in client.images.list():
-        for tag in img.tags:
-            existing_tags.add(tag)
+    image_dir = Path(
+        os.environ.get(
+            "APPTAINER_IMAGE_DIR",
+            str(Path.home() / "apptainer_images"),
+        )
+    )
+    existing_tags: set[str] = set()
+    for meta in image_dir.glob("*.json"):
+        try:
+            existing_tags.update(json.loads(meta.read_text()).get("tags", []))
+        except Exception:
+            pass
     print(f"Found {len(existing_tags)} existing image tags")
 
-    print(f"\n=== Pulling {total} images from Epoch AI registry (subset: {subset}) ===\n")
+    print(f"\n=== Pulling {total} images via apptainer pull (subset: {subset}) ===\n")
 
     success = 0
     skip = 0
@@ -95,7 +103,6 @@ def main():
     for i, instance_id in enumerate(ids):
         idx = i + 1
         id_lower = instance_id.lower()
-        remote_image = f"{REGISTRY}/swe-bench.eval.x86_64.{id_lower}:latest"
         local_tag = f"sweb.eval.x86_64.{id_lower}:latest"
 
         if local_tag in existing_tags:
@@ -106,12 +113,7 @@ def main():
         print(f"[{idx}/{total}] PULL  {instance_id} ... ", end="", flush=True)
         t0 = time.time()
         try:
-            image = client.images.pull(remote_image)
-            image.tag(local_tag.split(":")[0], tag="latest")
-            try:
-                client.images.remove(remote_image)
-            except Exception:
-                pass
+            client.images.pull(local_tag)
             existing_tags.add(local_tag)
             elapsed = time.time() - t0
             print(f"OK ({elapsed:.0f}s)")

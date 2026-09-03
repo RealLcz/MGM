@@ -4,7 +4,7 @@ import os
 import random
 
 from llm import (create_client, extract_json_between_markers,
-                 get_response_from_llm)
+                 get_response_from_llm, resolve_llm_model)
 from llm_withtools import convert_msg_history
 from utils.common_utils import load_json_file
 from utils.swe_log_parsers import MAP_REPO_TO_PARSER
@@ -80,7 +80,7 @@ def score_tie_breaker(
     )
     best_score_index = best_score_indices[0]
     try:
-        client = create_client("o3")
+        client = create_client(resolve_llm_model(os.environ.get("HGM_LLM_MODEL_ID")))
         proposed_solutions = [
             f"# Proposed solution {i+1}\n\n<code_diff_{i+1}>\n{code_diffs[index]}\n</code_diff{i+1}>\n<test_report_{i+1}>\n{test_reports[index]}\n</test_report_{i+1}>"
             for i, index in enumerate(best_score_indices)
