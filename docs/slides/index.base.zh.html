@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孟德尔-哥德尔机 MGM</title>
+<meta name="description" content="孟德尔-哥德尔机 MGM 通过比较演化推动 coding agent 递归自主提升，涵盖克隆突变、反应规范突变与跨谱系杂交。">
+<meta property="og:title" content="孟德尔-哥德尔机 MGM">
+<meta property="og:description" content="350 亿参数开源 Qwen3.6-35B-A3B 在 Polyglot 上从 50.8% 提升至 93.3%，参数量不足 GPT-5 的百分之一。提升来自演化 coding agent 框架，模型权重全程固定。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reallcz.github.io/MGM/">
+<meta property="og:image" content="../assets/images/fig1_mgm_overview.jpg">
+<link rel="canonical" href="https://reallcz.github.io/MGM/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+@font-face{
+  font-family:'Alibaba PuHuiTi';
+  src:url('https://cdn.jsdelivr.net/npm/@alleyway-boop/fonts@1.0.0/fonts/AlibabaPuHuiTi-2-55-Regular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Alibaba PuHuiTi';
+  src:url('https://cdn.jsdelivr.net/npm/@alleyway-boop/fonts@1.0.0/fonts/AlibabaPuHuiTi-2-85-Bold.woff2') format('woff2');
+  font-weight:700;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Alibaba PuHuiTi';
+  src:url('https://cdn.jsdelivr.net/npm/alibabapuhuiti-3-105-heavy@1.0.0/AlibabaPuHuiTi-3-105-Heavy.woff2') format('woff2');
+  font-weight:900;font-style:normal;font-display:swap;
+}
+:root{
+  --ink:#273330;
+  --leaf:#2E8B57;
+  --leaf-bright:#3DA66A;
+  --pollen:#D4A017;
+  --soil:#3A4A42;
+  --dim:#6B7A72;
+  --sage:#E7EFE9;
+  --paper:#F4F7F5;
+  --white:#FFFFFF;
+  --hair:rgba(39,51,48,.12);
+  --body:'Alibaba PuHuiTi',system-ui,sans-serif;
+  --mono:var(--body);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --text:100%;
+  --wrap:1180px;
+}
+.brand b,
+.brand-hero,
+h1.subhead,
+h2,
+.foot-brand{
+  font-family:var(--body);
+}
+.brand b{font-weight:700;}
+.brand-hero{font-weight:900;}
+h1.subhead{font-weight:400;}
+h2{font-weight:900;}
+.foot-brand{font-weight:700;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);color:var(--soil);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body.deck{overflow:hidden;}
+::selection{background:var(--leaf);color:var(--white);}
+a{color:var(--leaf);}
+
+#scrollbar{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:70;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transform-origin:left;transform:scaleX(0);
+}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 34px;
+  background:rgba(244,247,245,.88);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--hair);
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);}
+.brand b{font-size:18px;color:var(--ink);}
+.navlinks{display:flex;gap:22px;align-items:center;}
+.navlinks a{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color .25s;
+}
+.navlinks a:hover{color:var(--ink);}
+.navlinks .pill{
+  padding:8px 16px;border-radius:2px;background:var(--ink);color:var(--white);
+  transition:background .25s;
+}
+.navlinks .pill:hover{background:var(--leaf);color:var(--white);}
+
+.masthead{
+  padding:132px 6vw 64px;position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(46,139,87,.12), transparent 58%),
+    var(--paper);
+}
+.masthead .portrait{
+  position:absolute;bottom:28px;z-index:0;
+  width:min(28vw,320px);margin:0;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  pointer-events:none;user-select:none;
+}
+.masthead .portrait img{
+  width:auto;height:min(38vh,340px);max-width:100%;
+  display:block;object-fit:contain;object-position:bottom center;
+  opacity:.25;
+}
+.masthead .portrait figcaption{
+  font-family:var(--body);font-weight:300;font-size:clamp(12px,1.25vw,15px);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);text-align:center;line-height:1.3;
+  opacity:.75;white-space:nowrap;
+}
+.masthead .portrait.mendel{left:0;transform:translateX(-4%);}
+.masthead .portrait.goedel{right:0;transform:translateX(4%);}
+.masthead .wrap-narrow{
+  position:relative;z-index:1;
+  max-width:90vw;margin:0 auto;text-align:center;
+}
+.masthead .logo-row{
+  display:flex;align-items:center;justify-content:center;
+  width:min(72vw,420px);margin:0 auto 16px;
+  pointer-events:none;user-select:none;
+}
+.masthead .logo-row img{
+  width:100%;height:auto;
+  max-height:clamp(28px,4.5vw,48px);
+  object-fit:contain;display:block;
+  opacity:.92;
+}
+.brand-hero{
+  font-style:normal;color:var(--ink);
+  font-size:clamp(44px,7.2vw,88px);line-height:1.02
+}
+h1.subhead{
+  font-style:normal;color:var(--ink);
+  font-size:clamp(24px,2.8vw,34px);line-height:1.35;
+  max-width:90vw;width:100%;margin:10px auto 0;
+}
+.authors{margin-top:28px;font-size:15px;color:var(--soil);}
+.authors a{color:var(--soil);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.4);}
+.authors a:hover{color:var(--leaf);}
+.authors sup{color:var(--leaf);}
+.affil{margin-top:8px;font-size:13px;color:var(--dim);}
+.affil sup{color:var(--leaf);}
+.emails{
+  margin-top:8px;font-size:13px;color:var(--dim);
+  display:flex;flex-wrap:wrap;justify-content:center;gap:0 1.25em;
+}
+.emails a{
+  color:var(--dim);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.4);
+}
+.emails a:hover{color:var(--leaf);}
+.link-list{
+  margin-top:34px;
+  display:flex;flex-direction:column;align-items:center;gap:.7em;
+  font-family:var(--mono);font-size:clamp(12px,1.6vmin,15px);
+  line-height:1.5;color:var(--dim);
+}
+.link-list a{
+  display:inline-flex;align-items:center;gap:9px;
+  color:var(--soil);text-decoration:none;
+}
+.link-list a svg{width:14px;height:14px;flex:0 0 auto;display:block;}
+.link-list a span{border-bottom:1px solid rgba(46,139,87,.4);}
+.link-list a:hover{color:var(--leaf);}
+.link-list a:hover span{border-bottom-color:rgba(46,139,87,.7);}
+.btnrow{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--mono);font-size:12px;font-weight:500;
+  padding:12px 22px;border-radius:2px;text-decoration:none;
+  background:var(--ink);color:var(--white);border:1px solid var(--ink);
+  transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);
+}
+.btn svg{width:14px;height:14px;flex:0 0 auto;display:block;}
+.btn:hover{background:var(--leaf);border-color:var(--leaf);transform:translateY(-1px);}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid rgba(58,74,66,.35);}
+.btn.alt:hover{background:transparent;border-color:var(--leaf);color:var(--leaf);}
+
+section{position:relative;padding:52px 0;}
+section.band{background:var(--white);}
+section.ink{
+  background:var(--ink);color:rgba(232,238,234,.88);
+}
+section.ink h2{color:var(--white);}
+section.ink .lede{color:rgba(232,238,234,.78);}
+section.ink .hook-stats{border-top-color:rgba(232,238,234,.12);}
+section.ink .hook-stats .n{color:var(--white);}
+section.ink .hook-stats .n i,
+section.ink .hook-stats .n .sub{color:var(--leaf-bright);}
+section.ink .hook-stats .hs-tag{color:var(--leaf-bright);}
+section.ink .hook-stats .l{color:rgba(232,238,234,.55);}
+section.ink .bench{
+  border-color:rgba(232,238,234,.12);
+  background:rgba(232,238,234,.04);
+}
+section.ink table.results th,
+section.ink table.results td{
+  border-bottom-color:rgba(232,238,234,.1);
+}
+section.ink table.results th{
+  color:rgba(232,238,234,.55);
+  background:rgba(232,238,234,.08);
+}
+section.ink table.results thead tr:last-child th{
+  background:rgba(232,238,234,.05);
+}
+section.ink table.results th.stub,
+section.ink table.results td.stub{color:rgba(232,238,234,.88);}
+section.ink table.results.performance thead tr.groups th:not(:last-child),
+section.ink table.results.performance thead tr:last-child th:nth-child(1),
+section.ink table.results.performance thead tr:last-child th:nth-child(4),
+section.ink table.results.performance thead tr:last-child th:nth-child(7),
+section.ink table.results.performance tbody td:nth-child(1),
+section.ink table.results.performance tbody td:nth-child(4),
+section.ink table.results.performance tbody td:nth-child(7),
+section.ink table.results.performance.transfer thead tr:last-child th:nth-child(10),
+section.ink table.results.performance.transfer tbody td:nth-child(10){
+  border-right-color:rgba(232,238,234,.12);
+}
+section.ink table.results td{color:rgba(232,238,234,.78);}
+section.ink table.results td.dash{color:rgba(232,238,234,.4);}
+section.ink table.results .hi{color:var(--leaf-bright);}
+section.ink table.results .sup{color:var(--pollen);}
+.wrap{max-width:min(var(--wrap),96vw);margin:0 auto;padding:0 2.5vw;}
+h2{
+  color:var(--ink);
+  font-size:clamp(34px,4.9vw,58px);line-height:1.06;
+  letter-spacing:-0.015em;
+  max-width:none;
+}
+h2 .leaf{color:var(--leaf);font-style:italic;font-weight:inherit;}
+h2 .gold{color:var(--pollen);font-weight:inherit;}
+.lede{margin-top:16px;max-width:var(--text);color:var(--soil);font-size:16.5px;line-height:1.75;}
+.lede b{color:var(--ink);font-weight:600;}
+.hairline{border:none;border-top:1px solid var(--hair);max-width:var(--wrap);margin:0 auto;}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease);}
+.rv.in{opacity:1;transform:none;}
+.rv-st>*{opacity:0;transform:translateY(16px);transition:opacity .65s var(--ease),transform .65s var(--ease);}
+.rv-st.in>*{opacity:1;transform:none;}
+.rv-st.in>*:nth-child(1){transition-delay:.05s;}
+.rv-st.in>*:nth-child(2){transition-delay:.12s;}
+.rv-st.in>*:nth-child(3){transition-delay:.19s;}
+.rv-st.in>*:nth-child(4){transition-delay:.26s;}
+
+.hook-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  margin-top:32px;border-top:1px solid var(--hair);
+}
+.hook-stats .hs-group{
+  padding:24px 0 8px;
+}
+.hook-stats .hs-group:first-child{padding-right:28px;}
+.hook-stats .hs-group:last-child{padding-left:28px;}
+.hook-stats .hs-tag{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--leaf);margin-bottom:16px;
+}
+.hook-stats .hs-cols{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.hook-stats .hs{min-width:0;}
+.hook-stats .n{
+  font-family:var(--body);font-weight:700;font-size:clamp(32px,4vw,52px);
+  color:var(--ink);line-height:.95;font-variant-numeric:tabular-nums;
+}
+.hook-stats .n i{font-style:normal;font-size:.48em;color:var(--leaf);margin-left:2px;}
+.hook-stats .n .sub{
+  font-style:normal;font-size:.48em;vertical-align:baseline;
+  color:var(--leaf);margin-left:2px;
+}
+.hook-stats .l{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--dim);max-width:none;}
+
+.ops{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;
+  margin-top:32px;border-top:1px solid var(--hair);
+}
+.op{padding:28px 0 8px;min-width:0;}
+.op h3{
+  font-family:var(--body);font-size:20px;color:var(--ink);margin-bottom:10px;font-weight:700;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.2;text-align:left;
+}
+.op h3 i{
+  flex:0 0 auto;width:auto;min-width:26px;height:20px;padding:0 6px;margin-top:.15em;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-style:normal;font-weight:600;font-size:10px;
+  color:var(--white);
+}
+.op.cm h3 i{background:#A8B5AD;}
+.op.rm h3 i{background:#E0B84A;color:var(--ink);}
+.op.ch h3 i{background:#3DA66A;}
+.op p{font-size:14.5px;line-height:1.7;color:var(--soil);max-width:none;}
+
+.fig-block{margin-top:32px;}
+.fig-block img{
+  width:100%;height:auto;display:block;
+  border:1px solid var(--hair);background:var(--white);
+}
+.fig-block.fig1{max-width:none;}
+.fig-block.fig1 img{border:none;background:transparent;}
+
+.fig-block.trio{display:flex;flex-direction:column;gap:10px;}
+.trio-visuals{
+  display:grid;grid-template-columns:1fr 2fr;gap:18px;
+  align-items:stretch;
+}
+.trio-left{min-width:0;}
+.trio-left .trio-frame{
+  position:relative;width:100%;aspect-ratio:1 / 1;
+  background:transparent;border:none;overflow:hidden;
+}
+.trio-left .trio-frame img{
+  width:100%;height:100%;display:block;object-fit:contain;
+  border:none;background:transparent;
+}
+.trio-right{
+  min-width:0;
+  height:0;min-height:100%;
+  display:flex;flex-direction:column;gap:8px;
+}
+.sim-charts{
+  flex:1 1 auto;min-height:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.sim-charts .trio-frame{
+  position:relative;width:100%;height:100%;min-height:0;
+  background:transparent;border:none;overflow:hidden;
+}
+.sim-charts .trio-frame canvas{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+}
+.sim-shared{
+  flex:0 0 auto;
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+}
+.sim-controls{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
+  flex:0 1 auto;
+}
+.sim-ctrl{
+  display:flex;flex-direction:column;gap:4px;
+  width:clamp(166px,12vw,200px);max-width:100%;
+}
+.sim-ctrl label{
+  font-family:var(--mono);font-size:10px;color:var(--dim);
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  white-space:nowrap;
+}
+.sim-ctrl label b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.sim-ctrl input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:2px;
+  background:rgba(39,51,48,.16);border-radius:1px;outline:none;cursor:pointer;
+}
+.sim-ctrl input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-ctrl input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--leaf);border:2px solid var(--white);
+  box-shadow:0 0 0 1px rgba(39,51,48,.18);cursor:pointer;
+}
+.sim-legend{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  margin-left:auto;
+  font-family:var(--mono);font-size:11px;line-height:1.4;color:var(--dim);
+}
+.sim-legend span{display:inline-flex;align-items:center;gap:6px;}
+.sim-legend i{display:inline-block;width:14px;height:2.5px;border-radius:1px;}
+.sim-legend i.dgm{background:#E74C3C;}
+.sim-legend i.hgm{background:#2980B9;}
+.sim-legend i.mgm{background:#27AE60;}
+.sim-legend i.oracle{
+  height:0;border-top:1.5px dashed rgba(39,51,48,.45);background:transparent;width:14px;
+}
+.trio-captions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;
+}
+.trio-captions .fig-label{margin-top:0;}
+
+.polyglot-chart{
+  position:relative;width:100%;
+  border:none;background:transparent;
+  overflow:visible;
+}
+.polyglot-chart svg{display:block;width:100%;height:auto;margin:0;padding:0;}
+.polyglot-chart .tick{
+  font-family:var(--mono);font-size:10px;fill:var(--dim);
+}
+.polyglot-chart .pt-label{
+  font-family:var(--body);font-size:10.5px;fill:rgba(39,51,48,.58);
+  pointer-events:none;
+}
+.polyglot-chart .pt-label.ours{font-weight:600;fill:rgba(46,139,87,.72);}
+.polyglot-chart .guide-score{
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(46,139,87,.72);
+}
+.polyglot-chart .guide-sota{
+  font-family:var(--mono);font-size:11px;font-weight:600;fill:rgba(39,51,48,.4);
+}
+.polyglot-chart .guide-score,
+.polyglot-chart .pt-label.ours{
+  opacity:0;
+}
+.polyglot-chart .dot{
+  stroke:#fff;stroke-width:1.4;cursor:pointer;
+  transition:opacity .25s;opacity:0;
+}
+.polyglot-chart.ready .dot{opacity:1;}
+.polyglot-chart .dot.open{fill:var(--pollen);}
+.polyglot-chart .dot.closed{fill:#B85450;}
+.polyglot-chart .dot.ours{fill:var(--leaf-bright);}
+.polyglot-chart .dot.dim{opacity:.22;}
+.polyglot-chart .dot.hi{opacity:1;}
+.polyglot-chart .frontier{
+  fill:none;stroke:rgba(39,51,48,.22);stroke-width:1.2;
+}
+.polyglot-chart .frontier-shade{
+  fill:url(#polyHatch);stroke:none;opacity:0;
+}
+.polyglot-chart.ready .frontier-shade{
+  animation:polyShadeIn 1.8s cubic-bezier(.33,.1,.2,1) .35s both;
+}
+@keyframes polyShadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+.polyglot-chart .guide{
+  fill:none;stroke:var(--leaf);stroke-width:1.2;stroke-dasharray:5 4;
+  opacity:0;stroke-linecap:butt;
+}
+.polyglot-chart .grid-line{
+  stroke:rgba(39,51,48,.08);stroke-width:1;stroke-dasharray:3 4;
+}
+.polyglot-legend{
+  display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
+  margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--dim);
+}
+.polyglot-legend span{display:inline-flex;align-items:center;gap:8px;}
+.polyglot-legend .swatch{
+  width:10px;height:10px;border-radius:50%;display:inline-block;
+  box-shadow:0 0 0 1.5px #fff;
+}
+.polyglot-legend .swatch.open{background:var(--pollen);}
+.polyglot-legend .swatch.closed{background:#B85450;}
+.polyglot-legend .swatch.ours{background:var(--leaf-bright);}
+.polyglot-tip{
+  position:absolute;pointer-events:none;z-index:2;
+  background:var(--ink);color:var(--sage);
+  font-family:var(--mono);font-size:11px;line-height:1.45;
+  padding:8px 12px;border-radius:2px;
+  opacity:0;transform:translate(-50%,-120%);
+  transition:opacity .18s;
+  white-space:nowrap;max-width:min(260px,80vw);
+}
+.polyglot-tip.on{opacity:1;}
+.polyglot-tip b{color:var(--white);font-weight:600;}
+.polyglot-chart.ready .anim-dot{
+  animation:polyFade 1.2s cubic-bezier(.22,1,.36,1) both;
+}
+.polyglot-chart.ready .anim-green{
+  animation:polyFade 1.1s cubic-bezier(.22,1,.36,1) both;
+}
+.polyglot-chart.ready .anim-line{
+  stroke-dasharray:1;stroke-dashoffset:1;
+  animation:polyDraw 2s cubic-bezier(.33,.1,.2,1) .2s both;
+}
+.polyglot-chart.ready .anim-guide{
+  animation:polyGuideIn 1.5s cubic-bezier(.33,.1,.2,1) both;
+}
+@keyframes polyFade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+@keyframes polyGuideIn{
+  from{opacity:0;}
+  to{opacity:.55;}
+}
+@keyframes polyDraw{
+  to{stroke-dashoffset:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .polyglot-chart .dot,
+  .polyglot-chart .guide,
+  .polyglot-chart .guide-score,
+  .polyglot-chart .pt-label.ours{opacity:1;}
+  .polyglot-chart .guide{opacity:.55;}
+  .polyglot-chart.ready .anim-dot,
+  .polyglot-chart.ready .anim-green,
+  .polyglot-chart.ready .anim-line,
+  .polyglot-chart.ready .anim-guide,
+  .polyglot-chart.ready .frontier-shade{animation:none;}
+  .polyglot-chart .frontier-shade{opacity:1;}
+}
+.fig-label,.mgm-cap{
+  max-width:none;margin:14px 0 0;
+  font-family:var(--body);font-size:11px;line-height:1.75;color:var(--dim);
+}
+.fig-label b,.mgm-cap b{color:var(--ink);font-weight:600;}
+.fig-label a,.mgm-cap a{color:var(--leaf);}
+.fig-label a:hover,.mgm-cap a:hover{color:var(--leaf-bright);}
+.fig-label sub,.mgm-cap sub,.lede sub{
+  font-size:.72em;line-height:0;vertical-align:baseline;position:relative;bottom:-.18em;
+}
+section.ink .fig-label,section.ink .mgm-cap{color:rgba(232,238,234,.55);}
+section.ink .fig-label b,section.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+section.ink .fig-label a,section.ink .mgm-cap a{color:var(--leaf-bright);}
+section.ink .fig-label a:hover,section.ink .mgm-cap a:hover{color:#E8EEEA;}
+
+.mgm-figure{margin-top:0;}
+#archive{padding:36px 0 40px;}
+.mgm-stage{
+  position:relative;width:100%;
+  aspect-ratio:2 / 1;
+  border:none;
+  background:
+    radial-gradient(rgba(232,238,234,.12) .2vh, transparent .2vh);
+  background-size: 4vh 4vh;
+  overflow:hidden;
+  cursor:crosshair;
+  touch-action:none;
+}
+#mgmCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.mgm-legend{
+  display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
+  margin-top:6px;font-family:var(--mono);font-size:11px;line-height:1.5;color:rgba(232,238,234,.55);
+}
+.mgm-legend span{display:inline-flex;align-items:center;gap:8px;}
+.mgm-line{
+  display:inline-block;width:18px;height:0;vertical-align:middle;
+  border-top:2.5px solid #A8B5AD;
+}
+.mgm-line.cm{border-top-color:#A8B5AD;}
+.mgm-line.rm{border-top-color:#E0B84A;}
+.mgm-line.ch{border-top-color:#3DA66A;}
+.mgm-line.ref{border-top:2px dashed #7A8A82;}
+.mgm-dot.util{
+  width:18px;height:8px;display:inline-block;
+  background:linear-gradient(90deg,#E07A76,#F0B878,#F0D56A,#8FCF7A);
+}
+
+.bench{
+  margin-top:28px;overflow:hidden;border:1px solid var(--hair);
+  background:var(--white);
+}
+table.results{
+  width:100%;border-collapse:collapse;font-size:14px;min-width:720px;
+}
+table.results th,table.results td{
+  padding:12px 10px;text-align:left;border-bottom:1px solid var(--hair);
+}
+table.results th{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  color:var(--dim);background:var(--sage);font-weight:500;
+}
+table.results thead th.group{
+  text-align:center
+}
+table.results thead tr:last-child th{
+  text-align:center;font-size:10px;background:rgba(231,239,233,.65);
+}
+table.results th.stub,table.results td.stub{
+  text-align:left;font-family:var(--mono);font-size:12px;
+  color:var(--ink);white-space:nowrap;
+}
+table.results.performance td.stub{text-align:right;}
+table.results.performance th.stub{text-align:left;}
+table.results.performance thead tr.groups th:not(:last-child),
+table.results.performance thead tr:last-child th:nth-child(1),
+table.results.performance thead tr:last-child th:nth-child(4),
+table.results.performance thead tr:last-child th:nth-child(7),
+table.results.performance tbody td:nth-child(1),
+table.results.performance tbody td:nth-child(4),
+table.results.performance tbody td:nth-child(7){
+  border-right:1px solid var(--hair);
+}
+table.results.performance.transfer{min-width:960px;}
+table.results.performance.transfer thead tr:last-child th:nth-child(10),
+table.results.performance.transfer tbody td:nth-child(10){
+  border-right:1px solid var(--hair);
+}
+table.results td{color:var(--soil);}
+table.results td.num{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap;
+}
+table.results td.dash{text-align:center;color:var(--dim);}
+table.results tr:last-child td{border-bottom:none;}
+table.results .hi{color:var(--leaf);font-weight:600;}
+table.results .sup{
+  font-size:1em !important;vertical-align:super;line-height:0;color:var(--pollen);font-weight:600;
+}
+
+.cite-box{
+  margin-top:28px;background:var(--ink);color:var(--sage);
+  padding:28px;position:relative;max-width:none;
+}
+.cite-box pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap;
+  overflow:hidden;color:#C8D9CF;
+}
+.cite-box .copy{
+  position:absolute;top:16px;right:16px;
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  background:rgba(255,255,255,.08);color:var(--sage);border:1px solid rgba(255,255,255,.12);
+  padding:8px 14px;cursor:pointer;transition:background .2s;
+}
+.cite-box .copy:hover{background:var(--leaf);color:var(--white);border-color:var(--leaf);}
+.cite-box .copy.ok{background:var(--pollen);color:var(--ink);border-color:var(--pollen);}
+
+footer{
+  background:var(--ink);color:#9BB0A4;padding:64px 5vw 40px;
+}
+.foot-inner{max-width:var(--wrap);margin:0 auto;}
+.foot-brand{
+  font-size:28px;color:var(--white);margin-bottom:12px;
+}
+.foot-links{display:flex;gap:22px;flex-wrap:wrap;margin:24px 0 40px;}
+.foot-links a{
+  font-family:var(--mono);font-size:12px;text-transform:uppercase;
+  color:#9BB0A4;text-decoration:none;
+}
+.foot-links a:hover{color:var(--white);}
+.foot-notes{
+  border-top:1px solid rgba(255,255,255,.08);padding-top:24px;
+  display:flex;flex-direction:column;gap:1.1em;
+}
+.foot-note{
+  display:grid;grid-template-columns:2.4em 1fr;column-gap:.35em;
+  font-size:13px;line-height:1.6;margin:0;
+}
+.foot-note .fn-mark{text-align:right;user-select:none;}
+
+@media (max-width:900px){
+  .hook-stats,.ops{grid-template-columns:1fr;}
+  .trio-visuals{grid-template-columns:1fr;}
+  .trio-right{height:auto;min-height:min(72vw,420px);}
+  .trio-captions{grid-template-columns:1fr;}
+  .sim-legend{margin-left:0;}
+  .sim-ctrl{width:100%;max-width:220px;}
+  .hook-stats .hs-group:first-child{
+    padding-right:0;border-bottom:1px solid var(--hair);padding-bottom:20px;
+  }
+  section.ink .hook-stats .hs-group:first-child{border-bottom-color:rgba(232,238,234,.12);}
+  .hook-stats .hs-group:last-child{padding-left:0;padding-top:20px;}
+  .op{border-right:none;padding-right:0;border-bottom:1px solid var(--hair);}
+  .op:last-child{border-bottom:none;}
+  nav{padding:12px 18px;}
+  .navlinks a:not(.pill){display:none;}
+  .masthead{padding-top:120px;}
+  .masthead .portrait{width:min(32vw,180px);bottom:20px;}
+  .masthead .portrait img{height:min(28vh,200px);opacity:.25;}
+  .masthead .portrait figcaption{opacity:.5;letter-spacing:.14em;}
+  .slide.masthead .portrait{top:58%;width:min(48vw,270px);}
+  .slide.masthead .portrait img{height:min(42vh,300px);}
+  .slide.masthead .portrait figcaption{font-size:clamp(11px,1.4vw,14px);}
+  h2{max-width:none;}
+}
+@media (max-width:560px){
+  .masthead .portrait{display:none;}
+}
+
+/* Video deck */
+html,body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+.deck,
+.deck *{
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.deck *::-webkit-scrollbar{
+  display:none;
+  width:0!important;
+  height:0!important;
+}
+body.deck{touch-action:none;}
+#scrollbar{display:none;}
+.deck{
+  position:relative;
+  width:100%;height:100%;
+  background:var(--paper);
+  transition:background .7s var(--ease);
+}
+.deck:has(.slide.ink.is-active){background:var(--ink);}
+.slide.ink.blank{padding:0;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(110vh);
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:0;
+  padding:clamp(24px,4vh,48px) 6vw;
+  overflow:hidden;
+}
+.slide.is-active{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transform:none;
+  transition:opacity .7s var(--ease),visibility 0s linear 0s;
+  z-index:1;
+}
+.slide.is-leaving{
+  opacity:0;visibility:visible;pointer-events:none;
+  transform:none;
+  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  z-index:2;
+}
+.slide-frame{
+  flex:0 1 auto;
+  width:min(var(--wrap),96vw);
+  height:100%;
+  min-height:0;
+  max-width:100%;
+  max-height:calc(100vh - 2 * clamp(24px,4vh,48px));
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+.slide-frame::before,
+.slide-frame::after{
+  content:"";
+  flex:1 0 0;
+  min-height:0;
+  width:100%;
+  pointer-events:none;
+}
+.slide.masthead .slide-frame::before,
+.slide.masthead .slide-frame::after{display:none;}
+.slide.band .slide-frame,
+.slide.ink .slide-frame{background:transparent;}
+.slide.ink{background:var(--ink);color:rgba(232,238,234,.88);}
+.slide.ink h2{color:var(--white);}
+.slide.ink .lede{color:rgba(232,238,234,.78);}
+.slide.ink .hook-stats{border-top-color:rgba(232,238,234,.12);}
+.slide.ink .hook-stats .n{color:var(--white);}
+.slide.ink .hook-stats .n i,
+.slide.ink .hook-stats .n .sub{color:var(--leaf-bright);}
+.slide.ink .hook-stats .hs-tag{color:var(--leaf-bright);}
+.slide.ink .hook-stats .l{color:rgba(232,238,234,.55);}
+.slide.ink .bench{
+  border-color:rgba(232,238,234,.12);
+  background:rgba(232,238,234,.04);
+}
+.slide.ink table.results th,
+.slide.ink table.results td{border-bottom-color:rgba(232,238,234,.1);}
+.slide.ink table.results th{
+  color:rgba(232,238,234,.55);
+  background:rgba(232,238,234,.08);
+}
+.slide.ink table.results thead tr:last-child th{background:rgba(232,238,234,.05);}
+.slide.ink table.results th.stub,
+.slide.ink table.results td.stub{color:rgba(232,238,234,.88);}
+.slide.ink table.results.performance thead tr.groups th:not(:last-child),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(1),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(4),
+.slide.ink table.results.performance thead tr:last-child th:nth-child(7),
+.slide.ink table.results.performance tbody td:nth-child(1),
+.slide.ink table.results.performance tbody td:nth-child(4),
+.slide.ink table.results.performance tbody td:nth-child(7),
+.slide.ink table.results.performance.transfer thead tr:last-child th:nth-child(10),
+.slide.ink table.results.performance.transfer tbody td:nth-child(10){
+  border-right-color:rgba(232,238,234,.12);
+}
+.slide.ink table.results td{color:rgba(232,238,234,.78);}
+.slide.ink table.results td.dash{color:rgba(232,238,234,.4);}
+.slide.ink table.results .hi{color:var(--leaf-bright);}
+.slide.ink table.results .sup{color:var(--pollen);}
+.slide.ink .fig-label,.slide.ink .mgm-cap{color:rgba(232,238,234,.55);}
+.slide.ink .fig-label b,.slide.ink .mgm-cap b{color:rgba(232,238,234,.88);}
+.slide.ink .fig-label a,.slide.ink .mgm-cap a{color:var(--leaf-bright);}
+.slide.band{background:var(--white);}
+.slide .wrap{
+  flex:0 0 auto;
+  max-width:100%;width:100%;
+  margin:0;padding:0 2.5vw;
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;
+  transform-origin:center center;
+}
+.slide.masthead{
+  padding:clamp(64px,12vh,120px) 0 clamp(40px,6vh,64px);
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(46,139,87,.12), transparent 58%),
+    var(--paper);
+}
+.slide.masthead .slide-frame{
+  width:min(var(--wrap),96vw);
+  max-width:100%;
+  height:auto;
+  max-height:100%;
+  flex:0 1 auto;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+  z-index:1;
+  padding:0 6vw;
+}
+.slide.masthead .brand-hero{
+  font-size:clamp(28px,4.5vw,48px);
+  line-height:1.05;
+  font-weight:900;
+}
+.slide.masthead h1.subhead{
+  font-size:clamp(15px,1.6vw,22px);
+  line-height:1.35;
+  margin-top:8px;
+}
+.slide.masthead .portrait{
+  top:55%;
+  bottom:auto;
+  width:min(42vw,480px);
+  align-items:center;
+  transform:translateY(-50%);
+}
+.slide.masthead .portrait img{
+  height:min(57vh,510px);
+}
+.slide.masthead .portrait figcaption{
+  font-size:clamp(12px,1.875vw,18px);
+  text-align:center;
+  width:100%;
+}
+.slide.masthead .portrait.mendel{
+  left:0;
+}
+.slide.masthead .portrait.goedel{
+  right:0;
+}
+.slide.masthead .link-list{
+  margin-top:34px;
+  font-size:clamp(12px,1.6vmin,15px);
+  gap:.7em;
+}
+.slide:not(.masthead) h2{font-size:clamp(32px,5.4vmin,56px);}
+.slide:not(.masthead) .brand-hero{font-size:clamp(32px,6.5vmin,72px);}
+.slide:not(.masthead) h1.subhead{font-size:clamp(16px,2.4vmin,28px);}
+.slide .fig-block{margin-top:clamp(24px,4vmin,40px);flex:0 1 auto;min-height:0;}
+.slide .fig-block img{max-height:100%;object-fit:contain;}
+.slide .fig-label,.slide .mgm-cap{
+  font-size:clamp(9px,1.05vmin,11px);line-height:1.6;margin-top:8px;
+}
+.slide .hook-stats{margin-top:clamp(14px,2.2vmin,28px);border-top:none;}
+.slide h2 + .hook-stats{margin-top:clamp(16px,2.8vmin,28px);}
+.slide h2 + .lede{margin-top:clamp(24px,4vmin,40px);}
+.slide h2 + .fig-block{margin-top:clamp(24px,4vmin,40px);}
+.slide .hook-stats .hs-group{
+  padding:clamp(10px,1.4vmin,16px) 0 clamp(4px,.6vmin,8px);
+}
+.slide .hook-stats .hs-tag{margin-bottom:clamp(8px,1.1vmin,12px);}
+.slide .hook-stats .n{font-size:clamp(26px,4.2vmin,48px);}
+.slide .hook-stats .n i,
+.slide .hook-stats .n .sub{font-size:.34em;}
+.slide.ink .hook-stats{border-top:none;}
+.slide .polyglot-chart{overflow:hidden;}
+.slide .wrap-narrow{overflow:hidden;transform-origin:center center;}
+.slide .bench{margin-top:clamp(14px,2vmin,24px);overflow:hidden;}
+.slide .fig-block{overflow:hidden;}
+.slide .hook-stats{overflow:hidden;}
+.slide .eq-block,.slide .eq-zone,.slide .eq-stack{overflow:hidden;}
+.slide table.results{width:100%;table-layout:fixed;}
+.slide table.results{font-size:clamp(9px,1.15vmin,11.5px);min-width:0;}
+.slide table.results.performance.transfer{min-width:0;}
+.slide table.results th,
+.slide table.results td{padding:5px 2px;}
+.slide table.results th{
+  font-size:clamp(8px,1vmin,10px);
+}
+.slide table.results thead tr:last-child th{font-size:clamp(7.5px,.95vmin,9px);}
+.slide table.results th.stub,
+.slide table.results td.stub{font-size:clamp(8.5px,1.05vmin,10.5px);}
+.slide table.results .sup{
+  /* Keep font-size at cell size so Chromium min-font floor cannot clamp it,
+     then force visual size with zoom (shrinks glyphs and layout box). */
+  font-size:1em !important;
+  font-weight:600;
+  line-height:0;
+  vertical-align:super;
+  display:inline;
+  transform:none;
+  zoom:.8;
+}
+.slide#theory .sim-ctrl input[type=range]{display:none;}
+.slide#theory .sim-ctrl{
+  width:auto;max-width:none;
+}
+.slide#theory .sim-ctrl label{
+  font-size:clamp(9px,1.15vmin,11px);
+  white-space:nowrap;
+}
+.slide#theory .sim-controls{gap:10px 18px;}
+.slide .mgm-figure{display:flex;flex-direction:column;min-height:0;}
+.slide#archive .mgm-figure{height:min(62vh,680px);flex:0 0 auto;}
+.slide .mgm-stage{
+  flex:1 1 auto;min-height:0;
+  aspect-ratio:auto;height:auto;
+}
+.slide .mgm-legend{font-size:clamp(9px,1.2vmin,11px);margin-top:8px;}
+.slide .polyglot-chart{flex:0 1 auto;min-height:0;}
+.slide .polyglot-chart svg{max-height:min(50vmin,432px);}
+.slide#theory .wrap{justify-content:center;}
+.slide#theory .fig-block.trio{
+  margin-top:clamp(14px,2.2vmin,24px);
+  flex:0 1 auto;
+  min-height:0;
+  gap:12px;
+  justify-content:flex-start;
+}
+.slide#theory .trio-visuals{
+  gap:12px;
+  flex:0 1 auto;
+  min-height:0;
+  align-items:start;
+}
+.slide#theory .trio-left .trio-frame{aspect-ratio:1/1;max-height:min(36vmin,260px);}
+.slide#theory .trio-right{
+  height:auto;
+  min-height:0;
+  max-height:min(36vmin,260px);
+}
+.slide#theory .sim-charts{min-height:min(28vmin,200px);}
+.slide#theory .trio-captions{
+  gap:10px;
+  flex:0 0 auto;
+  margin-top:0;
+}
+.slide#theory .trio-captions .fig-label{font-size:clamp(8.5px,.95vmin,10px);line-height:1.5;}
+.slide.generalization-page .hook-stats .hs-tag{
+  font-size:clamp(9px,1.15vmin,11px);
+  margin-bottom:clamp(4px,.7vmin,8px);
+  line-height:1.25;
+}
+.slide.generalization-page .hook-stats .hs-tag i{
+  font-style:normal;font-weight:400;text-transform:none;letter-spacing:0;
+}
+.slide.generalization-page .lede + .hook-stats{margin-top:clamp(10px,1.5vmin,18px);}
+.slide.generalization-page .hook-stats .hs-group{padding:clamp(4px,.8vmin,8px) 0 clamp(2px,.4vmin,4px);}
+.slide.generalization-page .bench{margin-top:clamp(10px,1.5vmin,18px);}
+.slide.bg .slide-frame{overflow:hidden;}
+.slide.bg .wrap{
+  justify-content:center;
+}
+.slide.bg h2{margin-bottom:0;font-size:clamp(30px,5vmin,52px);}
+.slide.bg h2 + .rv,
+.slide.bg h2 + .rv-st,
+.slide.bg h2 + .lede,
+.slide.bg h2 + .rsi-timeline{
+  margin-top:clamp(20px,3.2vmin,32px);
+}
+.slide.bg .lede{
+  font-size:clamp(13.5px,1.45vmin,16px);
+  line-height:1.68;
+  margin-top:0;
+  max-width:100%;
+}
+.slide.bg .lede + .lede{margin-top:clamp(10px,1.5vmin,16px);}
+.slide.bg .bg-grid-2 + .bg-grid-3,
+.slide.bg .bg-grid-2 + .bg-strip,
+.slide.bg .rsi-timeline + .rsi-loop,
+.slide.bg .bg-grid-3 + .bg-strip,
+.slide.bg .bg-vs + .bg-signals,
+.slide.bg .bg-signals + .bg-strip,
+.slide.bg .bg-formal-row + .bg-panel,
+.slide.bg .lede + .bg-vs,
+.slide.bg .lede + .rv,
+.slide.bg .lede + .rv-st,
+.slide.bg .lede + .ops{
+  margin-top:clamp(14px,2.2vmin,24px);
+}
+.slide.bg .lede-list{
+  margin:0;padding-left:1.1em;
+  font-size:clamp(13.5px,1.45vmin,16px);
+  line-height:1.55;
+  color:var(--soil);
+}
+.slide.bg .lede-list li{margin-top:clamp(3px,.6vmin,6px);}
+.slide.bg .lede-list li:first-child{margin-top:0;}
+.slide.bg .lede-list b{color:var(--ink);font-weight:600;}
+.slide.bg .bg-grid-2{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.6vw,18px);
+  margin-top:0;
+}
+.slide.bg .bg-grid-3{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1.2vw,14px);
+  margin-top:0;
+}
+.slide.bg .bg-panel{
+  padding:clamp(8px,1.2vmin,12px) clamp(10px,1.4vw,14px);
+  border:1px solid var(--hair);background:var(--white);min-width:0;
+}
+.slide.bg .bg-panel h3{
+  font-family:var(--mono);font-size:clamp(9px,1vmin,10.5px);
+  text-transform:uppercase;letter-spacing:.07em;color:var(--leaf);
+  margin-bottom:clamp(10px,1.4vmin,16px);font-weight:600;
+}
+.slide.bg .bg-panel p{margin:0;font-size:clamp(13.5px,1.45vmin,16px);line-height:1.68;color:var(--soil);}
+.slide.bg .bg-panel p + p{margin-top:clamp(4px,.7vmin,6px);}
+.slide.bg .bg-panel ul{margin:0;padding-left:1.05em;}
+.slide.bg .bg-panel li{font-size:clamp(13.5px,1.45vmin,16px);line-height:1.62;color:var(--soil);margin-top:clamp(3px,.5vmin,5px);}
+.slide.bg .bg-panel li:first-child{margin-top:0;}
+.slide.bg .bg-panel b{color:var(--ink);font-weight:600;}
+.slide.bg a.cite{
+  color:var(--leaf);text-decoration:none;
+  border-bottom:1px solid rgba(46,139,87,.35);
+  transition:color .15s,border-color .15s;
+}
+.slide.bg a.cite:hover{color:var(--leaf-bright);border-bottom-color:var(--leaf-bright);}
+.slide.ink.bg a.cite{color:var(--leaf-bright);border-bottom-color:rgba(232,238,234,.35);}
+.slide.ink.bg a.cite:hover{color:var(--white);border-bottom-color:var(--white);}
+.slide#bg-rsi .rsi-timeline{
+  position:relative;
+  padding-top:clamp(4px,.8vmin,8px);
+}
+.slide#bg-rsi .rsi-timeline-track{
+  position:absolute;
+  top:clamp(30px,3.8vmin,38px);
+  left:6%;
+  right:6%;
+  height:2px;
+  background:linear-gradient(90deg,var(--leaf) 0%,var(--pollen) 100%);
+  opacity:.32;
+  pointer-events:none;
+}
+.slide#bg-rsi .rsi-timeline-list{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(8px,1.2vw,14px);
+  margin:0;
+  padding:0;
+}
+.slide#bg-rsi .rsi-tl-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-width:0;
+}
+.slide#bg-rsi .rsi-tl-year{
+  font-family:var(--body);
+  font-weight:700;
+  font-size:clamp(13px,1.7vmin,17px);
+  color:var(--leaf);
+  line-height:1;
+  margin-bottom:clamp(8px,1vmin,12px);
+}
+.slide#bg-rsi .rsi-tl-dot{
+  width:11px;height:11px;
+  border-radius:50%;
+  background:var(--white);
+  border:2px solid var(--leaf);
+  box-shadow:0 0 0 4px rgba(46,139,87,.1);
+  margin-bottom:clamp(10px,1.3vmin,14px);
+  flex:0 0 auto;
+  z-index:1;
+}
+.slide#bg-rsi .rsi-tl-item.is-now .rsi-tl-year{color:var(--pollen);}
+.slide#bg-rsi .rsi-tl-item.is-now .rsi-tl-dot{
+  background:var(--pollen);
+  border-color:var(--pollen);
+  box-shadow:0 0 0 4px rgba(212,160,23,.16);
+}
+.slide#bg-rsi .rsi-tl-card{
+  width:100%;
+  padding:clamp(8px,1.1vmin,12px) clamp(9px,1.2vw,12px);
+  border:1px solid var(--hair);
+  background:var(--white);
+  text-align:left;
+  min-height:clamp(88px,14vmin,118px);
+}
+.slide#bg-rsi .rsi-tl-card h4{
+  margin:0 0 clamp(5px,.7vmin,8px);
+  font-family:var(--body);
+  font-size:clamp(12px,1.28vmin,14px);
+  font-weight:700;
+  line-height:1.25;
+  color:var(--ink);
+}
+.slide#bg-rsi .rsi-tl-card p{
+  margin:0;
+  font-size:clamp(11px,1.15vmin,13px);
+  line-height:1.58;
+  color:var(--soil);
+}
+.slide#bg-rsi .rsi-loop{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:clamp(12px,2vw,22px);
+  align-items:start;
+  padding:clamp(10px,1.4vmin,14px) clamp(12px,1.6vw,18px);
+  border:1px solid rgba(46,139,87,.22);
+  background:linear-gradient(135deg,rgba(46,139,87,.07),rgba(212,160,23,.05));
+}
+.slide#bg-rsi .rsi-loop-label{
+  font-family:var(--body);
+  font-weight:700;
+  font-size:clamp(11px,1.25vmin,13px);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--leaf);
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  justify-self:center;
+  line-height:1.2;
+}
+html:lang(zh-CN) .slide#bg-rsi .rsi-loop-label{text-transform:none;letter-spacing:.12em;}
+.slide#bg-rsi .rsi-loop-main h3{
+  margin:0 0 clamp(4px,.6vmin,6px);
+  font-family:var(--body);
+  font-size:clamp(13px,1.4vmin,15px);
+  font-weight:700;
+  color:var(--ink);
+}
+.slide#bg-rsi .rsi-loop-flow{
+  margin:0 0 clamp(8px,1.1vmin,10px);
+  font-family:var(--mono);
+  font-size:clamp(10px,1.05vmin,11.5px);
+  letter-spacing:.04em;
+  color:var(--leaf);
+}
+.slide#bg-rsi .rsi-loop-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(8px,1.2vw,14px);
+}
+.slide#bg-rsi .rsi-loop-grid p{
+  margin:0;
+  font-size:clamp(11.5px,1.2vmin,13.5px);
+  line-height:1.5;
+  color:var(--soil);
+}
+.slide.bg .bg-strip{
+  margin-top:clamp(14px,2.2vmin,24px);
+  padding:clamp(7px,1vmin,10px) clamp(10px,1.4vw,14px);
+  border-top:1px solid var(--hair);
+  background:rgba(46,139,87,.05);
+  font-size:clamp(13px,1.4vmin,15.5px);line-height:1.5;color:var(--soil);
+}
+.slide.bg .bg-strip b{color:var(--ink);}
+.slide.bg .bg-note{
+  margin-top:clamp(14px,2.2vmin,24px);
+  font-size:clamp(13.5px,1.45vmin,16px);
+  line-height:1.6;color:var(--soil);
+}
+.slide.bg .bg-note b{color:var(--ink);font-weight:600;}
+.slide.bg .bg-vs{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.6vw,18px);
+  margin-top:0;
+}
+.slide.bg .bg-vs .bg-panel h3{color:var(--dim);}
+.slide.bg .bg-vs .bg-panel.opt h3{color:var(--leaf);}
+.slide.bg .bg-vs .bg-panel.gap h3{color:var(--pollen);}
+.slide.bg .bg-signals{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.6vw,18px);
+  margin-top:0;
+}
+.slide.bg .bg-formal-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.6vw,18px);
+  margin-top:0;align-items:stretch;
+}
+.slide.bg .bg-formal-row > .bg-panel{height:100%;min-height:0;}
+.slide.bg .bg-panel .eq-zone,
+.slide.bg .bg-panel .eq-stack{
+  margin-top:clamp(10px,1.4vmin,16px);
+  padding-top:0;border-top:none;
+}
+.slide.bg .bg-panel .eq-zone.compact{margin-top:clamp(10px,1.4vmin,16px);}
+.slide.bg .bg-panel:has(.eq-zone, .eq-stack){
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+}
+.slide.bg .eq-zone{
+  display:flex;flex-direction:column;gap:clamp(8px,1.2vmin,12px);
+  margin-top:clamp(14px,2.2vmin,24px);
+  padding-top:clamp(6px,1vmin,10px);
+  border-top:1px solid var(--hair);
+}
+.slide.bg .eq-zone.compact{margin-top:0;}
+.slide.bg .eq-block{
+  margin:0;
+  padding:clamp(2px,.4vmin,4px) clamp(2px,.4vw,6px);
+  background:transparent;
+  border:none;
+  overflow:hidden;text-align:center;
+}
+.slide.bg .eq-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.6vw,18px);
+  margin:0;
+}
+.slide.bg .eq-row .eq-block{margin:0;}
+.slide.bg .eq-stack{
+  display:flex;flex-direction:column;gap:clamp(8px,1.2vmin,12px);
+  padding-top:clamp(6px,1vmin,10px);
+  border-top:1px solid var(--hair);
+}
+.slide.bg .bg-panel + .eq-zone,
+.slide.bg .bg-panel + .eq-stack,
+.slide.bg h2 + .eq-zone,
+.slide.bg h2 + .eq-stack{
+  margin-top:clamp(14px,2.2vmin,24px);
+}
+.slide.bg .katex{font-size:1em;}
+.slide.bg .eq-block .katex-display{margin:0;}
+.slide.ink.bg .eq-block{background:transparent;border:none;}
+.slide.bg .ops{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.6vw,18px);
+  margin-top:0;border-top:none;
+}
+.slide.bg .op{
+  padding:clamp(10px,1.4vmin,14px) clamp(10px,1.4vw,14px);
+  border:1px solid var(--hair);background:var(--white);min-width:0;
+}
+.slide.bg .op h3{
+  font-family:var(--mono);font-size:clamp(9px,1vmin,10.5px);
+  text-transform:uppercase;letter-spacing:.07em;color:var(--ink);
+  margin-bottom:clamp(10px,1.4vmin,16px);font-weight:600;
+  display:block;
+}
+.slide.bg .op h3 i{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;height:18px;padding:0 5px;margin-right:6px;
+  font-family:var(--mono);font-style:normal;font-weight:600;font-size:9px;
+  color:var(--white);vertical-align:middle;
+}
+.slide.bg .op.cm h3 i{background:#A8B5AD;}
+.slide.bg .op.rm h3 i{background:#E0B84A;color:var(--ink);}
+.slide.bg .op.ch h3 i{background:#3DA66A;}
+.slide.bg .op p{font-size:clamp(13.5px,1.45vmin,16px);line-height:1.55;color:var(--soil);max-width:none;}
+.slide.bg .op:has(.eq-zone){
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  height:100%;
+}
+.slide.bg .op .eq-zone{
+  margin-top:clamp(8px,1.1vmin,12px);
+  padding-top:0;border-top:none;
+  gap:clamp(4px,.7vmin,8px);
+}
+.slide.bg .op .eq-block{padding:clamp(1px,.3vmin,3px) 0;}
+.slide.bg .op .katex{font-size:.86em;}
+.slide.bg .ops{align-items:stretch;}
+.slide.bg .op b{color:var(--ink);font-weight:600;}
+.slide.ink.bg .op{background:rgba(232,238,234,.04);border-color:rgba(232,238,234,.12);}
+.slide.ink.bg .op h3{color:var(--leaf-bright);}
+.slide.ink.bg .op p{color:rgba(232,238,234,.82);}
+.slide.ink.bg .op b{color:var(--white);}
+.slide .lede{
+  font-size:clamp(14px,1.55vmin,17px);line-height:1.75;
+  margin-top:clamp(24px,4vmin,40px);max-width:100%;color:var(--soil);
+}
+.slide .lede + .lede{margin-top:clamp(10px,1.5vmin,16px);}
+.slide .lede b{color:var(--ink);font-weight:600;}
+.slide .lede + .fig-block,
+.slide .lede + .hook-stats,
+.slide .lede + .bench{margin-top:clamp(14px,2.2vmin,24px);}
+.slide.ink .lede{color:rgba(232,238,234,.82);}
+.slide.ink .lede b{color:var(--white);}
+.slide.ink.bg .bg-panel{background:rgba(232,238,234,.04);border-color:rgba(232,238,234,.12);}
+.slide.ink.bg .bg-panel p,.slide.ink.bg .bg-panel li{color:rgba(232,238,234,.82);}
+.slide.ink.bg .bg-panel b{color:var(--white);}
+.slide.ink.bg .bg-strip{background:rgba(232,238,234,.05);border-top-color:rgba(232,238,234,.12);color:rgba(232,238,234,.82);}
+.slide.ink.bg .bg-strip b{color:var(--white);}
+.slide.ink.bg .lede{color:rgba(232,238,234,.88);}
+.slide.ink.bg .lede b{color:var(--white);}
+.slide.ink.bg .lede-list{color:rgba(232,238,234,.82);}
+.slide.ink.bg .lede-list b{color:var(--white);}
+.slide .section-kicker{
+  margin:0 0 clamp(9px,1.2vmin,14px);
+  font-family:var(--mono);
+  font-size:clamp(10px,1.08vmin,12px);
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--leaf);
+}
+.slide.ink .section-kicker{color:var(--leaf-bright);}
+.slide .takeaway-band{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:clamp(12px,1.8vw,22px);
+  align-items:start;
+  margin-top:clamp(14px,2.2vmin,24px);
+  padding-top:clamp(10px,1.5vmin,16px);
+  border-top:1px solid var(--hair);
+  font-size:clamp(13.5px,1.45vmin,16px);
+  line-height:1.6;
+  color:var(--soil);
+}
+.slide .takeaway-band .takeaway-label{
+  font-family:var(--mono);
+  font-size:clamp(9px,1vmin,11px);
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--leaf);
+  white-space:nowrap;
+}
+.slide .takeaway-band b{color:var(--ink);font-weight:700;}
+.slide.ink .takeaway-band{border-top-color:rgba(232,238,234,.14);color:rgba(232,238,234,.82);}
+.slide.ink .takeaway-band .takeaway-label{color:var(--leaf-bright);}
+.slide.ink .takeaway-band b{color:var(--white);}
+.slide .hook-stats.single{grid-template-columns:1fr;}
+.slide .hook-stats.single .hs-group{padding-left:0;padding-right:0;}
+.slide .result-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:clamp(18px,3vw,38px);
+  align-items:end;
+}
+.slide .result-summary .lede{margin-top:0;max-width:760px;}
+.slide .result-badge{
+  padding-left:clamp(16px,2.4vw,30px);
+  border-left:1px solid var(--hair);
+  text-align:right;
+}
+.slide .result-badge strong{
+  display:block;
+  font-size:clamp(24px,3.8vmin,42px);
+  line-height:1;
+  color:var(--leaf);
+  font-variant-numeric:tabular-nums;
+}
+.slide .result-badge span{
+  display:block;
+  margin-top:8px;
+  font-size:clamp(10px,1.1vmin,12px);
+  color:var(--dim);
+}
+.closing-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr);
+  gap:clamp(34px,6vw,84px);
+  align-items:end;
+}
+.closing-layout h2{max-width:720px;}
+.closing-points{border-top:1px solid rgba(232,238,234,.16);}
+.closing-point{
+  display:grid;
+  grid-template-columns:2.4em minmax(0,1fr);
+  gap:clamp(12px,1.5vw,18px);
+  padding:clamp(14px,2vmin,22px) 0;
+  border-bottom:1px solid rgba(232,238,234,.12);
+}
+.closing-point .closing-nb{
+  font-family:var(--mono);
+  font-size:clamp(11px,1.2vmin,13px);
+  color:var(--leaf-bright);
+}
+.closing-point h3{
+  margin:0 0 5px;
+  font-size:clamp(16px,1.85vmin,20px);
+  line-height:1.3;
+  color:var(--white);
+}
+.closing-point p{
+  margin:0;
+  font-size:clamp(13px,1.4vmin,15.5px);
+  line-height:1.58;
+  color:rgba(232,238,234,.7);
+}
+.closing-links{
+  margin-top:clamp(18px,2.8vmin,30px);
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 22px;
+  font-family:var(--mono);
+  font-size:clamp(10px,1.1vmin,12px);
+}
+.closing-links a{color:var(--leaf-bright);text-decoration:none;border-bottom:1px solid rgba(61,166,106,.45);}
+.closing-links a:hover{color:var(--white);border-bottom-color:var(--white);}
+.slide#archive .mgm-figure{height:min(55vh,600px);}
+@media (max-width:900px){
+  .slide.bg .bg-grid-2,.slide.bg .bg-grid-3,.slide.bg .bg-vs,.slide.bg .bg-signals,.slide.bg .bg-formal-row,.slide.bg .eq-row,.slide.bg .ops{grid-template-columns:1fr;}
+  .slide.bg .bg-formal-row{gap:clamp(14px,2.2vmin,24px);}
+  .closing-layout,.slide .result-summary{grid-template-columns:1fr;}
+  .slide .result-badge{text-align:left;border-left:none;border-top:1px solid var(--hair);padding:12px 0 0;}
+}
+.deck-progress{
+  position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;
+  background:rgba(39,51,48,.08);
+}
+.deck-progress > i{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--leaf),var(--pollen));
+  transition:width .45s var(--ease);
+}
+
+html:lang(zh-CN) .slide.bg .bg-panel h3,
+html:lang(zh-CN) .slide.bg .op h3{text-transform:none;letter-spacing:.04em;}
+html:lang(zh-CN) .slide .section-kicker{text-transform:none;letter-spacing:.12em;}
+html:lang(zh-CN) .navlinks a{text-transform:none;}
+html:lang(zh-CN) h2 .leaf{font-style:normal;}
+html:lang(zh-CN) h2 .leaf b{font-weight:900;}
+html:lang(zh-CN) .slide h2{line-height:1.14;}
+html:lang(zh-CN) .lede,
+html:lang(zh-CN) .slide .lede{line-height:1.82;}
+html:lang(zh-CN) .slide.bg .lede,
+html:lang(zh-CN) .slide.bg .bg-panel p,
+html:lang(zh-CN) .slide.bg .bg-panel li,
+html:lang(zh-CN) .slide.bg .bg-strip,
+html:lang(zh-CN) .slide.bg .bg-note,
+html:lang(zh-CN) .slide.bg .lede-list{line-height:1.68;}
+html:lang(zh-CN) .slide#bg-rsi .rsi-tl-card p,
+html:lang(zh-CN) .slide#bg-rsi .rsi-loop-grid p{line-height:1.58;}
+html:lang(zh-CN) a.cite,
+html:lang(zh-CN) .hs-tag i,
+html:lang(zh-CN) .rsi-loop-flow,
+html:lang(zh-CN) .op h3 i,
+html:lang(zh-CN) table.results th,
+html:lang(zh-CN) table.results td.stub{font-size:0.88em;}
+html:lang(zh-CN) .fig-label,
+html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body class="deck">
+<div class="deck" id="deck">
+
+  <!-- Slide 0 Header -->
+  <section class="slide masthead is-active" data-slide="0" data-slide-id="cover" id="top">
+    <figure class="portrait mendel">
+      <img src="../assets/images/Mendel.svg" alt="" width="411" height="469" decoding="async">
+      <figcaption>Gregor J. Mendel</figcaption>
+    </figure>
+    <figure class="portrait goedel">
+      <img src="../assets/images/Goedel.svg" alt="" width="418" height="463" decoding="async">
+      <figcaption>Kurt F. Gödel</figcaption>
+    </figure>
+    <div class="slide-frame">
+      <div class="wrap-narrow">
+        <div class="logo-row rv" aria-label="Affiliations">
+          <img src="../assets/images/logos.svg" alt="UESTC, LMU Munich, MCML" width="242" height="36" decoding="async">
+        </div>
+        <p class="brand-hero rv">孟德尔-哥德尔机</p>
+        <h1 class="subhead rv">比较演化驱动 coding agent 递归自主提升</h1>
+        <p class="authors rv">
+          <a href="https://github.com/RealLcz" target="_blank" rel="noopener noreferrer">刘长智</a><sup>∗,§</sup>&nbsp;&nbsp;
+          <a href="https://liuyilun2000.github.io/" target="_blank" rel="noopener noreferrer">刘逸伦</a><sup>†,‡,§</sup>&nbsp;&nbsp;
+          <a href="https://yansikuan.github.io/" target="_blank" rel="noopener noreferrer">严思宽</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://www.dbs.ifi.lmu.de/~tresp/" target="_blank" rel="noopener noreferrer">Volker Tresp</a><sup>†,‡</sup>&nbsp;&nbsp;
+          <a href="https://yunpuma.github.io/" target="_blank" rel="noopener noreferrer">马鋆溥</a><sup>†,‡</sup>
+        </p>
+        <p class="affil rv">
+          <sup>∗</sup>电子科技大学&nbsp;&nbsp;&nbsp;<sup>†</sup>慕尼黑大学&nbsp;&nbsp;&nbsp;<sup>‡</sup>慕尼黑机器学习中心&nbsp;&nbsp;&nbsp;          <sup>§</sup>同等贡献
+        </p>
+        <p class="emails rv">
+          <a href="mailto:changzhiliu1@gmail.com">changzhiliu1@gmail.com</a>
+          <a href="mailto:yilun.liu@tum.de">yilun.liu@tum.de</a>
+          <a href="mailto:cognitive.yunpu@gmail.com">cognitive.yunpu@gmail.com</a>
+        </p>
+        <p class="lang-switch rv" style="margin-top:14px;font-family:var(--mono);font-size:clamp(10px,1.1vmin,12px);"><a href="index.html" style="color:var(--dim);text-decoration:none;border-bottom:1px solid rgba(46,139,87,.35);">English</a></p>
+        <div class="link-list rv">
+          <a href="https://arxiv.org/abs/2608.07645" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            <span>arxiv.org/abs/2608.07645</span>
+          </a>
+          <a href="https://reallcz.github.io/MGM/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>reallcz.github.io/MGM</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 1 RSI vision -->
+  <section class="slide band bg" data-slide="1" data-slide-id="agentic-rsi" id="bg-rsi">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">问题背景 01</p>
+        <h2 class="rv">coding agent 走向<br><span class="leaf"><b>自改进闭环</b></span></h2>
+        <div class="rsi-timeline rv" aria-label="RSI 历史时间线">
+          <div class="rsi-timeline-track" aria-hidden="true"></div>
+          <ol class="rsi-timeline-list">
+            <li class="rsi-tl-item">
+              <span class="rsi-tl-year">1987</span>
+              <span class="rsi-tl-dot" aria-hidden="true"></span>
+              <div class="rsi-tl-card">
+                <h4>自改进 AI 与元学习</h4>
+                <p>AI 通过元学习递归改写自身以持续变强。<a class="cite" href="https://mediatum.ub.tum.de/?id=813180" target="_blank" rel="noopener noreferrer">Schmidhuber, 1987</a>。</p>
+              </div>
+            </li>
+            <li class="rsi-tl-item">
+              <span class="rsi-tl-year">2003 至 2007</span>
+              <span class="rsi-tl-dot" aria-hidden="true"></span>
+              <div class="rsi-tl-card">
+                <h4>哥德尔机器</h4>
+                <p>在取得可证明的收益时进行严格的自指修改。<a class="cite" href="http://arxiv.org/abs/cs/0309048" target="_blank" rel="noopener noreferrer">Schmidhuber, 2003</a>，<a class="cite" href="https://doi.org/10.1007/978-3-540-68677-4_7" target="_blank" rel="noopener noreferrer">Schmidhuber, 2007</a>。</p>
+              </div>
+            </li>
+            <li class="rsi-tl-item">
+              <span class="rsi-tl-year">2024 至 2026</span>
+              <span class="rsi-tl-dot" aria-hidden="true"></span>
+              <div class="rsi-tl-card">
+                <h4>基于 LLM 的 coding agent</h4>
+                <p>在经验上逼近这一闭环。<a class="cite" href="https://proceedings.neurips.cc/paper_files/paper/2024/file/5a7c947568c1b1328ccc5230172e1e7c-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Yang et al., 2024</a>，<a class="cite" href="https://proceedings.iclr.cc/paper_files/paper/2025/file/36b7acf6f6010652b3f2a433774a66fe-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Hu et al., 2024</a>，<a class="cite" href="https://openreview.net/forum?id=CTr3bovS5F" target="_blank" rel="noopener noreferrer">Gao et al., 2026</a>。</p>
+              </div>
+            </li>
+            <li class="rsi-tl-item is-now">
+              <span class="rsi-tl-year">2026</span>
+              <span class="rsi-tl-dot" aria-hidden="true"></span>
+              <div class="rsi-tl-card">
+                <h4>经验性 RSI 闭环</h4>
+                <p>coding agent 编辑自身源码。若<b>基准性能提升则接受改动</b>，即实用的哥德尔式准则。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <div class="rsi-loop rv">
+          <span class="rsi-loop-label">闭环</span>
+          <div class="rsi-loop-main">
+            <h3>今日的经验性 RSI 如何运行</h3>
+            <p class="rsi-loop-flow">评估　诊断　修改　再评估</p>
+            <div class="rsi-loop-grid">
+              <p>coding agent <b>编辑自身源代码</b>，涵盖提示、工具、控制逻辑与辅助例程。</p>
+              <p>在留出任务上测量表现，失败轨迹提供诊断上下文。</p>
+              <p>接受的改动进入档案库，拒绝的改动被丢弃，从而闭合自主提升循环。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2 RSI progress -->
+  <section class="slide band bg" data-slide="2" data-slide-id="rsi-progress" id="bg-rsi-progress">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">研究进展 02</p>
+        <h2 class="rv">开放式演化建立<br><span class="leaf"><b>档案库搜索</b></span></h2>
+        <div class="bg-grid-3 rv">
+          <div class="bg-panel">
+            <h3>SICA <a class="cite" href="https://openreview.net/forum?id=rShJCyLsOr" target="_blank" rel="noopener noreferrer">Robeyns et al., 2025</a></h3>
+            <p>具备文件编辑工具的 coding agent 自主<b>重构自身代码库</b>，提升 <a class="cite" href="https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">SWE-bench</a> 与 <a class="cite" href="https://openreview.net/forum?id=chfJJYC3iL" target="_blank" rel="noopener noreferrer">LiveCodeBench</a> 表现。</p>
+          </div>
+          <div class="bg-panel">
+            <h3>DGM <a class="cite" href="https://openreview.net/forum?id=pUpzQZTvGY" target="_blank" rel="noopener noreferrer">Zhang et al., 2026</a></h3>
+            <p>将 RSI 重构为<b>开放式进化</b>。维护不断扩展的变体档案库，每轮采样一个父代以启动下一次自主修改。</p>
+          </div>
+          <div class="bg-panel">
+            <h3>HGM <a class="cite" href="https://openreview.net/forum?id=T0EiEuhOOL" target="_blank" rel="noopener noreferrer">Liu et al., 2026</a></h3>
+            <p>将档案库维护视为<b>固定预算树搜索</b>，用分支后代表现指导 \(\varphi\) 评估与 \(\Phi\) 扩展。</p>
+          </div>
+        </div>
+        <p class="bg-strip rv">
+          现有自主修改以单个 coding agent 的单次失败轨迹为主要证据。
+          MGM 将档案库中的跨任务与跨谱系轨迹纳入修改环节。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3 Motivation -->
+  <section class="slide ink bg" data-slide="3" data-slide-id="self-modification-gap" id="bg-gap">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">核心问题 03</p>
+        <h2 class="rv">档案库轨迹<br><span class="leaf">驱动自主修改</span></h2>
+        <div class="bg-vs rv">
+          <div class="bg-panel opt">
+            <h3>档案库提供搜索信号</h3>
+            <ul class="lede-list">
+              <li><b>谱系树</b>存储所有生成的 coding agent 及其评估轨迹。</li>
+              <li><b>\(\pi\) 采样</b>分配评估与扩展预算。</li>
+              <li><b>分支后验</b>决定优先探索哪些节点。</li>
+            </ul>
+          </div>
+          <div class="bg-panel gap">
+            <h3>比较轨迹提供修改信号</h3>
+            <ul class="lede-list">
+              <li><b>\(\Phi\) 自主修改</b>汇总跨任务失败模式。</li>
+              <li>重复缺陷与偶然失误得到清晰区分。</li>
+              <li>其他谱系的成功轨迹支持能力迁移。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">MGM 核心机制</span>
+          <span>把已有轨迹转化为 \(\Phi\) 的<b>比较证据</b>，无需新增任务评估或 token 消耗。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4 HGM search skeleton -->
+  <section class="slide band bg" data-slide="4" data-slide-id="hgm-search-skeleton" id="bg-formal">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">基线骨架 04</p>
+        <h2 class="rv">MGM 升级 HGM<br><span class="leaf">扩展证据</span></h2>
+        <div class="bg-formal-row rv">
+          <div class="bg-panel">
+            <h3>档案库把 coding agent 组织为可搜索谱系</h3>
+            <p>coding agent \(a\in\mathcal{A}\) 的提示、工具与控制逻辑构成<b>基因型</b>，任务轨迹 \(\varphi(a,\tau)\) 与结果 \(r(a,\tau)\) 构成可观测<b>表型</b>。</p>
+            <p>节点记录已评估任务 \(S_i\) 与失败集 \(F_i\)，分支 \(C_t(a)\) 聚合后代统计。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[U(a)=\mathbb{E}_{\tau\sim\mathcal{D}}[r(a,\tau)]\]</div>
+              <div class="eq-block">\[n_\mathrm{s}(a_i)=|S_i|-|F_i|,\qquad n_\mathrm{f}(a_i)=|F_i|\]</div>
+            </div>
+          </div>
+          <div class="bg-panel">
+            <h3>\(\pi\) 策略分配评估与扩展预算</h3>
+            <p><a class="cite" href="https://openreview.net/forum?id=T0EiEuhOOL" target="_blank" rel="noopener noreferrer">HGM</a> 对节点或分支成功率维护 Beta 后验，并据此选择下一次 \(\varphi\) 评估或 \(\Phi\) 扩展。</p>
+            <p>自主修改写作 \(a' \leftarrow \Phi(a,E)\)。MGM 保留 \(\pi\) 策略并重构证据 \(E\)。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[\pi_a\sim\mathrm{Beta}\!\left(\kappa(1+n_\mathrm{s}(a)),\kappa(1+n_\mathrm{f}(a))\right)\]</div>
+              <div class="eq-block">\[a' \leftarrow \Phi(a,E)\]</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">继承与改写</span>
+          <span>MGM 继承 HGM 的档案库与 \(\pi\) 采样，并将<b>单轨迹证据</b>升级为<b>跨任务与跨谱系比较证据</b>。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5 Method overview -->
+  <section class="slide band" data-slide="5" data-slide-id="method-overview" id="method">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">方法总览 05</p>
+        <h2 class="rv">MGM 比较<br><span class="leaf">演化闭环</span></h2>
+        <div class="fig-block fig1 rv">
+          <img src="../assets/images/fig1_mgm_overview.jpg" alt="孟德尔-哥德尔机总览，含档案库谱系树、采样评估扩展循环与三种演化算子" width="9920" height="3588" loading="eager">
+          <p class="fig-label">
+            <b>孟德尔-哥德尔机 MGM。</b> 基于跨任务与跨谱系比较证据，通过受控遗传组织自主修改。
+            每轮以 π 采样决定执行 φ 评估或 Φ 扩展。
+            CM、RM 与 CH 分别使用单轨迹、跨任务与跨谱系证据。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6 Comparative signals -->
+  <section class="slide ink bg" data-slide="6" data-slide-id="comparative-signals" id="bg-signals">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">MGM 方法 06</p>
+        <h2 class="rv">比较轨迹<br><span class="leaf">定位可修复缺陷</span></h2>
+        <div class="bg-signals rv">
+          <div class="bg-panel">
+            <h3>同一基因型跨任务比较</h3>
+            <p>跨任务评估时，成败模式形成 <a class="cite" href="https://cir.nii.ac.jp/crid/1573668924237108864" target="_blank" rel="noopener noreferrer">反应规范</a>，刻画基因型在不同环境下的表现轮廓。</p>
+            <p>反复出现的失败模式可区分<b>基因型层面缺陷</b>与任务偶然失误。</p>
+          </div>
+          <div class="bg-panel">
+            <h3>不同谱系同任务比较</h3>
+            <p>多个 coding agent 尝试<b>同一任务</b>时，轨迹揭示可迁移的行为特征。</p>
+            <p>对比证据支持跨谱系<b>定向能力迁移</b>，减少冗余探索。</p>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">设计原则</span>
+          <span>受孟德尔遗传学的受控比较启发，MGM 将证据范围明确映射为 CM、RM 与 CH 三种演化算子。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7 Operators -->
+  <section class="slide band bg" data-slide="7" data-slide-id="evolution-operators" id="bg-operators">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">MGM 方法 07</p>
+        <h2 class="rv">三种算子<br><span class="leaf">组织比较证据</span></h2>
+        <div class="ops rv-st rv">
+          <div class="op cm">
+            <h3><i>CM</i> 克隆突变</h3>
+            <p>作为<b>基线算子</b>，基于<b>单一失败轨迹</b>执行传统的自主修改。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[E_{\mathrm{CM}}(i,\tau)=\{(\varphi(a_i,\tau),r(a_i,\tau))\}\]</div>
+            </div>
+          </div>
+          <div class="op rm">
+            <h3><i>RM</i> 反应规范突变</h3>
+            <p><b>相同基因型、多任务</b>。对比表型，用反复出现的失败模式区分<b>基因型层面缺陷</b>与任务偶然失误。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[|S_i| \ge m_{\mathrm{RM}}\]</div>
+              <div class="eq-block">\[E_{\mathrm{RM}}=\big\{(\varphi(a_i,\tau_t),r(a_i,\tau_t)),(\varphi(a_i,\tau_r),r(a_i,\tau_r))\big\}\]</div>
+            </div>
+          </div>
+          <div class="op ch">
+            <h3><i>CH</i> 跨谱系杂交</h3>
+            <p><b>不同谱系、共享任务</b>。对比表现，指导<b>定向能力迁移</b>并减少冗余探索。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[\exists j\ne i,\ \tau_t\in S_i\cap S_j:\ \neg\big(r(a_i,\tau_t)=1\land r(a_j,\tau_t)=1\big)\]</div>
+              <div class="eq-block">\[E_{\mathrm{CH}}=\big\{(\varphi(a_t,\tau_t),r(a_t,\tau_t)),(\varphi(a_r,\tau_t),r(a_r,\tau_t))\big\}\]</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">统一接口</span>
+          <span>三种算子均执行 \(a' \leftarrow \Phi_\sigma(a_t,E_\sigma)\)，差异来自目标 coding agent 与比较证据的选择。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8 Sampling and operator selection -->
+  <section class="slide band bg" data-slide="8" data-slide-id="sampling-and-selection" id="bg-mgm-policy">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">MGM 方法 08</p>
+        <h2 class="rv">轨迹复用<br><span class="leaf">实现预算内扩展</span></h2>
+        <div class="bg-formal-row rv">
+          <div class="bg-panel">
+            <h3>失败任务池提高评估信息量</h3>
+            <p>MGM 维护全局失败任务池，收录已评估 coding agent 暴露的失败任务，并复用既有 \(\varphi\) 评估。</p>
+            <p>coding agent \(i\) 的待评估任务向档案库中已见失败倾斜加权。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[\mathcal{P}_t=\bigcup_{i\in\mathcal{V}_t} F_i\]</div>
+              <div class="eq-block">\[w_i(\tau)=
+\begin{cases}
+\beta_{\mathrm{fail}}, & \tau\in\mathcal{P}_t,\\
+1, & \tau\notin\mathcal{P}_t,
+\end{cases}
+\qquad \tau\notin S_i\]</div>
+            </div>
+          </div>
+          <div class="bg-panel">
+            <h3>证据可用性决定扩展算子</h3>
+            <p>当 \(\pi\) 为父代 \(a_i\) 选择 \(\Phi\) 扩展时，MGM 据档案库证据构造合格算子集 \(\Omega_i\subseteq\{\Phi_{\mathrm{CM}},\Phi_{\mathrm{RM}},\Phi_{\mathrm{CH}}\}\) 并采样。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[\Pr(\sigma\mid i)=
+\frac{\lambda_\sigma}{\sum_{\sigma'\in\Omega_i}\lambda_{\sigma'}},
+\qquad \sigma\in\Omega_i\]</div>
+              <div class="eq-block">\[a' \leftarrow \Phi_\sigma(a_t,E_\sigma)\]</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">预算边界</span>
+          <span>HGM 与 MGM 使用相同 \(\pi\) 采样骨架，MGM 通过 \(\Phi\) 扩展组织并执行比较证据。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9 Evolution tree -->
+  <section class="slide ink" data-slide="9" data-slide-id="evolution-archive" id="archive">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">演化结果 09</p>
+        <h2 class="rv">多算子协同<br><span class="leaf">形成进化谱系</span></h2>
+        <div class="mgm-figure rv">
+          <div class="mgm-stage" id="mgmStage">
+            <canvas id="mgmCanvas" aria-label="MGM 交互式进化树"></canvas>
+          </div>
+          <div class="mgm-legend">
+            <span><i class="mgm-line cm"></i>克隆突变</span>
+            <span><i class="mgm-line rm"></i>反应规范突变</span>
+            <span><i class="mgm-line ch"></i>跨谱系杂交</span>
+            <span><i class="mgm-line ref"></i>杂交参考</span>
+            <span><i class="mgm-dot util"></i>效用</span>
+          </div>
+          <p class="mgm-cap">
+            <b>Polyglot 演化档案库。</b>
+            200 次 φ 评估与 24 次 Φ 扩展共同形成谱系。
+            节点颜色表示累积效用估计，边表示不同扩展算子。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10 Frontier result -->
+  <section class="slide" data-slide="10" data-slide-id="frontier-performance" id="results">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">主要结果 10</p>
+        <h2 class="rv">35B 开源模型<br><span class="gold leaf">达到前沿性能</span></h2>
+        <div class="result-summary rv">
+          <p class="lede">MGM 将 Qwen3.6-35B-A3B 在 Polyglot 上的性能从 50.8% 提升至 93.3%，模型权重全程固定。</p>
+          <div class="result-badge">
+            <strong>&lt; 1%</strong>
+            <span>参数量相对 GPT-5</span>
+          </div>
+        </div>
+        <div class="fig-block rv">
+          <div class="polyglot-chart" id="polyglotChart" role="img" aria-label="Polyglot 性能与模型规模。Qwen3.6-35B-A3B + MGM 达 93.3%，DeepSeek-V4-Pro + MGM 达 96.9%">
+            <div class="polyglot-tip" id="polyTip" aria-hidden="true"></div>
+            <svg id="polySvg" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+          <div class="polyglot-legend">
+            <span><i class="swatch open"></i>开源</span>
+            <span><i class="swatch closed"></i>闭源</span>
+            <span><i class="swatch ours"></i>自主提升</span>
+          </div>
+          <p class="fig-label">
+            <b>Polyglot 性能与模型规模。</b>
+            星号表示 Polyglot-60，其余为 Polyglot-225。
+            排行榜数据来自 <a href="https://llm-stats.com/benchmarks/aider-polyglot" target="_blank" rel="noopener noreferrer">Aider-Polyglot</a>，闭源模型规模引自 <a href="https://arxiv.org/abs/2604.24827" target="_blank" rel="noopener noreferrer">Li et al., 2026</a>。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11 Benchmark comparison -->
+  <section class="slide" data-slide="11" data-slide-id="benchmark-gains" id="results-stats">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">受控比较 11</p>
+        <h2 class="rv">MGM 在两项基准<br><span class="gold leaf">持续领先 HGM</span></h2>
+        <div class="hook-stats rv-st rv">
+          <div class="hs-group">
+            <p class="hs-tag">SWE-bench Verified-60</p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="68.3" data-to="78.3" data-dec="1">68.3</span><span class="sub">+<span class="cnt" data-to="10.0" data-dec="1">0</span> pp</span></div>
+                <p class="l">性能</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="14.6" data-dec="1">0</span><i>%</i></div>
+                <p class="l">相对提升</p>
+              </div>
+            </div>
+          </div>
+          <div class="hs-group">
+            <p class="hs-tag">Polyglot-60</p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="50.8" data-to="93.2" data-dec="1">50.8</span><span class="sub">+<span class="cnt" data-to="42.4" data-dec="1">0</span> pp</span></div>
+                <p class="l">性能</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="83.5" data-dec="1">0</span><i>%</i></div>
+                <p class="l">相对提升</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench rv">
+          <table class="results performance">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">SWE-bench Verified-60</th>
+                <th class="group" colspan="3">Polyglot-60</th>
+                <th class="group" colspan="3">平均</th>
+              </tr>
+              <tr>
+                <th>coding agent</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">准确率</td>
+                <td class="num">68.3</td>
+                <td class="num">73.3<span class="sup">+5.0</span></td>
+                <td class="num hi">78.3<span class="sup">+10.0</span></td>
+                <td class="num">50.8</td>
+                <td class="num">77.9<span class="sup">+27.1</span></td>
+                <td class="num hi">93.2<span class="sup">+42.4</span></td>
+                <td class="num">59.6</td>
+                <td class="num">75.6<span class="sup">+16.0</span></td>
+                <td class="num hi">85.8<span class="sup">+26.2</span></td>
+              </tr>
+              <tr>
+                <td class="num">提升%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 7.3%</td>
+                <td class="num hi">↑ 14.6%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 53.3%</td>
+                <td class="num hi">↑ 83.5%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 26.8%</td>
+                <td class="num hi">↑ 44.0%</td>
+              </tr>
+              <tr>
+                <td class="num">时间</td>
+                <td class="dash">NA</td>
+                <td class="num">93.02 h</td>
+                <td class="num">96.11 h</td>
+                <td class="dash">NA</td>
+                <td class="num">44.20 h</td>
+                <td class="num hi">40.14 h</td>
+                <td class="dash">NA</td>
+                <td class="num">68.61 h</td>
+                <td class="num hi">68.12 h</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>在 <a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">SWE-bench Verified</a> 与 <a href="https://aider.chat/2024/12/21/polyglot.html" target="_blank" rel="noopener noreferrer">Polyglot</a> 上演化的 coding agent 性能。</b>
+          使用 <a href="https://qwen.ai/blog?id=qwen3.6-35b-a3b" target="_blank" rel="noopener noreferrer">Qwen3.6-35B-A3B</a>，经 200 次 φ 评估与 24 次 Φ 扩展。
+          HGM 与 MGM 从相同初始 coding agent 框架出发。
+          上标为绝对百分点提升，时间为 8×NVIDIA H100 GPU 的墙钟时间。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12 Cross benchmark generalization -->
+  <section class="slide ink generalization-page" data-slide="12" data-slide-id="cross-benchmark-generalization" id="generalization">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">泛化结果 12</p>
+        <h2 class="rv">跨基准迁移<br><span class="leaf">保留 40.1% 增益</span></h2>
+        <p class="lede rv">在 Polyglot 上演化的 coding agent 框架直接迁移到代码仓库级软件工程任务。</p>
+        <div class="hook-stats single rv-st rv">
+          <div class="hs-group">
+            <p class="hs-tag">跨基准迁移<br><i>Polyglot 到 SWE-bench Pro 与 Multilingual</i></p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="29.2" data-to="40.9" data-dec="1">29.2</span><span class="sub">+<span class="cnt" data-to="11.7" data-dec="1">0</span> pp</span></div>
+                <p class="l">平均性能</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="40.1" data-dec="1">0</span><i>%</i></div>
+                <p class="l">相对提升</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench rv">
+          <table class="results performance">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">SWE-bench Pro</th>
+                <th class="group" colspan="3">SWE-bench Multilingual</th>
+                <th class="group" colspan="3">Avg.</th>
+              </tr>
+              <tr>
+                <th>coding agent</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">准确率</td>
+                <td class="num">16.7</td>
+                <td class="num">13.3<span class="sup">−3.4</span></td>
+                <td class="num hi">26.7<span class="sup">+10.0</span></td>
+                <td class="num">41.7</td>
+                <td class="num">43.3<span class="sup">+1.6</span></td>
+                <td class="num hi">55.0<span class="sup">+13.3</span></td>
+                <td class="num">29.2</td>
+                <td class="num">28.3<span class="sup">−0.9</span></td>
+                <td class="num hi">40.9<span class="sup">+11.7</span></td>
+              </tr>
+              <tr>
+                <td class="num">提升%</td>
+                <td class="dash">NA</td>
+                <td class="num">↓ 20.4%</td>
+                <td class="num hi">↑ 59.9%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 3.8%</td>
+                <td class="num hi">↑ 31.9%</td>
+                <td class="dash">NA</td>
+                <td class="num">↓ 3.1%</td>
+                <td class="num hi">↑ 40.1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>从 <a href="https://aider.chat/2024/12/21/polyglot.html" target="_blank" rel="noopener noreferrer">Polyglot</a> 到 <a href="https://arxiv.org/abs/2509.16941" target="_blank" rel="noopener noreferrer">SWE-bench Pro</a> 与 <a href="https://www.swebench.com/multilingual.html" target="_blank" rel="noopener noreferrer">SWE-bench Multilingual</a> 的跨基准泛化。</b>
+          在 Polyglot 上演化的 coding agent 以 <a href="https://qwen.ai/blog?id=qwen3.6-35b-a3b" target="_blank" rel="noopener noreferrer">Qwen3.6-35B-A3B</a> 零样本评估于留出的 SWE-bench 变体。
+          上标为相对初始 coding agent 的绝对百分点提升。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13 Cross model generalization -->
+  <section class="slide ink generalization-page" data-slide="13" data-slide-id="cross-model-generalization" id="generalization-model">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">泛化结果 13</p>
+        <h2 class="rv">Qwen 演化框架<br><span class="leaf">迁移至 DeepSeek</span></h2>
+        <p class="lede rv">直接替换基座模型并保留 coding agent 框架，MGM 在 DeepSeek-V4-Flash 与 DeepSeek-V4-Pro 上继续保持增益。</p>
+        <div class="hook-stats single rv-st rv">
+          <div class="hs-group">
+            <p class="hs-tag">跨模型迁移<br><i>Qwen3.6-35B-A3B 到 DeepSeek-V4-Flash 与 DeepSeek-V4-Pro</i></p>
+            <div class="hs-cols">
+              <div class="hs">
+                <div class="n"><span class="cnt" data-from="47.5" data-to="70.8" data-dec="1">47.5</span><span class="sub">+<span class="cnt" data-to="23.3" data-dec="1">0</span> pp</span></div>
+                <p class="l">平均性能</p>
+              </div>
+              <div class="hs">
+                <div class="n">↑ <span class="cnt" data-to="49.1" data-dec="1">0</span><i>%</i></div>
+                <p class="l">相对提升</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bench rv">
+          <table class="results performance transfer">
+            <thead>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">进化</th>
+                <th class="group" colspan="9">迁移</th>
+              </tr>
+              <tr class="groups">
+                <th class="stub"></th>
+                <th class="group" colspan="3">Qwen3.6-35B-A3B</th>
+                <th class="group" colspan="3">DeepSeek-V4-Flash</th>
+                <th class="group" colspan="3">DeepSeek-V4-Pro</th>
+                <th class="group" colspan="3">Avg.</th>
+              </tr>
+              <tr>
+                <th>coding agent</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+                <th>初始</th><th>HGM</th><th>MGM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">准确率</td>
+                <td class="num">68.3</td>
+                <td class="num">73.3<span class="sup">+5.0</span></td>
+                <td class="num hi">78.3<span class="sup">+10.0</span></td>
+                <td class="num">50.0</td>
+                <td class="num">60.0<span class="sup">+10.0</span></td>
+                <td class="num hi">66.7<span class="sup">+16.7</span></td>
+                <td class="num">45.0</td>
+                <td class="num">70.0<span class="sup">+25.0</span></td>
+                <td class="num hi">75.0<span class="sup">+30.0</span></td>
+                <td class="num">47.5</td>
+                <td class="num">65.0<span class="sup">+17.5</span></td>
+                <td class="num hi">70.8<span class="sup">+23.3</span></td>
+              </tr>
+              <tr>
+                <td class="num">提升%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 7.3%</td>
+                <td class="num hi">↑ 14.6%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 20.0%</td>
+                <td class="num hi">↑ 33.3%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 55.6%</td>
+                <td class="num hi">↑ 66.7%</td>
+                <td class="dash">NA</td>
+                <td class="num">↑ 36.8%</td>
+                <td class="num hi">↑ 49.1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-label rv">
+          <b>在 <a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">SWE-bench Verified-60</a> 上的跨模型迁移。</b>
+          <a href="https://qwen.ai/blog?id=qwen3.6-35b-a3b" target="_blank" rel="noopener noreferrer">Qwen3.6-35B-A3B</a> 列为原始演化结果。
+          <a href="https://arxiv.org/abs/2606.19348" target="_blank" rel="noopener noreferrer">DeepSeek</a> 列直接替换基座模型，coding agent 框架沿用 Qwen 演化结果。
+          上标为绝对百分点提升。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14 Additive landscape -->
+  <section class="slide band bg" data-slide="14" data-slide-id="additive-landscape" id="theory-landscape">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">理论解释 14</p>
+        <h2 class="rv">加性景观<br><span class="leaf">刻画位点修复</span></h2>
+        <div class="bg-formal-row rv">
+          <div class="bg-panel">
+            <h3>二元基因型与汉明距离</h3>
+            <p>每个 coding agent 携带基因型 \(\mathbf{g}\in\{0,1\}^{L}\)。固定理想最优基因型 \(\mathbf{g}^{*}=\mathbf{1}\) 表示最优程序。基因型通过效用观测，编辑距离度量其优化空间。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[d(\mathbf{g})=\sum_{\ell=1}^{L}\mathbf{1}\!\left[g_{\ell}\neq g^{*}_{\ell}\right]\]</div>
+              <div class="eq-block">\[M(a)=\{\ell\in[L]: g_{\ell}(a)\neq g^{*}_{\ell}\}\]</div>
+            </div>
+          </div>
+          <div class="bg-panel">
+            <h3>任务考察与成功概率</h3>
+            <p>各任务 \(\tau\) 考察子集 \(R_{\tau}\subseteq[L]\)，\(|R_{\tau}|=k\)。所需位点全部正确时，coding agent 解决任务 \(\tau\)。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[r(a,\tau)=1 \Leftrightarrow R_{\tau}\cap M(a)=\varnothing\]</div>
+              <div class="eq-block">\[P(r{=}1\mid d)=\Bigl(\tfrac{L-d}{L}\Bigr)^{k}\]</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">替身模型</span>
+          <span>基因型代表框架能力，任务检验能力子集，编辑距离刻画 coding agent 与理想程序的距离。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 15 Diagnostic compression -->
+  <section class="slide band bg" data-slide="15" data-slide-id="diagnostic-compression" id="theory-diagnostic">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">理论解释 15</p>
+        <h2 class="rv">比较证据<br><span class="leaf">提高有效修复概率</span></h2>
+        <div class="bg-formal-row rv">
+          <div class="bg-panel">
+            <h3>有效修复概率</h3>
+            <p>算子 \(\sigma\) 用证据 \(E\) 形成候选位点集 \(C_{\sigma}(E)\)，命中真错配位点时以概率 \(s\) 修复。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[p_{f}^{\sigma}=s\cdot\Pr_{\ell\sim C_{\sigma}(E)}[\ell\in M(a)]\]</div>
+            </div>
+            <p>\(\Phi_{\mathrm{CM}}\) 用 \(C_{\mathrm{CM}}=R_{\tau_t}\)。</p>
+            <p>\(\Phi_{\mathrm{RM}}\) 压缩为 \(C_{\mathrm{RM}}=R_{\tau_t}\cap R_{\tau_r}\)，\(\Phi_{\mathrm{CH}}\) 经参考轨迹过滤 \(R_{\tau}\)。</p>
+          </div>
+          <div class="bg-panel">
+            <h3>命题 1 蒙特卡洛设定</h3>
+            <p>在有效比较证据下，\(\Phi_{\mathrm{RM}}\) 与 \(\Phi_{\mathrm{CH}}\) 的有效修复概率严格高于 \(\Phi_{\mathrm{CM}}\)。</p>
+            <div class="eq-zone compact">
+              <div class="eq-block">\[p_{f}^{\mathrm{RM}}>p_{f}^{\mathrm{CM}},\qquad p_{f}^{\mathrm{CH}}>p_{f}^{\mathrm{CM}}\]</div>
+              <div class="eq-block">\[\rho=\frac{p_{f}^{\mathrm{RM}}}{p_{f}^{\mathrm{CM}}}=\frac{p_{f}^{\mathrm{CH}}}{p_{f}^{\mathrm{CM}}}\]</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway-band rv">
+          <span class="takeaway-label">诊断收益</span>
+          <span>等成本设定隔离比较证据的贡献，\(\rho>1\) 对应有效诊断收益。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 16 Theory simulation -->
+  <section class="slide band" data-slide="16" data-slide-id="fitness-simulation" id="theory">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">仿真验证 16</p>
+        <h2 class="rv">诊断优势<br><span class="leaf">加速 MGM 逼近最优</span></h2>
+        <div class="fig-block trio rv" id="simPanel">
+          <div class="trio-visuals">
+            <div class="trio-left">
+              <div class="trio-frame">
+                <img src="../assets/images/fig3_fitness_landscape.png" alt="加性适应度景观模型示意图" width="2260" height="2190" loading="lazy">
+              </div>
+            </div>
+            <div class="trio-right">
+              <div class="sim-charts">
+                <div class="trio-frame">
+                  <canvas id="simEvo" aria-label="进化动态，最优编辑距离随累积成本变化"></canvas>
+                </div>
+                <div class="trio-frame">
+                  <canvas id="simHist" aria-label="蒙特卡洛种子间的编辑距离分布"></canvas>
+                </div>
+              </div>
+              <div class="sim-shared">
+                <div class="sim-controls">
+                  <div class="sim-ctrl">
+                    <label for="simD0">初始距离 <b id="simD0Val">20</b></label>
+                    <input id="simD0" type="range" min="0" max="8" step="1" value="2" aria-label="初始距离">
+                  </div>
+                  <div class="sim-ctrl">
+                    <label for="simRho">诊断优势 <b id="simRhoVal">2.0</b></label>
+                    <input id="simRho" type="range" min="0" max="8" step="1" value="6" aria-label="诊断优势">
+                  </div>
+                </div>
+                <div class="sim-legend">
+                  <span><i class="dgm"></i>DGM</span>
+                  <span><i class="hgm"></i>HGM</span>
+                  <span><i class="mgm"></i>MGM</span>
+                  <span><i class="oracle"></i>理想最优</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="trio-captions">
+            <p class="fig-label"><b>加性适应度景观模型。</b>
+            每个 coding agent 携带含位点的基因型，并通过 φ 评估暴露。
+            各任务 τ<sub>i</sub> 考察位点子集以形成成功表型。
+            Φ 扩展以一定概率修改所考察位点。
+            </p>
+            <p class="fig-label"><b>累积预算下性能演化的实时仿真。</b>
+              面板为跨随机种子平均的编辑距离，越低越好，并含 95% 置信区间。
+              虚线标记理想最优水平。
+            </p>
+            <p class="fig-label"><b>最终性能分布的实时仿真。</b>
+              面板为所有随机种子的最终编辑距离分布，越低越好。虚线为各方法均值。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 17 Closing -->
+  <section class="slide ink" data-slide="17" data-slide-id="closing" id="closing">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">结论 17</p>
+        <div class="closing-layout">
+          <div class="rv">
+            <h2>比较证据<br><span class="leaf">驱动可复用进化</span></h2>
+            <p class="lede">孟德尔-哥德尔机把档案库从搜索记忆升级为自主修改的证据库。</p>
+            <div class="closing-links">
+              <a href="https://arxiv.org/abs/2608.07645" target="_blank" rel="noopener noreferrer">arXiv 2608.07645</a>
+              <a href="https://reallcz.github.io/MGM/" target="_blank" rel="noopener noreferrer">Project page</a>
+              <a href="index.html">English</a>
+            </div>
+          </div>
+          <div class="closing-points rv-st rv">
+            <div class="closing-point">
+              <span class="closing-nb">01</span>
+              <div>
+                <h3>证据复用</h3>
+                <p>跨任务与跨谱系轨迹直接进入 \(\Phi\)，复用现有评估与 token 预算。</p>
+              </div>
+            </div>
+            <div class="closing-point">
+              <span class="closing-nb">02</span>
+              <div>
+                <h3>性能与迁移</h3>
+                <p>MGM 在两项代码基准上优于 HGM，并跨基准、跨模型保留增益。</p>
+              </div>
+            </div>
+            <div class="closing-point">
+              <span class="closing-nb">03</span>
+              <div>
+                <h3>理论解释</h3>
+                <p>比较证据压缩候选缺陷，提高有效修复概率并加速逼近最优。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="deck-progress" aria-hidden="true"><i id="deckBar"></i></div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="assets/evo-trees.js" defer></script>
+<script src="assets/polyglot-chart.js" defer></script>
+<script src="assets/sim-panel.js" defer></script>
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('deckBar');
+  const FADE_MS = 700;
+  let index = Math.max(0, slides.findIndex(s => s.classList.contains('is-active')));
+  if (index < 0) index = 0;
+  let locked = false;
+  const counted = new WeakSet();
+
+  const animateCount = (el) => {
+    const to = parseFloat(el.dataset.to);
+    const from = el.dataset.from != null ? parseFloat(el.dataset.from) : 0;
+    const dec = parseInt(el.dataset.dec || '0', 10);
+    const dur = 1100;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (from + (to - from) * eased).toFixed(dec);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const resetSlideFit = (slide) => {
+    slide?.querySelectorAll('.wrap, .wrap-narrow').forEach(wrap => {
+      wrap.style.zoom = '';
+      wrap.style.transform = '';
+    });
+  };
+
+  const fitSlide = (slide) => {
+    if (!slide || slide.classList.contains('masthead')) return;
+    const frame = slide.querySelector('.slide-frame');
+    const wrap = frame?.querySelector('.wrap, .wrap-narrow');
+    if (!frame || !wrap) return;
+    resetSlideFit(slide);
+    const maxH = frame.clientHeight;
+    const maxW = frame.clientWidth;
+    if (maxH < 1 || maxW < 1) return;
+    const contentH = wrap.scrollHeight;
+    const contentW = wrap.scrollWidth;
+    const scale = Math.min(1, maxH / contentH, maxW / contentW);
+    if (!Number.isFinite(scale) || scale >= 0.999) return;
+    if ('zoom' in wrap.style) wrap.style.zoom = String(scale);
+    else wrap.style.transform = `scale(${scale})`;
+  };
+
+  const fitActiveSlide = () => {
+    slides.forEach(resetSlideFit);
+    const run = () => fitSlide(slides[index]);
+    run();
+    requestAnimationFrame(run);
+  };
+
+  let resizeFitTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeFitTimer);
+    resizeFitTimer = setTimeout(fitActiveSlide, 80);
+  });
+
+  const renderMath = (slide) => {
+    if (!slide || typeof renderMathInElement !== 'function') return;
+    renderMathInElement(slide, {
+      delimiters: [
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  };
+
+  const enterSlide = (slide) => {
+    if (slide.classList.contains('masthead')) {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.remove('in'));
+    }
+    requestAnimationFrame(() => {
+      slide.querySelectorAll('.rv, .rv-st').forEach(el => el.classList.add('in'));
+    });
+    slide.querySelectorAll('.hook-stats').forEach(hs => {
+      if (counted.has(hs)) return;
+      counted.add(hs);
+      hs.querySelectorAll('.cnt').forEach(animateCount);
+    });
+    window.dispatchEvent(new CustomEvent('deck:slide', {
+      detail: { index, id: slide.id || null, slide }
+    }));
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('resize'));
+      renderMath(slide);
+      requestAnimationFrame(fitActiveSlide);
+    });
+  };
+
+  const updateChrome = () => {
+    const n = slides.length;
+    bar.style.width = `${((index + 1) / n) * 100}%`;
+  };
+
+  const go = (next) => {
+    if (locked) return;
+    const n = slides.length;
+    const target = Math.max(0, Math.min(n - 1, next));
+    if (target === index) return;
+    locked = true;
+    const prev = slides[index];
+    const curr = slides[target];
+    prev.classList.remove('is-active');
+    prev.classList.add('is-leaving');
+    curr.classList.add('is-active');
+    index = target;
+    updateChrome();
+    enterSlide(curr);
+    setTimeout(() => {
+      prev.classList.remove('is-leaving');
+      locked = false;
+    }, FADE_MS);
+  };
+
+  const next = () => go(index + 1);
+  const prev = () => go(index - 1);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+    if (['ArrowDown', 'PageDown', ' ', 'ArrowRight', 'j'].includes(e.key)) {
+      e.preventDefault();
+      next();
+    } else if (['ArrowUp', 'PageUp', 'ArrowLeft', 'k'].includes(e.key)) {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      go(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      go(slides.length - 1);
+    }
+  });
+
+  let wheelAcc = 0;
+  let wheelReset = 0;
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (locked) return;
+    wheelAcc += e.deltaY;
+    clearTimeout(wheelReset);
+    wheelReset = setTimeout(() => { wheelAcc = 0; }, 180);
+    if (Math.abs(wheelAcc) < 40) return;
+    const dir = wheelAcc > 0 ? 1 : -1;
+    wheelAcc = 0;
+    go(index + dir);
+  }, { passive: false });
+
+  let touchY = null;
+  window.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) touchY = e.touches[0].clientY;
+  }, { passive: true });
+  window.addEventListener('touchend', (e) => {
+    if (touchY == null) return;
+    const y = e.changedTouches[0].clientY;
+    const dy = touchY - y;
+    touchY = null;
+    if (Math.abs(dy) < 48) return;
+    go(index + (dy > 0 ? 1 : -1));
+  }, { passive: true });
+
+  updateChrome();
+  const boot = () => enterSlide(slides[index]);
+  if (document.readyState === 'complete') boot();
+  else window.addEventListener('load', boot, { once: true });
+})();
+</script>
+</body>
+</html>
