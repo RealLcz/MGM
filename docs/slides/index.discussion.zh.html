@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孟德尔-哥德尔机 MGM · Discussion 扩展版</title>
+<style>
+  body{
+    margin:0;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:#273330;
+    background:#F4F7F5;
+  }
+  .boot{
+    width:min(680px,86vw);
+    padding:34px 38px;
+    background:#fff;
+    border:1px solid rgba(39,51,48,.12);
+    box-shadow:0 18px 60px rgba(39,51,48,.08);
+  }
+  h1{margin:0 0 12px;font-size:26px;line-height:1.25;}
+  p{margin:0;color:#6B7A72;line-height:1.7;font-size:15px;}
+  a{color:#2E8B57;}
+</style>
+</head>
+<body>
+<div class="boot">
+  <h1>正在加载 MGM Discussion 扩展版</h1>
+  <p>将自动读取原始 <code>index.zh.html</code>，在实验结果之后、理论解释之前插入三页 Discussion，并重新编号后续幻灯片。</p>
+</div>
+<script>
+(async () => {
+  const response = await fetch('index.zh.html', { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`无法读取 index.zh.html: ${response.status}`);
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  doc.documentElement.lang = 'zh-CN';
+  doc.title = '孟德尔-哥德尔机 MGM · Discussion 扩展版';
+  const ogTitle = doc.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute('content', '孟德尔-哥德尔机 MGM · Discussion 扩展版');
+  const ogDesc = doc.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute('content', '在 MGM 实验结果之后加入三页附录讨论：杂交何时有效、进化技能是否泛化，以及 MGM 的边界与下一步问题。');
+
+  const style = doc.querySelector('style');
+  if (style) {
+    style.textContent += `
+
+/* Discussion extension slides */
+.slide.discussion-page h2{font-size:clamp(32px,5vmin,54px);}
+.slide.discussion-page .lede{max-width:1020px;}
+.slide.discussion-page .disc-grid-2{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:clamp(12px,2vw,24px);
+  margin-top:clamp(18px,2.5vmin,28px);
+  align-items:stretch;
+}
+.slide.discussion-page .disc-grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(10px,1.5vw,18px);
+  margin-top:clamp(18px,2.5vmin,28px);
+}
+.slide.discussion-page .disc-panel{
+  border:1px solid var(--hair);
+  background:var(--white);
+  padding:clamp(12px,1.8vmin,20px) clamp(14px,1.8vw,22px);
+  min-width:0;
+}
+.slide.ink.discussion-page .disc-panel{
+  background:rgba(232,238,234,.045);
+  border-color:rgba(232,238,234,.13);
+}
+.slide.discussion-page .disc-panel h3{
+  margin:0 0 clamp(10px,1.2vmin,14px);
+  font-family:var(--mono);
+  font-size:clamp(10px,1.05vmin,12px);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--leaf);
+}
+.slide.ink.discussion-page .disc-panel h3{color:var(--leaf-bright);}
+.slide.discussion-page .disc-panel p,
+.slide.discussion-page .disc-panel li{
+  font-size:clamp(13px,1.45vmin,16px);
+  line-height:1.68;
+}
+.slide.discussion-page .disc-panel p{margin:0;color:var(--soil);}
+.slide.ink.discussion-page .disc-panel p,
+.slide.ink.discussion-page .disc-panel li{color:rgba(232,238,234,.78);}
+.slide.discussion-page .disc-panel p + p{margin-top:clamp(7px,1vmin,10px);}
+.slide.discussion-page .disc-panel ul{margin:0;padding-left:1.05em;}
+.slide.discussion-page .disc-panel li{margin-top:clamp(5px,.8vmin,8px);}
+.slide.discussion-page .disc-panel b{color:var(--ink);font-weight:700;}
+.slide.ink.discussion-page .disc-panel b{color:var(--white);}
+.slide.discussion-page .disc-flow{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:clamp(6px,1vw,10px);
+  margin-top:clamp(12px,1.8vmin,18px);
+}
+.slide.discussion-page .disc-node{
+  border:1px solid rgba(46,139,87,.28);
+  background:rgba(46,139,87,.06);
+  padding:clamp(8px,1.1vmin,12px);
+  text-align:center;
+  min-height:clamp(70px,10vmin,96px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+}
+.slide.ink.discussion-page .disc-node{
+  border-color:rgba(61,166,106,.32);
+  background:rgba(61,166,106,.08);
+}
+.slide.discussion-page .disc-node strong{
+  font-family:var(--body);
+  font-size:clamp(14px,1.5vmin,17px);
+  color:var(--ink);
+}
+.slide.ink.discussion-page .disc-node strong{color:var(--white);}
+.slide.discussion-page .disc-node span{
+  font-size:clamp(10.5px,1.1vmin,12.5px);
+  line-height:1.35;
+  color:var(--dim);
+}
+.slide.ink.discussion-page .disc-node span{color:rgba(232,238,234,.62);}
+.slide.discussion-page .disc-node.is-win{
+  border-color:rgba(212,160,23,.42);
+  background:rgba(212,160,23,.11);
+}
+.slide.discussion-page .disc-node.is-hybrid{
+  border-color:rgba(46,139,87,.5);
+  background:linear-gradient(135deg,rgba(46,139,87,.12),rgba(212,160,23,.1));
+}
+.slide.discussion-page .disc-quote{
+  margin-top:clamp(14px,2vmin,22px);
+  padding:clamp(10px,1.4vmin,14px) clamp(14px,1.8vw,20px);
+  border-left:4px solid var(--leaf);
+  background:rgba(46,139,87,.07);
+  font-size:clamp(14px,1.55vmin,17px);
+  line-height:1.65;
+  color:var(--soil);
+}
+.slide.ink.discussion-page .disc-quote{
+  border-left-color:var(--leaf-bright);
+  background:rgba(61,166,106,.08);
+  color:rgba(232,238,234,.86);
+}
+.slide.discussion-page .disc-equation{
+  margin-top:clamp(12px,1.8vmin,18px);
+  font-family:var(--mono);
+  font-size:clamp(13px,1.45vmin,16px);
+  color:var(--leaf);
+  text-align:center;
+}
+.slide.ink.discussion-page .disc-equation{color:var(--leaf-bright);}
+.slide.discussion-page .disc-strip{
+  margin-top:clamp(16px,2.2vmin,24px);
+  padding:clamp(9px,1.4vmin,14px) clamp(14px,2vw,22px);
+  border-top:1px solid var(--hair);
+  border-bottom:1px solid var(--hair);
+  font-size:clamp(14px,1.55vmin,17px);
+  line-height:1.65;
+  color:var(--soil);
+}
+.slide.ink.discussion-page .disc-strip{
+  border-color:rgba(232,238,234,.12);
+  color:rgba(232,238,234,.84);
+}
+.slide.discussion-page .disc-strip b{color:var(--ink);}
+.slide.ink.discussion-page .disc-strip b{color:var(--white);}
+@media (max-width:860px){
+  .slide.discussion-page .disc-grid-2,
+  .slide.discussion-page .disc-grid-3{grid-template-columns:1fr;}
+  .slide.discussion-page .disc-flow{grid-template-columns:1fr;}
+}`;
+  }
+
+  const discussionSlides = `
+  <!-- Slide 14 Discussion: When hybridization helps -->
+  <section class="slide ink bg discussion-page" data-slide="14" data-slide-id="discussion-hybridization" id="discussion-hybridization">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">附录讨论 14</p>
+        <h2 class="rv">杂交何时有效？<br><span class="leaf">当一条谱系已经发现了可迁移能力</span></h2>
+        <p class="lede rv">Hybridization 的关键不是拼接源码，而是让失败谱系读取成功谱系的行为轨迹，从 phenotype contrast 中提取可继承的 workflow-level trait。</p>
+        <div class="disc-grid-2 rv-st rv">
+          <div class="disc-panel">
+            <h3>真实案例：javascript__queen-attack</h3>
+            <p>node #1 与 node #2 最初都失败；沿 node #2 的谱系继续演化后，node #6 首次解决该任务，node #8 继续继承这一能力。</p>
+            <div class="disc-flow">
+              <div class="disc-node"><strong>#1</strong><span>fail</span></div>
+              <div class="disc-node"><strong>#2</strong><span>fail</span></div>
+              <div class="disc-node is-win"><strong>#6</strong><span>test-contract skill</span></div>
+              <div class="disc-node is-win"><strong>#8</strong><span>donor lineage</span></div>
+              <div class="disc-node is-hybrid"><strong>#15</strong><span>hybrid child succeeds</span></div>
+            </div>
+          </div>
+          <div class="disc-panel">
+            <h3>被迁移的不是 patch，而是 skill</h3>
+            <ul>
+              <li>先把 tests 当作 <b>behavioral contract</b> 阅读。</li>
+              <li>明确 public API、返回值、错误信息与已有实现的约束。</li>
+              <li>再按 contract 修改代码，并在提交前验证。</li>
+            </ul>
+            <div class="disc-quote">一条谱系偶然发现的能力，不需要让其他谱系重新独立发现一次。</div>
+          </div>
+        </div>
+        <p class="disc-strip rv"><b>结论：</b>DGM 保存 diversity；MGM 进一步让 diverse lineages 之间发生 information exchange。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 15 Discussion: Are evolved skills general -->
+  <section class="slide band bg discussion-page" data-slide="15" data-slide-id="discussion-general-skills" id="discussion-general-skills">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">附录讨论 15</p>
+        <h2 class="rv">进化出的技能<br><span class="leaf">真的是 general 吗？</span></h2>
+        <p class="lede rv">Appendix 的 qualitative analysis 用 evolution descriptions 的语义结构回答这个问题：MGM 不是只产生更多 task-specific patches，而是在反复强化可复用的 scaffold procedure。</p>
+        <div class="disc-grid-3 rv-st rv">
+          <div class="disc-panel">
+            <h3>不是 benchmark patch</h3>
+            <p>同一个能力从不同任务中反复出现，而不是只绑定在最初产生它的单个 instance 上。</p>
+          </div>
+          <div class="disc-panel">
+            <h3>不是语言专属技巧</h3>
+            <p>test-contract extraction、API-contract adherence、pre-implementation verification 都是跨语言的软件工程流程。</p>
+          </div>
+          <div class="disc-panel">
+            <h3>是可继承 procedure</h3>
+            <p>这些 modification 改变的是 agent 解决问题前如何读取证据、形成约束、验证实现。</p>
+          </div>
+        </div>
+        <div class="disc-equation rv">Generality = 从单个 failure 中产生，却能在其他 tasks / benchmarks / backbone models 中继续工作。</div>
+        <p class="disc-strip rv"><b>实验上的支撑：</b>跨基准迁移说明 skill 不只服务于 Polyglot；跨模型迁移说明 scaffold improvement 不完全依赖某一个底层 LLM。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 16 Discussion: Limits and next bottleneck -->
+  <section class="slide ink bg discussion-page" data-slide="16" data-slide-id="discussion-limits" id="discussion-limits">
+    <div class="slide-frame">
+      <div class="wrap">
+        <p class="section-kicker rv">附录讨论 16</p>
+        <h2 class="rv">MGM 的边界<br><span class="leaf">证据更多，不等于修改一定正确</span></h2>
+        <p class="lede rv">Comparative evidence 降低 diagnostic uncertainty，但最后仍然要靠 self-improvement model 完成因果归因、能力抽象与源码修改。</p>
+        <div class="disc-grid-2 rv-st rv">
+          <div class="disc-panel">
+            <h3>前提一：必须先有可比较证据</h3>
+            <ul>
+              <li>Reaction-norm 需要同一 agent 的多任务轨迹。</li>
+              <li>Hybridization 需要不同谱系在同一任务上的 overlap。</li>
+              <li>archive 早期或 task overlap 稀疏时，MGM 会退化接近 clonal mutation。</li>
+            </ul>
+          </div>
+          <div class="disc-panel">
+            <h3>前提二：模型必须能理解证据</h3>
+            <ul>
+              <li>区分 causal behavioral difference 与偶然相关。</li>
+              <li>把成功轨迹抽象成 general capability。</li>
+              <li>再把 capability 映射回目标 agent 的 codebase。</li>
+            </ul>
+          </div>
+        </div>
+        <p class="disc-strip rv"><b>更大的启发：</b>RSI 不应该只是不断 random mutation + selection；它应该逐渐学会从实验历史中提出 hypothesis、做 controlled comparison，并执行更加 informed intervention。</p>
+      </div>
+    </div>
+  </section>
+`;
+
+  const anchor = doc.querySelector('[data-slide-id="additive-landscape"]');
+  if (!anchor) throw new Error('未找到理论部分插入点：additive-landscape');
+  anchor.insertAdjacentHTML('beforebegin', discussionSlides);
+
+  const slides = Array.from(doc.querySelectorAll('.slide'));
+  slides.forEach((slide, idx) => {
+    slide.setAttribute('data-slide', String(idx));
+    const kicker = slide.querySelector('.section-kicker');
+    if (kicker) {
+      kicker.textContent = kicker.textContent.replace(/\d+\s*$/, String(idx));
+    }
+  });
+
+  document.open();
+  document.write('<!DOCTYPE html>\n' + doc.documentElement.outerHTML);
+  document.close();
+})().catch((err) => {
+  document.body.innerHTML = `<div class="boot"><h1>加载失败</h1><p>${err.message}</p><p><a href="index.zh.html">返回原始版本</a></p></div>`;
+});
+</script>
+</body>
+</html>
