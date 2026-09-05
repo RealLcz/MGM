@@ -524,7 +524,7 @@ section.ink .fig-label a:hover,section.ink .mgm-cap a:hover{color:#E8EEEA;}
 #archive{padding:36px 0 40px;}
 .mgm-stage{
   position:relative;width:100%;
-  aspect-ratio:2 / 1;
+  aspect-ratio:720 / 346;
   border:none;
   background:
     radial-gradient(rgba(232,238,234,.12) .2vh, transparent .2vh);
@@ -694,7 +694,7 @@ body.deck{touch-action:none;}
   position:relative;
   width:100%;height:100%;
   background:var(--paper);
-  transition:background .7s var(--ease);
+  transition:background .28s var(--ease);
 }
 .deck:has(.slide.ink.is-active){background:var(--ink);}
 .slide.ink.blank{padding:0;}
@@ -703,7 +703,7 @@ body.deck{touch-action:none;}
   display:flex;align-items:center;justify-content:center;
   opacity:0;visibility:hidden;pointer-events:none;
   transform:translateY(110vh);
-  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  transition:opacity .28s var(--ease),visibility 0s linear .28s;
   z-index:0;
   padding:clamp(24px,4vh,48px) 6vw;
   overflow:hidden;
@@ -711,13 +711,13 @@ body.deck{touch-action:none;}
 .slide.is-active{
   opacity:1;visibility:visible;pointer-events:auto;
   transform:none;
-  transition:opacity .7s var(--ease),visibility 0s linear 0s;
+  transition:opacity .28s var(--ease),visibility 0s linear 0s;
   z-index:1;
 }
 .slide.is-leaving{
   opacity:0;visibility:visible;pointer-events:none;
   transform:none;
-  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  transition:opacity .28s var(--ease),visibility 0s linear .28s;
   z-index:2;
 }
 .slide-frame{
@@ -906,14 +906,25 @@ body.deck{touch-action:none;}
 }
 .slide#theory .sim-controls{gap:10px 18px;}
 .slide .mgm-figure{display:flex;flex-direction:column;min-height:0;}
-.slide#archive .mgm-figure{height:min(62vh,680px);flex:0 0 auto;}
+.slide#archive .mgm-figure{height:auto;flex:0 1 auto;width:100%;}
 .slide .mgm-stage{
-  flex:1 1 auto;min-height:0;
-  aspect-ratio:auto;height:auto;
+  flex:0 0 auto;min-height:0;
+  width:100%;
+  aspect-ratio:720 / 346;
+  height:auto;
 }
 .slide .mgm-legend{font-size:clamp(9px,1.2vmin,11px);margin-top:8px;}
-.slide .polyglot-chart{flex:0 1 auto;min-height:0;}
-.slide .polyglot-chart svg{max-height:min(50vmin,432px);}
+.slide .polyglot-chart{flex:0 1 auto;min-height:0;width:100%;}
+.slide .polyglot-chart svg{width:100%;max-width:100%;height:auto;max-height:none;}
+.slide#results .fig-block{
+  width:100%;
+  max-width:none;
+  margin-left:0;
+  margin-right:0;
+}
+.slide#results .polyglot-chart,
+.slide#results .polyglot-legend,
+.slide#results .fig-label{width:100%;}
 .slide#theory .wrap{justify-content:center;}
 .slide#theory .fig-block.trio{
   margin-top:clamp(14px,2.2vmin,24px);
@@ -1098,10 +1109,7 @@ body.deck{touch-action:none;}
   color:var(--soil);
 }
 .slide#bg-rsi .rsi-loop{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:clamp(12px,2vw,22px);
-  align-items:start;
+  display:block;
   padding:clamp(10px,1.4vmin,14px) clamp(12px,1.6vw,18px);
   border:1px solid rgba(46,139,87,.22);
   background:linear-gradient(135deg,rgba(46,139,87,.07),rgba(212,160,23,.05));
@@ -1114,7 +1122,6 @@ body.deck{touch-action:none;}
   text-transform:uppercase;
   color:var(--leaf);
   writing-mode:vertical-rl;
-  transform:rotate(180deg);
   justify-self:center;
   line-height:1.2;
 }
@@ -1134,14 +1141,14 @@ html:lang(zh-CN) .slide#bg-rsi .rsi-loop-label{text-transform:none;letter-spacin
   color:var(--leaf);
 }
 .slide#bg-rsi .rsi-loop-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(8px,1.2vw,14px);
+  display:flex;
+  flex-direction:column;
+  gap:clamp(6px,.9vmin,10px);
 }
 .slide#bg-rsi .rsi-loop-grid p{
   margin:0;
-  font-size:clamp(11.5px,1.2vmin,13.5px);
-  line-height:1.5;
+  font-size:clamp(12px,1.3vmin,14.5px);
+  line-height:1.55;
   color:var(--soil);
 }
 .slide.bg .bg-strip{
@@ -1314,63 +1321,13 @@ html:lang(zh-CN) .slide#bg-rsi .rsi-loop-label{text-transform:none;letter-spacin
 .slide.ink .takeaway-band b{color:var(--white);}
 .slide .hook-stats.single{grid-template-columns:1fr;}
 .slide .hook-stats.single .hs-group{padding-left:0;padding-right:0;}
-.slide .result-summary{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:clamp(18px,3vw,38px);
-  align-items:end;
-}
-.slide .result-summary .lede{margin-top:0;max-width:760px;}
-.slide .result-badge{
-  padding-left:clamp(16px,2.4vw,30px);
-  border-left:1px solid var(--hair);
-  text-align:right;
-}
-.slide .result-badge strong{
-  display:block;
-  font-size:clamp(24px,3.8vmin,42px);
-  line-height:1;
-  color:var(--leaf);
-  font-variant-numeric:tabular-nums;
-}
-.slide .result-badge span{
-  display:block;
-  margin-top:8px;
-  font-size:clamp(10px,1.1vmin,12px);
-  color:var(--dim);
-}
 .closing-layout{
   display:grid;
-  grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr);
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:clamp(34px,6vw,84px);
   align-items:end;
 }
 .closing-layout h2{max-width:720px;}
-.closing-points{border-top:1px solid rgba(232,238,234,.16);}
-.closing-point{
-  display:grid;
-  grid-template-columns:2.4em minmax(0,1fr);
-  gap:clamp(12px,1.5vw,18px);
-  padding:clamp(14px,2vmin,22px) 0;
-  border-bottom:1px solid rgba(232,238,234,.12);
-}
-.closing-point .closing-nb{
-  font-family:var(--mono);
-  font-size:clamp(11px,1.2vmin,13px);
-  color:var(--leaf-bright);
-}
-.closing-point h3{
-  margin:0 0 5px;
-  font-size:clamp(16px,1.85vmin,20px);
-  line-height:1.3;
-  color:var(--white);
-}
-.closing-point p{
-  margin:0;
-  font-size:clamp(13px,1.4vmin,15.5px);
-  line-height:1.58;
-  color:rgba(232,238,234,.7);
-}
 .closing-links{
   margin-top:clamp(18px,2.8vmin,30px);
   display:flex;
@@ -1381,12 +1338,19 @@ html:lang(zh-CN) .slide#bg-rsi .rsi-loop-label{text-transform:none;letter-spacin
 }
 .closing-links a{color:var(--leaf-bright);text-decoration:none;border-bottom:1px solid rgba(61,166,106,.45);}
 .closing-links a:hover{color:var(--white);border-bottom-color:var(--white);}
-.slide#archive .mgm-figure{height:min(55vh,600px);}
+.closing-invite{
+  margin:0;
+  max-width:none;
+  font-size:clamp(14px,1.55vmin,17px);
+  line-height:1.7;
+  color:rgba(232,238,234,.78);
+}
+.closing-invite a{color:var(--leaf-bright);text-decoration:none;border-bottom:1px solid rgba(61,166,106,.45);}
+.closing-invite a:hover{color:var(--white);border-bottom-color:var(--white);}
 @media (max-width:900px){
   .slide.bg .bg-grid-2,.slide.bg .bg-grid-3,.slide.bg .bg-vs,.slide.bg .bg-signals,.slide.bg .bg-formal-row,.slide.bg .eq-row,.slide.bg .ops{grid-template-columns:1fr;}
   .slide.bg .bg-formal-row{gap:clamp(14px,2.2vmin,24px);}
-  .closing-layout,.slide .result-summary{grid-template-columns:1fr;}
-  .slide .result-badge{text-align:left;border-left:none;border-top:1px solid var(--hair);padding:12px 0 0;}
+  .closing-layout{grid-template-columns:1fr;}
 }
 .deck-progress{
   position:fixed;left:0;right:0;bottom:0;height:2px;z-index:80;
@@ -1490,7 +1454,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
               <span class="rsi-tl-dot" aria-hidden="true"></span>
               <div class="rsi-tl-card">
                 <h4>自改进 AI 与元学习</h4>
-                <p>AI 通过元学习递归改写自身以持续变强。<a class="cite" href="https://mediatum.ub.tum.de/?id=813180" target="_blank" rel="noopener noreferrer">Schmidhuber, 1987</a>。</p>
+                <p>AI 借助元学习反复改写自身，并在迭代中提升能力。<a class="cite" href="https://mediatum.ub.tum.de/?id=813180" target="_blank" rel="noopener noreferrer">Schmidhuber, 1987</a>。</p>
               </div>
             </li>
             <li class="rsi-tl-item">
@@ -1506,7 +1470,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
               <span class="rsi-tl-dot" aria-hidden="true"></span>
               <div class="rsi-tl-card">
                 <h4>基于 LLM 的 coding agent</h4>
-                <p>在经验上逼近这一闭环。<a class="cite" href="https://proceedings.neurips.cc/paper_files/paper/2024/file/5a7c947568c1b1328ccc5230172e1e7c-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Yang et al., 2024</a>，<a class="cite" href="https://proceedings.iclr.cc/paper_files/paper/2025/file/36b7acf6f6010652b3f2a433774a66fe-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Hu et al., 2024</a>，<a class="cite" href="https://openreview.net/forum?id=CTr3bovS5F" target="_blank" rel="noopener noreferrer">Gao et al., 2026</a>。</p>
+                <p>LLM 让 coding agent 能够在真实任务中完成评估、修改与再评估。<a class="cite" href="https://proceedings.neurips.cc/paper_files/paper/2024/file/5a7c947568c1b1328ccc5230172e1e7c-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Yang et al., 2024</a>，<a class="cite" href="https://proceedings.iclr.cc/paper_files/paper/2025/file/36b7acf6f6010652b3f2a433774a66fe-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">Hu et al., 2024</a>，<a class="cite" href="https://openreview.net/forum?id=CTr3bovS5F" target="_blank" rel="noopener noreferrer">Gao et al., 2026</a>。</p>
               </div>
             </li>
             <li class="rsi-tl-item is-now">
@@ -1514,20 +1478,19 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
               <span class="rsi-tl-dot" aria-hidden="true"></span>
               <div class="rsi-tl-card">
                 <h4>经验性 RSI 闭环</h4>
-                <p>coding agent 编辑自身源码。若<b>基准性能提升则接受改动</b>，即实用的哥德尔式准则。</p>
+                <p>coding agent 编辑自身源码，并且只在<b>基准性能提升</b>时保留改动，以经验评估近似哥德尔式准则。</p>
               </div>
             </li>
           </ol>
         </div>
         <div class="rsi-loop rv">
-          <span class="rsi-loop-label">闭环</span>
           <div class="rsi-loop-main">
-            <h3>今日的经验性 RSI 如何运行</h3>
-            <p class="rsi-loop-flow">评估　诊断　修改　再评估</p>
+            <h3>经验性 RSI 的基本流程</h3>
+            <p class="rsi-loop-flow">任务评估　失败诊断　自主修改　回归评估</p>
             <div class="rsi-loop-grid">
-              <p>coding agent <b>编辑自身源代码</b>，涵盖提示、工具、控制逻辑与辅助例程。</p>
-              <p>在留出任务上测量表现，失败轨迹提供诊断上下文。</p>
-              <p>接受的改动进入档案库，拒绝的改动被丢弃，从而闭合自主提升循环。</p>
+              <p>coding agent 根据任务表现与失败轨迹定位问题，并修改自身源代码，包括提示、工具、控制逻辑与辅助例程。</p>
+              <p>每次修改都在留出任务上重新评估，以判断能力是否真正提升。</p>
+              <p>性能提升的版本进入档案库，其余版本被淘汰，随后开始下一轮迭代。</p>
             </div>
           </div>
         </div>
@@ -1540,7 +1503,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
     <div class="slide-frame">
       <div class="wrap">
         <p class="section-kicker rv">研究进展 02</p>
-        <h2 class="rv">开放式演化建立<br><span class="leaf"><b>档案库搜索</b></span></h2>
+        <h2 class="rv">开放式演化转向<br><span class="leaf"><b>档案库搜索</b></span></h2>
         <div class="bg-grid-3 rv">
           <div class="bg-panel">
             <h3>SICA <a class="cite" href="https://openreview.net/forum?id=rShJCyLsOr" target="_blank" rel="noopener noreferrer">Robeyns et al., 2025</a></h3>
@@ -1552,7 +1515,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
           </div>
           <div class="bg-panel">
             <h3>HGM <a class="cite" href="https://openreview.net/forum?id=T0EiEuhOOL" target="_blank" rel="noopener noreferrer">Liu et al., 2026</a></h3>
-            <p>将档案库维护视为<b>固定预算树搜索</b>，用分支后代表现指导 \(\varphi\) 评估与 \(\Phi\) 扩展。</p>
+            <p>在固定预算下把档案库作为搜索树，并依据分支后代表现分配 \(\varphi\) 评估与 \(\Phi\) 扩展。</p>
           </div>
         </div>
         <p class="bg-strip rv">
@@ -1575,14 +1538,14 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
             <ul class="lede-list">
               <li><b>谱系树</b>存储所有生成的 coding agent 及其评估轨迹。</li>
               <li><b>\(\pi\) 采样</b>分配评估与扩展预算。</li>
-              <li><b>分支后验</b>决定优先探索哪些节点。</li>
+              <li>根据<b>分支后验</b>确定节点的探索优先级。</li>
             </ul>
           </div>
           <div class="bg-panel gap">
             <h3>比较轨迹提供修改信号</h3>
             <ul class="lede-list">
               <li><b>\(\Phi\) 自主修改</b>汇总跨任务失败模式。</li>
-              <li>重复缺陷与偶然失误得到清晰区分。</li>
+              <li>跨任务对比区分重复缺陷与偶然失误。</li>
               <li>其他谱系的成功轨迹支持能力迁移。</li>
             </ul>
           </div>
@@ -1600,7 +1563,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
     <div class="slide-frame">
       <div class="wrap">
         <p class="section-kicker rv">基线骨架 04</p>
-        <h2 class="rv">MGM 升级 HGM<br><span class="leaf">扩展证据</span></h2>
+        <h2 class="rv">MGM 重构 HGM<br><span class="leaf">扩展证据</span></h2>
         <div class="bg-formal-row rv">
           <div class="bg-panel">
             <h3>档案库把 coding agent 组织为可搜索谱系</h3>
@@ -1614,7 +1577,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
           <div class="bg-panel">
             <h3>\(\pi\) 策略分配评估与扩展预算</h3>
             <p><a class="cite" href="https://openreview.net/forum?id=T0EiEuhOOL" target="_blank" rel="noopener noreferrer">HGM</a> 对节点或分支成功率维护 Beta 后验，并据此选择下一次 \(\varphi\) 评估或 \(\Phi\) 扩展。</p>
-            <p>自主修改写作 \(a' \leftarrow \Phi(a,E)\)。MGM 保留 \(\pi\) 策略并重构证据 \(E\)。</p>
+            <p>自主修改可写为 \(a' \leftarrow \Phi(a,E)\)。MGM 保留 \(\pi\) 策略，仅改变证据 \(E\) 的构造方式。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[\pi_a\sim\mathrm{Beta}\!\left(\kappa(1+n_\mathrm{s}(a)),\kappa(1+n_\mathrm{f}(a))\right)\]</div>
               <div class="eq-block">\[a' \leftarrow \Phi(a,E)\]</div>
@@ -1656,13 +1619,13 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
         <div class="bg-signals rv">
           <div class="bg-panel">
             <h3>同一基因型跨任务比较</h3>
-            <p>跨任务评估时，成败模式形成 <a class="cite" href="https://cir.nii.ac.jp/crid/1573668924237108864" target="_blank" rel="noopener noreferrer">反应规范</a>，刻画基因型在不同环境下的表现轮廓。</p>
-            <p>反复出现的失败模式可区分<b>基因型层面缺陷</b>与任务偶然失误。</p>
+            <p>跨任务评估形成 <a class="cite" href="https://cir.nii.ac.jp/crid/1573668924237108864" target="_blank" rel="noopener noreferrer">反应规范</a>，描述同一基因型在不同环境中的表现。</p>
+            <p>对比反复出现的失败模式，可以区分<b>基因型层面缺陷</b>与任务偶然失误。</p>
           </div>
           <div class="bg-panel">
             <h3>不同谱系同任务比较</h3>
             <p>多个 coding agent 尝试<b>同一任务</b>时，轨迹揭示可迁移的行为特征。</p>
-            <p>对比证据支持跨谱系<b>定向能力迁移</b>，减少冗余探索。</p>
+            <p>对比证据指出可迁移的能力及其来源，减少重复探索。</p>
           </div>
         </div>
         <div class="takeaway-band rv">
@@ -1689,7 +1652,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
           </div>
           <div class="op rm">
             <h3><i>RM</i> 反应规范突变</h3>
-            <p><b>相同基因型、多任务</b>。对比表型，用反复出现的失败模式区分<b>基因型层面缺陷</b>与任务偶然失误。</p>
+            <p>比较<b>同一基因型在多个任务上的表型</b>，从反复出现的失败模式中区分基因型层面缺陷与任务偶然失误。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[|S_i| \ge m_{\mathrm{RM}}\]</div>
               <div class="eq-block">\[E_{\mathrm{RM}}=\big\{(\varphi(a_i,\tau_t),r(a_i,\tau_t)),(\varphi(a_i,\tau_r),r(a_i,\tau_r))\big\}\]</div>
@@ -1697,7 +1660,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
           </div>
           <div class="op ch">
             <h3><i>CH</i> 跨谱系杂交</h3>
-            <p><b>不同谱系、共享任务</b>。对比表现，指导<b>定向能力迁移</b>并减少冗余探索。</p>
+            <p>比较<b>不同谱系在同一任务上的表现</b>，识别可迁移能力并减少重复探索。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[\exists j\ne i,\ \tau_t\in S_i\cap S_j:\ \neg\big(r(a_i,\tau_t)=1\land r(a_j,\tau_t)=1\big)\]</div>
               <div class="eq-block">\[E_{\mathrm{CH}}=\big\{(\varphi(a_t,\tau_t),r(a_t,\tau_t)),(\varphi(a_r,\tau_t),r(a_r,\tau_t))\big\}\]</div>
@@ -1721,8 +1684,8 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
         <div class="bg-formal-row rv">
           <div class="bg-panel">
             <h3>失败任务池提高评估信息量</h3>
-            <p>MGM 维护全局失败任务池，收录已评估 coding agent 暴露的失败任务，并复用既有 \(\varphi\) 评估。</p>
-            <p>coding agent \(i\) 的待评估任务向档案库中已见失败倾斜加权。</p>
+            <p>MGM 维护全局失败任务池，汇总各 coding agent 已发现的失败任务，并复用现有 \(\varphi\) 评估结果。</p>
+            <p>为 coding agent \(i\) 采样待评估任务时，提高档案库中已失败任务的权重。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[\mathcal{P}_t=\bigcup_{i\in\mathcal{V}_t} F_i\]</div>
               <div class="eq-block">\[w_i(\tau)=
@@ -1735,7 +1698,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
           </div>
           <div class="bg-panel">
             <h3>证据可用性决定扩展算子</h3>
-            <p>当 \(\pi\) 为父代 \(a_i\) 选择 \(\Phi\) 扩展时，MGM 据档案库证据构造合格算子集 \(\Omega_i\subseteq\{\Phi_{\mathrm{CM}},\Phi_{\mathrm{RM}},\Phi_{\mathrm{CH}}\}\) 并采样。</p>
+            <p>当 \(\pi\) 为父代 \(a_i\) 选择 \(\Phi\) 扩展时，MGM 根据档案库证据构造可用算子集 \(\Omega_i\subseteq\{\Phi_{\mathrm{CM}},\Phi_{\mathrm{RM}},\Phi_{\mathrm{CH}}\}\)，再从中采样。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[\Pr(\sigma\mid i)=
 \frac{\lambda_\sigma}{\sum_{\sigma'\in\Omega_i}\lambda_{\sigma'}},
@@ -1785,17 +1748,10 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
       <div class="wrap">
         <p class="section-kicker rv">主要结果 10</p>
         <h2 class="rv">35B 开源模型<br><span class="gold leaf">达到前沿性能</span></h2>
-        <div class="result-summary rv">
-          <p class="lede">MGM 将 Qwen3.6-35B-A3B 在 Polyglot 上的性能从 50.8% 提升至 93.3%，模型权重全程固定。</p>
-          <div class="result-badge">
-            <strong>&lt; 1%</strong>
-            <span>参数量相对 GPT-5</span>
-          </div>
-        </div>
         <div class="fig-block rv">
           <div class="polyglot-chart" id="polyglotChart" role="img" aria-label="Polyglot 性能与模型规模。Qwen3.6-35B-A3B + MGM 达 93.3%，DeepSeek-V4-Pro + MGM 达 96.9%">
             <div class="polyglot-tip" id="polyTip" aria-hidden="true"></div>
-            <svg id="polySvg" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg"></svg>
+            <svg id="polySvg" viewBox="0 0 720 346" xmlns="http://www.w3.org/2000/svg"></svg>
           </div>
           <div class="polyglot-legend">
             <span><i class="swatch open"></i>开源</span>
@@ -2087,7 +2043,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
         <div class="bg-formal-row rv">
           <div class="bg-panel">
             <h3>二元基因型与汉明距离</h3>
-            <p>每个 coding agent 携带基因型 \(\mathbf{g}\in\{0,1\}^{L}\)。固定理想最优基因型 \(\mathbf{g}^{*}=\mathbf{1}\) 表示最优程序。基因型通过效用观测，编辑距离度量其优化空间。</p>
+            <p>每个 coding agent 携带基因型 \(\mathbf{g}\in\{0,1\}^{L}\)，理想最优基因型 \(\mathbf{g}^{*}=\mathbf{1}\) 表示最优程序。系统不直接观测基因型，而用汉明距离描述它与最优解之间的差距。</p>
             <div class="eq-zone compact">
               <div class="eq-block">\[d(\mathbf{g})=\sum_{\ell=1}^{L}\mathbf{1}\!\left[g_{\ell}\neq g^{*}_{\ell}\right]\]</div>
               <div class="eq-block">\[M(a)=\{\ell\in[L]: g_{\ell}(a)\neq g^{*}_{\ell}\}\]</div>
@@ -2124,7 +2080,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
               <div class="eq-block">\[p_{f}^{\sigma}=s\cdot\Pr_{\ell\sim C_{\sigma}(E)}[\ell\in M(a)]\]</div>
             </div>
             <p>\(\Phi_{\mathrm{CM}}\) 用 \(C_{\mathrm{CM}}=R_{\tau_t}\)。</p>
-            <p>\(\Phi_{\mathrm{RM}}\) 压缩为 \(C_{\mathrm{RM}}=R_{\tau_t}\cap R_{\tau_r}\)，\(\Phi_{\mathrm{CH}}\) 经参考轨迹过滤 \(R_{\tau}\)。</p>
+            <p>\(\Phi_{\mathrm{RM}}\) 将候选集合缩小为 \(C_{\mathrm{RM}}=R_{\tau_t}\cap R_{\tau_r}\)，\(\Phi_{\mathrm{CH}}\) 则利用参考轨迹过滤 \(R_{\tau}\)。</p>
           </div>
           <div class="bg-panel">
             <h3>命题 1 蒙特卡洛设定</h3>
@@ -2212,36 +2168,14 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
         <div class="closing-layout">
           <div class="rv">
             <h2>比较证据<br><span class="leaf">驱动可复用进化</span></h2>
-            <p class="lede">孟德尔-哥德尔机把档案库从搜索记忆升级为自主修改的证据库。</p>
+            <p class="lede">孟德尔-哥德尔机让档案库同时承担搜索记录与修改证据两种作用。</p>
             <div class="closing-links">
               <a href="https://arxiv.org/abs/2608.07645" target="_blank" rel="noopener noreferrer">arXiv 2608.07645</a>
               <a href="https://reallcz.github.io/MGM/" target="_blank" rel="noopener noreferrer">Project page</a>
               <a href="index.html">English</a>
             </div>
           </div>
-          <div class="closing-points rv-st rv">
-            <div class="closing-point">
-              <span class="closing-nb">01</span>
-              <div>
-                <h3>证据复用</h3>
-                <p>跨任务与跨谱系轨迹直接进入 \(\Phi\)，复用现有评估与 token 预算。</p>
-              </div>
-            </div>
-            <div class="closing-point">
-              <span class="closing-nb">02</span>
-              <div>
-                <h3>性能与迁移</h3>
-                <p>MGM 在两项代码基准上优于 HGM，并跨基准、跨模型保留增益。</p>
-              </div>
-            </div>
-            <div class="closing-point">
-              <span class="closing-nb">03</span>
-              <div>
-                <h3>理论解释</h3>
-                <p>比较证据压缩候选缺陷，提高有效修复概率并加速逼近最优。</p>
-              </div>
-            </div>
-          </div>
+          <p class="closing-invite rv">我们有多项后续研究设想等待验证，也可为联合实验提供集群资源支持。目前有博士生职位开放，欢迎联系 <a href="mailto:cognitive.yunpu@gmail.com">cognitive.yunpu@gmail.com</a>。</p>
         </div>
       </div>
     </div>
@@ -2260,11 +2194,46 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
 (() => {
   const slides = Array.from(document.querySelectorAll('.slide'));
   const bar = document.getElementById('deckBar');
-  const FADE_MS = 700;
-  let index = Math.max(0, slides.findIndex(s => s.classList.contains('is-active')));
-  if (index < 0) index = 0;
+  const FADE_MS = 280;
+  const SLIDE_KEY = 'mgm-deck-slide-zh';
+
+  const slideKey = (slide, i = 0) =>
+    slide?.dataset.slideId || slide?.id || String(i);
+
+  const findSlideIndex = (key) => {
+    if (key == null || key === '') return -1;
+    const byId = slides.findIndex(s => s.dataset.slideId === key || s.id === key);
+    if (byId >= 0) return byId;
+    const asNum = Number.parseInt(key, 10);
+    if (Number.isInteger(asNum) && asNum >= 0 && asNum < slides.length) return asNum;
+    return -1;
+  };
+
+  const resolveIndex = () => {
+    const fromHash = findSlideIndex((location.hash || '').replace(/^#/, ''));
+    if (fromHash >= 0) return fromHash;
+    try {
+      const fromStore = findSlideIndex(sessionStorage.getItem(SLIDE_KEY));
+      if (fromStore >= 0) return fromStore;
+    } catch (_) {}
+    const fromActive = slides.findIndex(s => s.classList.contains('is-active'));
+    return fromActive >= 0 ? fromActive : 0;
+  };
+
+  let index = resolveIndex();
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('is-active', i === index);
+    slide.classList.remove('is-leaving');
+  });
   let locked = false;
   const counted = new WeakSet();
+
+  const persist = () => {
+    const key = slideKey(slides[index], index);
+    try { sessionStorage.setItem(SLIDE_KEY, key); } catch (_) {}
+    const nextHash = `#${key}`;
+    if (location.hash !== nextHash) history.replaceState(null, '', nextHash);
+  };
 
   const animateCount = (el) => {
     const to = parseFloat(el.dataset.to);
@@ -2369,6 +2338,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
     curr.classList.add('is-active');
     index = target;
     updateChrome();
+    persist();
     enterSlide(curr);
     setTimeout(() => {
       prev.classList.remove('is-leaving');
@@ -2378,6 +2348,11 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
 
   const next = () => go(index + 1);
   const prev = () => go(index - 1);
+
+  window.addEventListener('hashchange', () => {
+    const target = findSlideIndex((location.hash || '').replace(/^#/, ''));
+    if (target >= 0) go(target);
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.defaultPrevented) return;
@@ -2426,6 +2401,7 @@ html:lang(zh-CN) .mgm-cap{font-size:0.92em;line-height:1.82;}
   }, { passive: true });
 
   updateChrome();
+  persist();
   const boot = () => enterSlide(slides[index]);
   if (document.readyState === 'complete') boot();
   else window.addEventListener('load', boot, { once: true });

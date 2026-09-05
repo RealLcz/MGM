@@ -10,7 +10,8 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const W = 720;
-  const H = 432;
+  const HEIGHT_SCALE = 0.8;
+  const H = Math.round(432 * HEIGHT_SCALE);
   const M = { t: 12, r: 4, b: 4, l: 2 };
   const XMIN = 20;
   const XMAX = 6200;
@@ -20,6 +21,9 @@
   const plotH = H - M.t - M.b;
   const log20 = Math.log(XMIN);
   const logSpan = Math.log(XMAX) - log20;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.removeAttribute('preserveAspectRatio');
 
   // Open-source: total params (llm-stats / HF). Closed: IKP estimates.
   const baselines = [
@@ -187,7 +191,7 @@
     const attrs = {
       class: `pt-label${isOurs ? ' ours anim-green' : ''}`,
       x: xOf(size) + dx,
-      y: yOf(score) + dy,
+      y: yOf(score) + Math.round(dy * HEIGHT_SCALE),
       'text-anchor': anchor,
     };
     if (animDelay != null) attrs.style = delayStyle(animDelay);

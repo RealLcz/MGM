@@ -519,7 +519,7 @@ section.ink .fig-label a:hover,section.ink .mgm-cap a:hover{color:#E8EEEA;}
 #archive{padding:36px 0 40px;}
 .mgm-stage{
   position:relative;width:100%;
-  aspect-ratio:2 / 1;
+  aspect-ratio:720 / 346;
   border:none;
   background:
     radial-gradient(rgba(232,238,234,.12) .2vh, transparent .2vh);
@@ -689,7 +689,7 @@ body.deck{touch-action:none;}
   position:relative;
   width:100%;height:100%;
   background:var(--paper);
-  transition:background .7s var(--ease);
+  transition:background .28s var(--ease);
 }
 .deck:has(.slide.ink.is-active){background:var(--ink);}
 .slide.ink.blank{padding:0;}
@@ -698,7 +698,7 @@ body.deck{touch-action:none;}
   display:flex;align-items:center;justify-content:center;
   opacity:0;visibility:hidden;pointer-events:none;
   transform:translateY(110vh);
-  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  transition:opacity .28s var(--ease),visibility 0s linear .28s;
   z-index:0;
   padding:clamp(24px,4vh,48px) 6vw;
   overflow:hidden;
@@ -706,13 +706,13 @@ body.deck{touch-action:none;}
 .slide.is-active{
   opacity:1;visibility:visible;pointer-events:auto;
   transform:none;
-  transition:opacity .7s var(--ease),visibility 0s linear 0s;
+  transition:opacity .28s var(--ease),visibility 0s linear 0s;
   z-index:1;
 }
 .slide.is-leaving{
   opacity:0;visibility:visible;pointer-events:none;
   transform:none;
-  transition:opacity .7s var(--ease),visibility 0s linear .7s;
+  transition:opacity .28s var(--ease),visibility 0s linear .28s;
   z-index:2;
 }
 .slide-frame{
@@ -900,10 +900,12 @@ body.deck{touch-action:none;}
 }
 .slide#theory .sim-controls{gap:10px 18px;}
 .slide .mgm-figure{display:flex;flex-direction:column;min-height:0;}
-.slide#archive .mgm-figure{height:min(62vh,680px);flex:0 0 auto;}
+.slide#archive .mgm-figure{height:auto;flex:0 1 auto;width:100%;}
 .slide .mgm-stage{
-  flex:1 1 auto;min-height:0;
-  aspect-ratio:auto;height:auto;
+  flex:0 0 auto;min-height:0;
+  width:100%;
+  aspect-ratio:720 / 346;
+  height:auto;
 }
 .slide .mgm-legend{font-size:clamp(9px,1.2vmin,11px);margin-top:8px;}
 .slide .polyglot-chart{flex:0 1 auto;min-height:0;}
@@ -1648,7 +1650,7 @@ body.deck{touch-action:none;}
         <div class="fig-block rv">
           <div class="polyglot-chart" id="polyglotChart" role="img" aria-label="Polyglot performance versus model size. Qwen3.6-35B-A3B plus MGM reaches 93.3 percent; DeepSeek-V4-Pro plus MGM reaches 96.9 percent.">
             <div class="polyglot-tip" id="polyTip" aria-hidden="true"></div>
-            <svg id="polySvg" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg"></svg>
+            <svg id="polySvg" viewBox="0 0 720 346" xmlns="http://www.w3.org/2000/svg"></svg>
           </div>
           <div class="polyglot-legend">
             <span><i class="swatch open"></i>Open-source</span>
@@ -2116,11 +2118,46 @@ body.deck{touch-action:none;}
 (() => {
   const slides = Array.from(document.querySelectorAll('.slide'));
   const bar = document.getElementById('deckBar');
-  const FADE_MS = 700;
-  let index = Math.max(0, slides.findIndex(s => s.classList.contains('is-active')));
-  if (index < 0) index = 0;
+  const FADE_MS = 280;
+  const SLIDE_KEY = 'mgm-deck-slide';
+
+  const slideKey = (slide, i = 0) =>
+    slide?.dataset.slideId || slide?.id || String(i);
+
+  const findSlideIndex = (key) => {
+    if (key == null || key === '') return -1;
+    const byId = slides.findIndex(s => s.dataset.slideId === key || s.id === key);
+    if (byId >= 0) return byId;
+    const asNum = Number.parseInt(key, 10);
+    if (Number.isInteger(asNum) && asNum >= 0 && asNum < slides.length) return asNum;
+    return -1;
+  };
+
+  const resolveIndex = () => {
+    const fromHash = findSlideIndex((location.hash || '').replace(/^#/, ''));
+    if (fromHash >= 0) return fromHash;
+    try {
+      const fromStore = findSlideIndex(sessionStorage.getItem(SLIDE_KEY));
+      if (fromStore >= 0) return fromStore;
+    } catch (_) {}
+    const fromActive = slides.findIndex(s => s.classList.contains('is-active'));
+    return fromActive >= 0 ? fromActive : 0;
+  };
+
+  let index = resolveIndex();
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('is-active', i === index);
+    slide.classList.remove('is-leaving');
+  });
   let locked = false;
   const counted = new WeakSet();
+
+  const persist = () => {
+    const key = slideKey(slides[index], index);
+    try { sessionStorage.setItem(SLIDE_KEY, key); } catch (_) {}
+    const nextHash = `#${key}`;
+    if (location.hash !== nextHash) history.replaceState(null, '', nextHash);
+  };
 
   const animateCount = (el) => {
     const to = parseFloat(el.dataset.to);
@@ -2225,6 +2262,7 @@ body.deck{touch-action:none;}
     curr.classList.add('is-active');
     index = target;
     updateChrome();
+    persist();
     enterSlide(curr);
     setTimeout(() => {
       prev.classList.remove('is-leaving');
@@ -2234,6 +2272,11 @@ body.deck{touch-action:none;}
 
   const next = () => go(index + 1);
   const prev = () => go(index - 1);
+
+  window.addEventListener('hashchange', () => {
+    const target = findSlideIndex((location.hash || '').replace(/^#/, ''));
+    if (target >= 0) go(target);
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.defaultPrevented) return;
@@ -2282,6 +2325,7 @@ body.deck{touch-action:none;}
   }, { passive: true });
 
   updateChrome();
+  persist();
   const boot = () => enterSlide(slides[index]);
   if (document.readyState === 'complete') boot();
   else window.addEventListener('load', boot, { once: true });
