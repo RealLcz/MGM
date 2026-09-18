@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Preprocess HGM/MGM run archives into compact web tree JSON for docs/assets.
+Preprocess HGM/MGM run archives into compact web tree JSON.
 
 For each node in hgm_metadata.jsonl snapshots, operator type and hybridization
 peer come from that commit's metadata.json under the run directory:
@@ -9,7 +9,7 @@ peer come from that commit's metadata.json under the run directory:
     self_improve_strategy  → A|B|C  (clonal / reaction / hybridize)
     peer_commit            → mapped to peer node id when strategy is C
 
-Default MGM source: docs/assets/mgm_meta (copied from the experiment run).
+Pass --mgm-run-dir and --assets-dir to point at your run archive and output folder.
 
 Pass rates stick to the archive snapshots (tree_mgm.json / hgm_metadata.jsonl),
 which already store metadata-sourced counts at each write (see hgm.py
@@ -250,8 +250,14 @@ def main() -> None:
     parser.add_argument(
         "--mgm-run-dir",
         type=Path,
-        default=ROOT / "docs/assets/mgm_meta",
+        required=True,
         help="MGM run dir with hgm_metadata.jsonl + <commit>/metadata.json",
+    )
+    parser.add_argument(
+        "--assets-dir",
+        type=Path,
+        required=True,
+        help="Output directory for tree_*.json / tree_*_web.json",
     )
     parser.add_argument(
         "--hgm-run-dir",
@@ -266,7 +272,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    assets = ROOT / "docs/assets"
+    assets = args.assets_dir
+    assets.mkdir(parents=True, exist_ok=True)
     if not args.mgm_run_dir.exists():
         raise SystemExit(f"MGM run dir not found: {args.mgm_run_dir}")
 

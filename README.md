@@ -1,22 +1,3 @@
-<!-- <p align="center">
-  <a href="https://reallcz.github.io/MGM/">
-    <img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://arxiv.org/abs/2608.07645"><img src="https://img.shields.io/badge/arXiv-2608.07645-b31b1b.svg" alt="arXiv"></a>
-  <a href="https://huggingface.co/papers/2608.07645"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-FFD21E.svg" alt="Hugging Face"></a>
-  <a href="https://reallcz.github.io/MGM/"><img src="https://img.shields.io/badge/Project-Page-2E8B57.svg" alt="Project Page"></a>
-  <a href="https://github.com/RealLcz/MGM"><img src="https://img.shields.io/badge/GitHub-Code-181717.svg?logo=github&logoColor=white" alt="Code"></a>
-</p> -->
-
-<p align="center">
-  <a href="https://reallcz.github.io/MGM/">
-    <img width="200" height="200" alt="MGM"/>
-  </a>
-</p>
-
 # Mendel Gödel Machine (MGM)
 
 **Mendelian Evolution Self-Improving Coding Agent**
@@ -278,7 +259,7 @@ python scripts/draw_hgm_tree.py \
 
 ## Experimental Results
 
-Example figures from completed MGM/HGM runs are in [`docs/assets/images/`](docs/assets/images/). Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
+Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically under `output_mgm/` or `output_polyglot/`, gitignored).
 
 ### Polyglot: accuracy by language (full 225-task eval)
 
@@ -293,8 +274,6 @@ After running `eval_full_polyglot.slurm` on your chosen node, aggregate accuracy
 | JavaScript | 46 / 49 |
 | Python | 33 / 34 |
 | Rust | 27 / 30 |
-
-![Polyglot accuracy by language](docs/assets/images/polyglot_accuracy_by_language.png)
 
 ### SWE-bench (60-task subset)
 
@@ -319,7 +298,6 @@ MendelGM/
 ├── prompts/                # Self-improvement prompt templates
 ├── utils/                  # Apptainer, git, eval helpers
 ├── SWEbench_Pro/           # SWE-bench Pro evaluation tools (separate benchmark)
-├── docs/assets/images/     # Result figures for this README / project page
 ├── output_mgm/             # SWE-bench run artifacts (gitignored)
 └── output_polyglot/        # Polyglot run artifacts (gitignored)
 ```
@@ -364,14 +342,6 @@ python hgm.py \
 ```
 
 Supported backends are defined in [`llm.py`](llm.py), including OpenAI models (`gpt-5`, `o3`, `o4-mini`), vLLM-served models (`Qwen/...`, `google/...`), and OpenRouter (`OpenRouter_API_KEY`).
-
----
-
-## Community & Co-Contributors
-
-**We warmly welcome the community to try MGM with other models and different benchmarks** — different LLMs, API providers, local serving setups, or evaluation suites beyond SWE-bench and Polyglot. If you run new experiments and get updated results (on SWE-bench, Polyglot, new models, or different evolution settings), **feel free to reach out to us** — we would love to explore working together as co-contributors, whether that means sharing figures, benchmark numbers, reproduction notes, or code improvements back to the project.
-
-Open a GitHub issue or pull request with your findings, or contact the maintainers directly. Feedback, bug reports, and fresh data all help make MGM better for everyone.
 
 ---
 
