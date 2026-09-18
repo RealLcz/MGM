@@ -1,4 +1,4 @@
-<p align="center">
+<!-- <p align="center">
   <a href="https://reallcz.github.io/MGM/">
     <img width="200" height="200" alt="MGM" src="https://github.com/user-attachments/assets/3b8820a1-818e-46a5-b579-3a7b99dcbde6" />
   </a>
@@ -9,6 +9,12 @@
   <a href="https://huggingface.co/papers/2608.07645"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-FFD21E.svg" alt="Hugging Face"></a>
   <a href="https://reallcz.github.io/MGM/"><img src="https://img.shields.io/badge/Project-Page-2E8B57.svg" alt="Project Page"></a>
   <a href="https://github.com/RealLcz/MGM"><img src="https://img.shields.io/badge/GitHub-Code-181717.svg?logo=github&logoColor=white" alt="Code"></a>
+</p> -->
+
+<p align="center">
+  <a href="https://reallcz.github.io/MGM/">
+    <img width="200" height="200" alt="MGM"/>
+  </a>
 </p>
 
 # Mendel Gödel Machine (MGM)
