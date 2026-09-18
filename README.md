@@ -381,18 +381,4 @@ This codebase is adapted from the [DGM](https://github.com/jennyzzt/dgm) and [HG
 
 ---
 
-## Citation
 
-If you find MGM useful in your research, please cite:
-
-```bibtex
-@misc{liu2026mendelgodelmachinerecursive,
-      title={Mendel G\"odel Machine: Recursive Self-Improving Coding Agents via Comparative Evolution}, 
-      author={Changzhi Liu and Yilun Liu and Sikuan Yan and Volker Tresp and Yunpu Ma},
-      year={2026},
-      eprint={2608.07645},
-      archivePrefix={arXiv},
-      primaryClass={cs.AI},
-      url={https://arxiv.org/abs/2608.07645}, 
-}
-```
