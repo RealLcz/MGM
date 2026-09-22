@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # Redirect runtime caches off the 308G home quota to jinhe (10T filesystem).
 # Source after REPO_ROOT is set:
-#   . "${REPO_ROOT}/swe_scripts/cache_env.inc.sh"
+#   . "${REPO_ROOT}/scripts/slurm/cache_env.inc.sh"
 #   cache_env_setup
 
 cache_env_setup() {

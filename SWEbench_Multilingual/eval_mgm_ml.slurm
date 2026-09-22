@@ -43,7 +43,7 @@ eval "$(conda shell.bash hook)"
 conda activate HGM
 REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 apptainer_runtime_verify
 export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 "${PYTHON_BIN}" -V
@@ -60,7 +60,7 @@ export SWE_ML_AGENT_PIP_INDEX_URL="${SWE_ML_AGENT_PIP_INDEX_URL:-https://mirrors
 export SWE_ML_AGENT_PIP_CONSTRAINTS="${SWE_ML_AGENT_PIP_CONSTRAINTS:-SWEbench_Pro/agent_constraints.txt}"
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 cuda_and_tensor_parallel_setup
 
 if [ -z "${TOOL_CALL_PARSER:-}" ]; then
@@ -82,7 +82,7 @@ fi
 export VLLM_HOST="${VLLM_HOST:-$HOST_IP}"
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
 
 if [ "${SWE_ML_PREPULL:-1}" = "1" ]; then

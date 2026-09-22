@@ -97,7 +97,7 @@ export SWE_PRO_AGENT_PIP_CONSTRAINTS="${SWE_PRO_AGENT_PIP_CONSTRAINTS:-SWEbench_
 
 REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 cuda_and_tensor_parallel_setup
 
 if [ -z "${TOOL_CALL_PARSER:-}" ]; then
@@ -212,7 +212,7 @@ PY
 fi
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
 
 PRELOAD_HF_ASSETS="${VLLM_PRELOAD_HF_ASSETS}"

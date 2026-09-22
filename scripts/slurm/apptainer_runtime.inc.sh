@@ -1,6 +1,6 @@
-# Apptainer runtime defaults for MendelGM swe_scripts / Slurm jobs.
+# Apptainer runtime defaults for MendelGM scripts/slurm jobs.
 # Source from repo root after cd to SLURM_SUBMIT_DIR:
-#   . "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+#   . "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 
 # Image and workspace locations (override for shared filesystems).
 # Prefer jinhe (10T) over home (308G quota). cache_env.inc.sh sets HF_HOME when sourced first.

@@ -1,8 +1,8 @@
 # shellcheck shell=bash
-# Source from swe_scripts/*.slurm after conda/env setup:
+# Source from scripts/slurm/*.slurm after conda/env setup:
 #   REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 #   # shellcheck source=/dev/null
-#   . "${REPO_ROOT}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+#   . "${REPO_ROOT}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 #   cuda_and_tensor_parallel_setup
 #
 # Sets TENSOR_PARALLEL_SIZE from the GPUs allocated by Slurm.

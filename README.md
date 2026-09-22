@@ -50,7 +50,7 @@ pip install vllm matplotlib pillow scikit-learn
 
 Evaluation runs inside **local Apptainer** containers on the same node as vLLM (no Docker daemon required). Images are pulled or built as `.sif` files via `apptainer pull` / `apptainer build` during evaluation as needed.
 
-The Slurm scripts source `swe_scripts/apptainer_runtime.inc.sh` automatically.
+The Slurm scripts source `scripts/slurm/apptainer_runtime.inc.sh` automatically.
 
 ```bash
 # Optional: customize image cache location
@@ -72,7 +72,7 @@ SWE-bench and Polyglot images are pulled or built automatically during evaluatio
 
 ### 3. Edit configuration
 
-Main config: [`config.yaml`](config.yaml). Polyglot runs use [`polyglot_scripts/config_polyglot.yaml`](polyglot_scripts/config_polyglot.yaml).
+Main config: [`config.yaml`](config.yaml). Polyglot runs use [`scripts/config_polyglot.yaml`](scripts/config_polyglot.yaml).
 
 Key fields:
 
@@ -123,7 +123,7 @@ tail -n 1 <your_run_dir>/hgm_metadata.jsonl | python -m json.tool
 Runs MGM with mixed strategies (A:B:C = 0.1:0.45:0.45). Set your output location:
 
 ```bash
-HGM_OUTPUT_DIR=<your_output_dir> sbatch swe_scripts/mgm.slurm
+HGM_OUTPUT_DIR=<your_output_dir> sbatch scripts/slurm/mgm.slurm
 ```
 
 Default model: `Qwen/Qwen3.6-35B-A3B`. Adjust `VLLM_MODEL_NAME`, `TENSOR_PARALLEL_SIZE`, and Slurm `--gres=gpu:N` to match your hardware.
@@ -133,74 +133,49 @@ Default model: `Qwen/Qwen3.6-35B-A3B`. Adjust `VLLM_MODEL_NAME`, `TENSOR_PARALLE
 Fresh run with strategy A only:
 
 ```bash
-HGM_OUTPUT_DIR=<your_output_dir> sbatch swe_scripts/hgm.slurm
+HGM_OUTPUT_DIR=<your_output_dir> sbatch scripts/slurm/hgm.slurm
 ```
 
 To force a clean start, ensure `config.yaml` has `continue_from: null` or pass `--continue_from null` via a custom invocation.
 
 ### Polyglot: evolution run
 
-Evolution on the Polyglot benchmark (60-task subset: small + medium). If `HGM_OUTPUT_DIR` is unset, the Slurm script creates a timestamped folder under `output_polyglot/`:
+Evolution on the Polyglot benchmark (60-task subset: small + medium) via direct invocation (ensure vLLM is running and Apptainer is configured):
 
 ```bash
-HGM_OUTPUT_DIR=<your_output_dir> sbatch polyglot_scripts/hgm_polyglot.slurm
+conda activate HGM
+python hgm.py \
+  --config scripts/config_polyglot.yaml \
+  --polyglot \
+  --output_dir <your_output_dir> \
+  --continue_from null \
+  --max_task_evals 200 \
+  --self_improve_weight_a 0.1 \
+  --self_improve_weight_b 0.45 \
+  --self_improve_weight_c 0.45
 ```
 
-Common overrides:
+Resume by setting `--continue_from <your_prior_run_dir>` and a new `--output_dir`.
 
-```bash
-# MGM strategy mix + your output directory
-HGM_OUTPUT_DIR=<your_output_dir> \
-SELF_IMPROVE_WEIGHT_A=0.1 SELF_IMPROVE_WEIGHT_B=0.45 SELF_IMPROVE_WEIGHT_C=0.45 \
-sbatch polyglot_scripts/hgm_polyglot.slurm
+Default model: `Qwen/Qwen3.6-35B-A3B` (see `scripts/config_polyglot.yaml`).
 
-# Resume: write to a new dir while loading tree from a prior run
-HGM_OUTPUT_DIR=<your_new_output_dir> \
-CONTINUE_FROM=<your_prior_run_dir> \
-sbatch polyglot_scripts/hgm_polyglot.slurm
-
-# Adjust evaluation budget
-HGM_MAX_TASK_EVALS=100 HGM_OUTPUT_DIR=<your_output_dir> sbatch polyglot_scripts/hgm_polyglot.slurm
-```
-
-Default model: `Qwen/Qwen3.6-35B-A3B`. Adjust `VLLM_MODEL_NAME`, `TENSOR_PARALLEL_SIZE`, and Slurm `--gres=gpu:N` to match your hardware.
-
-### Polyglot: full 225-task evaluation
-
-After evolution, evaluate **your chosen node(s)** on the complete Polyglot benchmark. Replace the placeholders with your run directory and node id(s):
-
-```bash
-HGM_OUTPUT_DIR=<your_run_dir> \
-EVAL_NODE_IDS="<node_id_or_commit_id>" \
-sbatch polyglot_scripts/eval_full_polyglot.slurm
-```
-
-Examples:
-
-```bash
-# Single node by tree id
-HGM_OUTPUT_DIR=output_polyglot/my_run EVAL_NODE_IDS="16" sbatch polyglot_scripts/eval_full_polyglot.slurm
-
-# Multiple nodes
-HGM_OUTPUT_DIR=output_polyglot/my_run EVAL_NODE_IDS="16 20" sbatch polyglot_scripts/eval_full_polyglot.slurm
-
-# By commit folder name instead of tree id
-HGM_OUTPUT_DIR=output_polyglot/my_run EVAL_NODE_IDS="<commit_id>" sbatch polyglot_scripts/eval_full_polyglot.slurm
-```
-
-Set `EVAL_FORCE=1` to rerun all 225 tasks. Use `EVAL_DRY_RUN=1` to list pending tasks without launching evaluation.
-
-### SWE-bench: evaluate remaining tasks
+### SWE-bench: evaluate remaining / initial agent
 
 Run a node on SWE tasks not yet in its `metadata.json`. By default the script picks the best node under `HGM_OUTPUT_DIR`; override with your node:
 
 ```bash
-HGM_OUTPUT_DIR=<your_run_dir> sbatch swe_scripts/eval_remaining.slurm
+HGM_OUTPUT_DIR=<your_run_dir> sbatch scripts/slurm/eval_remaining.slurm
 
 # Or specify the node explicitly (tree id or commit folder name)
 HGM_OUTPUT_DIR=<your_run_dir> \
 EVAL_NODE_ID=<node_id_or_commit_id> \
-sbatch swe_scripts/eval_remaining.slurm
+sbatch scripts/slurm/eval_remaining.slurm
+
+# Evaluate the seed/initial SWE agent
+sbatch scripts/slurm/eval_initial_agent.slurm
+
+# MGM/HGM with DeepSeek API (no local vLLM)
+sbatch scripts/slurm/deepseek.slurm
 ```
 
 ### Direct invocation (without Slurm)
@@ -221,7 +196,7 @@ python hgm.py \
 
 # Polyglot
 python hgm.py \
-  --config polyglot_scripts/config_polyglot.yaml \
+  --config scripts/config_polyglot.yaml \
   --polyglot \
   --output_dir <your_output_dir> \
   --continue_from null
@@ -263,7 +238,7 @@ Your own artifacts are written to whatever `HGM_OUTPUT_DIR` you set (typically u
 
 ### Polyglot: accuracy by language (full 225-task eval)
 
-After running `eval_full_polyglot.slurm` on your chosen node, aggregate accuracy by language from that node's `metadata.json`:
+After a full Polyglot evaluation on your chosen node, aggregate accuracy by language from that node's `metadata.json`:
 
 | Metric | Example |
 |--------|---------|
@@ -288,9 +263,9 @@ MendelGM/
 ├── hgm.py                  # Main evolution loop
 ├── self_improve_step.py    # Self-improvement (diagnose + patch)
 ├── config.yaml             # Default SWE-bench / MGM config
-├── swe_scripts/            # Slurm jobs for SWE-bench (mgm.slurm, hgm.slurm, eval_remaining.slurm)
-├── polyglot_scripts/       # Slurm jobs and config for Polyglot
 ├── scripts/                # Utilities (tree viz, eval helpers)
+│   ├── slurm/              # Slurm jobs (mgm, hgm, deepseek, eval_remaining, eval_initial_agent)
+│   └── config_polyglot.yaml
 ├── swe_bench/              # SWE-bench harness and task subsets
 ├── polyglot/               # Polyglot harness and task subsets
 ├── initial_swe/            # Seed agent for SWE-bench (generated at runtime)

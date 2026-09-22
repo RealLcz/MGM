@@ -1,5 +1,5 @@
-# HGM 配置：Polyglot 多语言 benchmark（与根目录 config.yaml 同结构）
-# 由 polyglot_scripts/hgm_polyglot.slurm 默认引用。
+# HGM config for the Polyglot multilingual benchmark (same shape as config.yaml).
+# Used with: python hgm.py --config scripts/config_polyglot.yaml --polyglot
 
 llm:
   self_improve_llm: "Qwen/Qwen3.6-35B-A3B"
