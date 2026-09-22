@@ -202,7 +202,7 @@ python -m swebench.harness.run_evaluation  # 内部 docker.from_env()
 | `polyglot/docker_build.py` | 调用 shim 的 `client.images.build` → `apptainer build` |
 | `polyglot/docker_utils.py` | 容器清理、超时 exec；底层 `apptainer_compat` |
 
-Slurm：`polyglot_scripts/hgm_polyglot.slurm`、`eval_remaining_polyglot.slurm` 等 source `apptainer_runtime.inc.sh`；远端 Docker SSH 代码块为 `if false`（已禁用）。
+Slurm：`scripts/slurm/*.slurm` 等 source `apptainer_runtime.inc.sh`。
 
 ---
 
@@ -253,12 +253,12 @@ export APPTAINER_IMAGE_DIR="${HF_HOME}/apptainer_images"
 
 ## 10. Slurm 脚本与批量提交
 
-### 10.1 公共运行时 `swe_scripts/apptainer_runtime.inc.sh`
+### 10.1 公共运行时 `scripts/slurm/apptainer_runtime.inc.sh`
 
 所有主流程 Slurm 脚本应 source 此文件：
 
 ```bash
-. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 apptainer_runtime_verify
 ```
 
@@ -272,10 +272,11 @@ apptainer_runtime_verify
 
 | 脚本 | 用途 |
 |------|------|
-| `swe_scripts/mgm.slurm` | MGM 完整自进化（A:B:C 混合） |
-| `swe_scripts/hgm.slurm` | HGM 策略 A only |
-| `swe_scripts/eval_remaining.slurm` | 对已有节点补评剩余任务 |
-| `polyglot_scripts/hgm_polyglot.slurm` | Polyglot MGM |
+| `scripts/slurm/mgm.slurm` | MGM 完整自进化（A:B:C 混合） |
+| `scripts/slurm/hgm.slurm` | HGM 策略 A only |
+| `scripts/slurm/deepseek.slurm` | DeepSeek API 进化（无本地 vLLM） |
+| `scripts/slurm/eval_remaining.slurm` | 对已有节点补评剩余任务 |
+| `scripts/slurm/eval_initial_agent.slurm` | 评估初始 SWE agent |
 | `SWEbench_Pro/eval_mgm_pro.slurm` | SWE-bench Pro |
 
 **直接提交示例**：
@@ -285,23 +286,14 @@ cd /path/to/MendelGM
 mkdir -p logs
 
 # 默认 8 GPU vLLM + 2 workers
-sbatch swe_scripts/mgm.slurm
+sbatch scripts/slurm/mgm.slurm
 
 # 20 并发 worker
-HGM_MAX_WORKERS=20 sbatch swe_scripts/mgm.slurm
+HGM_MAX_WORKERS=20 sbatch scripts/slurm/mgm.slurm
 
 # 指定模型
-VLLM_MODEL_NAME=Qwen/Qwen3.6-35B-A3B sbatch swe_scripts/hgm.slurm
+VLLM_MODEL_NAME=Qwen/Qwen3.6-35B-A3B sbatch scripts/slurm/hgm.slurm
 ```
-
-### 10.3 验证脚本（可选）
-
-| 脚本 | 说明 |
-|------|------|
-| `swe_scripts/e2e_initial_one_task.slurm` | 单任务 E2E + 真实 vLLM |
-| `swe_scripts/validation_multi_worker.slurm` | 5 任务 × 5 worker + make_report |
-| `swe_scripts/validation_20_worker.slurm` | 10 任务 × 20 worker 压测 |
-| `swe_scripts/validation_selfimprove.slurm` | 2 并行 sample_child |
 
 ---
 
@@ -345,12 +337,9 @@ VLLM_MODEL_NAME=Qwen/Qwen3.6-35B-A3B sbatch swe_scripts/hgm.slurm
 | 5 线程并发 create/exec/remove | PASS |
 | `make_report` + `run_evaluation_apptainer`（空 patch） | PASS |
 | `import swe_bench.harness` / `polyglot.harness` / `hgm_utils` | PASS |
-| `bash -n`：`mgm.slurm`、`hgm.slurm`、`eval_mgm_pro.slurm`、`eval_initial_agent.slurm` | PASS |
+| `bash -n`：`scripts/slurm/mgm.slurm`、`hgm.slurm`、`eval_mgm_pro.slurm`、`eval_initial_agent.slurm` | PASS |
 
-GPU Slurm 验证作业已提交（队列等待资源）：
-
-- `e2e_initial_one_task.slurm`（Job 153227）：单任务真实 vLLM
-- `validation_multi_worker.slurm`、`validation_20_worker.slurm`、`validation_selfimprove.slurm`
+GPU Slurm 验证作业已提交（队列等待资源）。
 
 ---
 
@@ -373,7 +362,6 @@ GPU Slurm 验证作业已提交（队列等待资源）：
 | 位置 | 说明 |
 |------|------|
 | `initial_polyglot_evaluation/...` | 历史归档快照，仍含 Docker 脚本，**非活跃路径** |
-| `polyglot_scripts/*.slurm` 内 `if false` 块 | 远端 Docker SSH 死代码，可后续删除 |
 | `README.md` / `SWEbench_Pro/README.md` | 部分仍提及 `DOCKER_HOST`，以本文档为准 |
 | `SWEbench_Pro/scripts/remote_prune_cached.sh` | 不存在；`SWE_PRO_PRUNE_AFTER=1` 会警告 |
 | 文件名 `docker_utils.py`、`docker_build.py` | 仅为兼容保留命名，实现已是 Apptainer |
@@ -395,7 +383,7 @@ conda activate HGM
 cd /path/to/MendelGM
 
 export APPTAINER_IMAGE_DIR="${HF_HOME:-$HOME/.cache/huggingface}/apptainer_images"
-. swe_scripts/apptainer_runtime.inc.sh
+. scripts/slurm/apptainer_runtime.inc.sh
 apptainer_runtime_verify
 
 python -c "

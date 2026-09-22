@@ -43,7 +43,7 @@ USE_HOST_NETWORK = os.environ.get("APPTAINER_USE_HOST_NETWORK", "0") == "1"
 
 
 def get_image_dir() -> Path:
-    """Resolve Apptainer SIF storage (matches swe_scripts/apptainer_runtime.inc.sh)."""
+    """Resolve Apptainer SIF storage (matches scripts/slurm/apptainer_runtime.inc.sh)."""
     if os.environ.get("APPTAINER_IMAGE_DIR"):
         return Path(os.environ["APPTAINER_IMAGE_DIR"])
     hf_home = Path(os.environ.get("HF_HOME", Path.home()))

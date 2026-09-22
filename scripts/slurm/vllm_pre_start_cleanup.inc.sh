@@ -1,8 +1,8 @@
 # shellcheck shell=bash
-# Source this file from swe_scripts/*.slurm immediately before launching vllm
+# Source this file from scripts/slurm/*.slurm immediately before launching vllm
 # (use SLURM_SUBMIT_DIR, not BASH_SOURCE — Slurm runs a copy from /var/spool/slurmd/...):
 #   REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
-#   . "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+#   . "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 #   vllm_pre_start_cleanup
 #
 # Frees the API port, 8001 (vLLM TCPStore / NCCL coordination when 8000 is busy), and

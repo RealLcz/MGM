@@ -13,12 +13,12 @@
 # Evaluate the SWE-bench initial agent (small.json + medium.json = 60 tasks).
 #
 # Submit:
-#   sbatch swe_scripts/eval_initial_agent.slurm
+#   sbatch scripts/slurm/eval_initial_agent.slurm
 #
-#   EVAL_MAX_WORKERS=20 sbatch swe_scripts/eval_initial_agent.slurm
+#   EVAL_MAX_WORKERS=20 sbatch scripts/slurm/eval_initial_agent.slurm
 #
 # Dry-run (list tasks only):
-#   EVAL_DRY_RUN=1 sbatch swe_scripts/eval_initial_agent.slurm
+#   EVAL_DRY_RUN=1 sbatch scripts/slurm/eval_initial_agent.slurm
 #
 # Env (optional):
 #   VLLM_MODEL_NAME       - default Qwen/Qwen3.6-35B-A3B
@@ -49,11 +49,11 @@ export PYTHON_BIN="${CONDA_PREFIX}/bin/python"
 
 REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/cache_env.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/cache_env.inc.sh"
 cache_env_setup
 export APPTAINER_IMAGE_DIR="${APPTAINER_IMAGE_DIR:-${REPO_ROOT}/apptainer_images}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 apptainer_runtime_verify
 
 export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
@@ -84,11 +84,11 @@ PY
 fi
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 cuda_and_tensor_parallel_setup
 
 # Workers are Apptainer/API clients; all GPUs serve one vLLM (TP=N). Bottleneck is
-# vLLM batching + host CPU/RAM, not GPU-per-worker. validation_20_worker.slurm
+# vLLM batching + host CPU/RAM, not GPU-per-worker.
 # stress-tested 20 workers on 8x H100; APPTAINER.md suggests cpus >= workers * 2.
 NUM_VISIBLE_GPUS="$(echo "${CUDA_VISIBLE_DEVICES}" | tr ',' '\n' | grep -c '.')"
 if [ -z "${EVAL_MAX_WORKERS:-}" ]; then
@@ -133,7 +133,7 @@ done
 sleep 5
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
 
 echo "Pre-pulling Apptainer images (timeout ${PRE_PULL_TIMEOUT:-7200}s)..."

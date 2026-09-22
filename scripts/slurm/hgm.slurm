@@ -1,14 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=MGM
+#SBATCH --job-name=HGM
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=256G
-#SBATCH --gres=gpu:8
-# If jobs share the node and vLLM dies with NCCL/TCPStore errors, use a clean node, e.g.:
-#   #SBATCH --exclusive
-# or submit with only free GPU indices: sbatch --export=ALL,MGM_CUDA_VISIBLE_DEVICES=4,5,6,7 swe_scripts/mgm.slurm
-#SBATCH --time=96:00:00
+#SBATCH --gres=gpu:4
+#SBATCH --time=192:00:00
 #SBATCH --output=logs/hgm_%j.out
 #SBATCH --error=logs/hgm_%j.err
 
@@ -30,7 +27,7 @@ export PYTHON_BIN="${PYTHON_BIN:-${CONDA_PREFIX}/bin/python}"
 
 REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 apptainer_runtime_verify
 
 export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
@@ -38,12 +35,13 @@ export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
 export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
 REPO_ROOT_CUDA="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT_CUDA}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+. "${REPO_ROOT_CUDA}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 cuda_and_tensor_parallel_setup
 
 export VLLM_PORT="${VLLM_PORT:-8000}"
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.92}"
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-262144}"
+export VLLM_MODEL_IMPL="${VLLM_MODEL_IMPL:-auto}"
 export HGM_MAX_WORKERS="${HGM_MAX_WORKERS:-2}"
 
 HOST_IP="$(hostname -I | awk '{print $1}')"
@@ -81,7 +79,7 @@ if ss -tln "sport = :${VLLM_PORT}" 2>/dev/null | grep -q ":${VLLM_PORT}"; then
 fi
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
 
 echo "Starting vLLM server..."
@@ -91,6 +89,7 @@ echo "Starting vLLM server..."
     --port "${VLLM_PORT}" \
     --model "${VLLM_MODEL_NAME}" \
     --served-model-name "${SERVED_MODEL_NAME}" \
+    --model-impl "${VLLM_MODEL_IMPL}" \
     --tensor-parallel-size "${TENSOR_PARALLEL_SIZE}" \
     --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
     --max-model-len "${VLLM_MAX_MODEL_LEN}" \
@@ -125,13 +124,21 @@ timeout "${PRE_PULL_TIMEOUT:-600}" "${PYTHON_BIN}" -u scripts/pull_epoch_images.
     echo "Missing images will cause per-task failures that are handled gracefully."
 }
 
-echo "Starting MGM (fresh run unless paths.continue_from is set in config.yaml; A:B:C=0.1:0.45:0.45, max_task_evals=200)..."
+export HGM_OUTPUT_DIR="${HGM_OUTPUT_DIR:-output_mgm}"
+
+echo "Starting HGM (fresh run, output_dir=${HGM_OUTPUT_DIR}, no continue_from)..."
+echo "  strategy A only, sequential evals, budget 200"
+
 PYTHONUNBUFFERED=1 "${PYTHON_BIN}" hgm.py \
+    --config "${HGM_CONFIG:-config.yaml}" \
+    --output_dir "${HGM_OUTPUT_DIR}" \
+    --max_task_evals 200 \
     --max_workers "${HGM_MAX_WORKERS}" \
+    --eval_random_level 0 \
+    --failed_pool_boost 1.0 \
+    --self_improve_weight_a 1.0 \
+    --self_improve_weight_b 0.0 \
+    --self_improve_weight_c 0.0 \
     --self_improve_llm "${HGM_LLM_MODEL_ID}" \
     --downstream_llm "${HGM_LLM_MODEL_ID}" \
-    --diagnose_llm "${HGM_LLM_MODEL_ID}" \
-    --failed_pool_boost 1.0 \
-    --self_improve_weight_a 0.1 \
-    --self_improve_weight_b 0.45 \
-    --self_improve_weight_c 0.45
+    --diagnose_llm "${HGM_LLM_MODEL_ID}"

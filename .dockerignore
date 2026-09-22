@@ -36,8 +36,7 @@ results/
 # apptainer / slurm (not part of coding agent bundle)
 apptainer/
 apptainer_images/
-swe_scripts/
-polyglot_scripts/
+scripts/slurm/
 
 # misc
 misc/

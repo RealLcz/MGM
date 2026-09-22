@@ -17,17 +17,17 @@
 #
 # Submit examples (export env in shell, then sbatch --export=ALL to avoid comma issues in task IDs):
 #   export HGM_OUTPUT_DIR=output_mgm EVAL_NODE_ID=20260616_024835_287218 EVAL_FULL_VERIFIED=1
-#   sbatch --job-name=SWE-MGM-BEST --export=ALL swe_scripts/eval_remaining.slurm
+#   sbatch --job-name=SWE-MGM-BEST --export=ALL scripts/slurm/eval_remaining.slurm
 #
 #   export HGM_OUTPUT_DIR=output_hgm EVAL_NODE_ID=20260604_123351_915920 EVAL_FULL_VERIFIED=1
 #   export EVAL_RESUME_PRED_SUBDIR=20260604_123351_915920_34 EVAL_MAX_WORKERS=4
-#   sbatch --job-name=SWE-HGM-BEST --export=ALL swe_scripts/eval_remaining.slurm
+#   sbatch --job-name=SWE-HGM-BEST --export=ALL scripts/slurm/eval_remaining.slurm
 #
 # Resume partial run (skip tasks that already have predictions/*.json):
 #   export EVAL_FULL_VERIFIED=1 EVAL_RESUME_PRED_SUBDIR=<predictions_subdir> EVAL_MAX_WORKERS=4
 #
 # Dry-run (list tasks only, no eval):
-#   EVAL_DRY_RUN=1 sbatch --export=ALL swe_scripts/eval_remaining.slurm
+#   EVAL_DRY_RUN=1 sbatch --export=ALL scripts/slurm/eval_remaining.slurm
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
@@ -54,13 +54,13 @@ fi
 
 REPO_ROOT="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/swe_eval_dataset.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/swe_eval_dataset.inc.sh"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/cache_env.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/cache_env.inc.sh"
 cache_env_setup
 export APPTAINER_IMAGE_DIR="${APPTAINER_IMAGE_DIR:-${REPO_ROOT}/apptainer_images}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/apptainer_runtime.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/apptainer_runtime.inc.sh"
 apptainer_runtime_verify
 
 if [ "${EVAL_FULL_VERIFIED:-0}" = "1" ]; then
@@ -142,7 +142,7 @@ export VLLM_MODEL_NAME="${VLLM_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
 export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen/Qwen3.6-35B-A3B}"
 REPO_ROOT_CUDA="${SLURM_SUBMIT_DIR:-$PWD}"
 # shellcheck source=/dev/null
-. "${REPO_ROOT_CUDA}/swe_scripts/cuda_and_tensor_parallel.inc.sh"
+. "${REPO_ROOT_CUDA}/scripts/slurm/cuda_and_tensor_parallel.inc.sh"
 cuda_and_tensor_parallel_setup
 
 export VLLM_PORT="${VLLM_PORT:-8000}"
@@ -178,7 +178,7 @@ done
 sleep 5
 
 # shellcheck source=/dev/null
-. "${REPO_ROOT}/swe_scripts/vllm_pre_start_cleanup.inc.sh"
+. "${REPO_ROOT}/scripts/slurm/vllm_pre_start_cleanup.inc.sh"
 vllm_pre_start_cleanup
 
 echo "Pre-pulling Apptainer images (timeout ${PRE_PULL_TIMEOUT:-7200}s)..."
