@@ -1,5 +1,7 @@
 # Mendel Gödel Machine (MGM)
 
+**Trajectories at https://figshare.com/s/33b1fbcfbbf3d1f4ce54**
+
 **Mendelian Evolution Self-Improving Coding Agent**
 
 MGM extends the [Huxley Gödel Machine (HGM)](https://github.com/metauto-ai/HGM) framework with **mendelian evolution**: instead of improving agents only from their own failures, MGM also learns from successes and failures across lineages. The system maintains an evolutionary tree of coding agents and iteratively self-improves them using three complementary strategies while evaluating on SWE-bench or the Polyglot multi-language benchmark.
